@@ -23,11 +23,11 @@
 
 ## 🚀 在线体验
 
-**主页：** https://yourusername.github.io/big-english-flashcards/
+**主页：** https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/
 
-**基础版：** https://yourusername.github.io/big-english-flashcards/big_english_flashcards.html
+**基础版：** https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/big_english_flashcards.html
 
-**发音版：** https://yourusername.github.io/big-english-flashcards/big_english_flashcards_voice.html
+**发音版：** https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/big_english_flashcards_voice.html
 
 ## 📖 词汇覆盖
 
@@ -114,7 +114,8 @@ MIT License
 
 ## 👤 作者
 
-**zhangxiaoxiao**
+**Zhangxxamber**
+- GitHub: [@Zhangxxamber](https://github.com/Zhangxxamber)
 
 ---
 
