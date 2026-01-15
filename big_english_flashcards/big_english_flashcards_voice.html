@@ -704,6 +704,85 @@
         // 获取实际使用的词汇数据
         const allWords = getCurrentBookData();
         
+        // 各教材单元标题配置（从 key_words_N.txt 提取）
+        const unitTitles = {
+            1: {
+                welcome: 'Welcome to Class!',
+                unit1: 'Good Morning, Class!',
+                unit2: 'My Family',
+                unit3: 'My Body',
+                unit4: 'My Favorite Clothes!',
+                unit5: 'Busy at Home',
+                unit6: 'On the Farm',
+                unit7: 'Party Time',
+                unit8: 'Fun and Games',
+                unit9: 'Play Time'
+            },
+            2: {
+                welcome: 'Welcome to Class!',
+                unit1: 'In My Classroom',
+                unit2: 'My Games',
+                unit3: 'In My House',
+                unit4: 'In My Town',
+                unit5: 'My Dream Job',
+                unit6: 'My Day',
+                unit7: 'My Favorite Food',
+                unit8: 'Wild Animals',
+                unit9: 'Special Days'
+            },
+            3: {
+                welcome: 'Welcome to Class!',
+                unit1: 'Wake Up!',
+                unit2: 'A Lot of Jobs!',
+                unit3: 'Working Hard!',
+                unit4: 'Amazing Animals',
+                unit5: 'Wonderful Weather!',
+                unit6: 'Smells Good!',
+                unit7: 'Fabulous Food!',
+                unit8: 'Healthy Living',
+                unit9: 'School Trips!'
+            },
+            4: {
+                welcome: 'Welcome to Class!',
+                unit1: 'Kids in My Class',
+                unit2: 'Spending Money',
+                unit3: 'Food Around the World',
+                unit4: 'How Do You Feel?',
+                unit5: 'Weird and Wild Animals',
+                unit6: 'Life Long Ago',
+                unit7: 'Special Days',
+                unit8: 'Hobbies',
+                unit9: 'Learning New Things'
+            },
+            5: {
+                welcome: 'Welcome to Class!',
+                unit1: 'My Interests',
+                unit2: 'Family Ties',
+                unit3: 'Helping Others',
+                unit4: 'Shopping Around',
+                unit5: 'Vacation Time',
+                unit6: 'The Future',
+                unit7: 'What\'s It Worth?',
+                unit8: 'Where Do They Come From?',
+                unit9: 'How Adventurous Are You?'
+            },
+            6: {
+                welcome: 'Welcome to Class!',
+                unit1: 'All About School',
+                unit2: 'Amazing Young People',
+                unit3: 'Dilemmas',
+                unit4: 'Future Me',
+                unit5: 'If I Could Fly...',
+                unit6: 'The Coolest School Subjects',
+                unit7: 'Mysteries!',
+                unit8: 'Why Is It Famous?',
+                unit9: 'That\'s Entertainment!'
+            }
+        };
+        
+        // 获取当前教材编号
+        const currentBookNumber = getBookNumber();
+        
         // 动态生成单元选择器
         function populateUnitSelector() {
             const unitSelector = document.getElementById('unitSelector');
@@ -723,12 +802,17 @@
             // 生成选项
             let options = '<option value="all">所有单元</option>';
             
+            // 获取当前教材的单元标题
+            const titles = unitTitles[currentBookNumber] || unitTitles[1];
+            
             // 按单元顺序添加选项
             const units = ['welcome', 'unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8', 'unit9'];
             units.forEach(unitKey => {
                 if (unitCounts[unitKey]) {
-                    const unit = unitCounts[unitKey];
-                    options += `<option value="${unitKey}">${unit.name}</option>`;
+                    const unitName = unitCounts[unitKey].name;
+                    const title = titles[unitKey] || '';
+                    const displayName = title ? `${unitName} - ${title}` : unitName;
+                    options += `<option value="${unitKey}">${displayName}</option>`;
                 }
             });
             
