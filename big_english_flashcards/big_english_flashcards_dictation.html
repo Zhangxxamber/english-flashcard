@@ -184,7 +184,7 @@
             color: #666;
             margin-bottom: 30px;
             text-align: center;
-            font-style: italic;
+            font-style: normal;
         }
 
         .hint-area {
@@ -509,6 +509,26 @@
             background: rgba(255,255,255,0.3);
             transform: translateX(-5px);
         }
+
+        /* 发音按钮 */
+        .speaker-btn {
+            background: none;
+            border: none;
+            font-size: 1.3em;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: transform 0.2s;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .speaker-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .speaker-btn:active {
+            transform: scale(0.9);
+        }
     </style>
 </head>
 <body>
@@ -579,7 +599,7 @@
             
             <div class="word-meaning" id="wordMeaning">学生</div>
             
-            <div class="word-example" id="wordExample">I am a student. 我是一名学生。</div>
+            <div class="word-example" id="wordExample" style="display: none;">我是一名学生。</div>
             
             <div class="hint-area">
                 <div class="hint-item">
@@ -593,6 +613,11 @@
                 <div class="hint-item phonetic-hint" id="phoneticHint" style="display: none;">
                     <strong>音标：</strong>
                     <span id="phonetic">[ˈstuːdnt]</span>
+                    <button class="speaker-btn" onclick="speakWord()" title="点击发音">🔊</button>
+                </div>
+                <div class="hint-item phonetic-hint" id="exampleHint" style="display: none;">
+                    <strong>例句：</strong>
+                    <span id="exampleText">我是一名学生。</span>
                 </div>
             </div>
 
@@ -611,10 +636,12 @@
             <div class="feedback" id="feedback"></div>
 
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="togglePhonetic()">💡 显示音标</button>
-                <button class="btn btn-secondary" onclick="showAnswer()">👁️ 显示答案</button>
-                <button class="btn" onclick="skipWord()">⏭️ 跳过</button>
-                <button class="btn" onclick="checkAnswer()">✔️ 检查答案</button>
+                <button class="btn btn-secondary" onclick="togglePhonetic()" id="phoneticBtn">💡 显示音标</button>
+                <button class="btn btn-secondary" onclick="toggleExample()" id="exampleBtn">📖 显示例句</button>
+                <button class="btn btn-secondary" onclick="showAnswer()" id="showAnswerBtn">👁️ 显示答案</button>
+                <button class="btn" onclick="skipWord()" id="skipBtn">⏭️ 跳过</button>
+                <button class="btn" onclick="checkAnswer()" id="checkBtn">✔️ 检查答案</button>
+                <button class="btn" onclick="nextWord()" id="nextBtn" style="display: none;">➡️ 下一题</button>
             </div>
         </div>
 
@@ -814,7 +841,10 @@
         let mistakes = [];
         let mode = 'sequential';
         let phoneticVisible = false;
+        let exampleVisible = false;
         let selectedUnit = 'all';
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
 
         // 初始化
         function init() {
@@ -822,7 +852,12 @@
             document.getElementById('wordInput').addEventListener('input', handleInput);
             document.getElementById('wordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    checkAnswer();
+                    // 如果"下一题"按钮可见，按回车跳到下一题
+                    if (document.getElementById('nextBtn').style.display !== 'none') {
+                        nextWord();
+                    } else {
+                        checkAnswer();
+                    }
                 }
             });
         }
@@ -880,15 +915,20 @@
 
             const word = currentWords[currentIndex];
             
+            // 提取例句的中文部分（避免显示英文答案）
+            const chineseExample = extractChineseExample(word.example);
+            
             // 更新界面
             document.getElementById('wordNumber').textContent = `${currentIndex + 1} / ${currentWords.length}`;
             document.getElementById('wordMeaning').textContent = word.meaning;
-            document.getElementById('wordExample').textContent = word.example;
+            document.getElementById('exampleText').textContent = chineseExample;
             document.getElementById('firstLetter').textContent = word.word[0].toLowerCase();
             document.getElementById('wordLength').textContent = `${word.word.length} 个字母`;
             document.getElementById('phonetic').textContent = word.phonetic;
             document.getElementById('phoneticHint').style.display = 'none';
+            document.getElementById('exampleHint').style.display = 'none';
             phoneticVisible = false;
+            exampleVisible = false;
 
             // 创建字母空格
             const blanksContainer = document.getElementById('letterBlanks');
@@ -904,10 +944,17 @@
             const input = document.getElementById('wordInput');
             input.value = '';
             input.className = '';
+            input.disabled = false; // 启用输入框
             input.focus();
 
             // 隐藏反馈
             document.getElementById('feedback').classList.remove('show');
+
+            // 恢复按钮状态
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('skipBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
 
             updateStats();
         }
@@ -933,10 +980,10 @@
                 }
             }
 
-            // 完整输入后自动检查
-            if (input.length === word.length) {
-                setTimeout(() => checkAnswer(), 300);
-            }
+            // 完整输入后不再自动检查，让用户手动点击检查
+            // if (input.length === word.length) {
+            //     setTimeout(() => checkAnswer(), 300);
+            // }
         }
 
         // 检查答案
@@ -959,17 +1006,32 @@
                 feedback.textContent = '✅ 正确！做得好！';
                 feedback.className = 'feedback correct show';
                 inputField.className = 'correct';
+                inputField.disabled = true; // 禁用输入框
                 
-                setTimeout(() => {
-                    currentIndex++;
-                    showCurrentWord();
-                }, 1500);
+                // 隐藏检查答案按钮，显示下一题按钮
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('skipBtn').style.display = 'none';
+                document.getElementById('showAnswerBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                
+                // 可选：自动跳转（给用户一点时间看反馈）
+                // setTimeout(() => {
+                //     currentIndex++;
+                //     showCurrentWord();
+                // }, 1500);
             } else {
                 // 错误
                 wrongCount++;
                 feedback.textContent = `❌ 错误！正确答案是：${word.word}`;
                 feedback.className = 'feedback wrong show';
                 inputField.className = 'wrong';
+                inputField.disabled = true; // 禁用输入框
+
+                // 隐藏检查答案按钮，显示下一题按钮
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('skipBtn').style.display = 'none';
+                document.getElementById('showAnswerBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
 
                 // 添加到错题本
                 const existingMistake = mistakes.find(m => m.word === word.word);
@@ -980,10 +1042,11 @@
                     });
                 }
 
-                setTimeout(() => {
-                    currentIndex++;
-                    showCurrentWord();
-                }, 2500);
+                // 可选：自动跳转（给用户更多时间看正确答案）
+                // setTimeout(() => {
+                //     currentIndex++;
+                //     showCurrentWord();
+                // }, 2500);
             }
 
             updateStats();
@@ -996,23 +1059,66 @@
             document.getElementById('phoneticHint').style.display = phoneticVisible ? 'block' : 'none';
         }
 
+        // 显示例句
+        function toggleExample() {
+            exampleVisible = !exampleVisible;
+            document.getElementById('exampleHint').style.display = exampleVisible ? 'block' : 'none';
+        }
+
+        // 发音功能
+        function speakWord() {
+            if (!currentWords.length || currentIndex >= currentWords.length) return;
+            
+            const word = currentWords[currentIndex].word;
+            
+            // 停止之前的朗读
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+            
+            // 创建新的朗读
+            currentUtterance = new SpeechSynthesisUtterance(word);
+            currentUtterance.lang = 'en-US'; // 设置英语
+            currentUtterance.rate = 0.8; // 稍慢一点，让学生听清楚
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1.0;
+            
+            // 开始朗读
+            speechSynthesis.speak(currentUtterance);
+        }
+
         // 显示答案
         function showAnswer() {
             const word = currentWords[currentIndex];
             const input = document.getElementById('wordInput');
             input.value = word.word;
             input.className = 'correct';
+            input.disabled = true; // 禁用输入框
             handleInput({ target: input });
             
-            // 不计入统计，直接跳过
-            setTimeout(() => {
-                currentIndex++;
-                showCurrentWord();
-            }, 2000);
+            // 显示答案提示
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = `💡 答案是：${word.word}`;
+            feedback.className = 'feedback correct show';
+            
+            // 隐藏"显示答案"和"检查答案"按钮
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('skipBtn').style.display = 'none';
+            
+            // 显示"下一题"按钮
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        // 下一题
+        function nextWord() {
+            currentIndex++;
+            showCurrentWord();
         }
 
         // 跳过单词
         function skipWord() {
+            // 跳过时不计入统计
             currentIndex++;
             showCurrentWord();
         }
@@ -1107,12 +1213,37 @@
             correctCount = 0;
             wrongCount = 0;
             phoneticVisible = false;
+            exampleVisible = false;
             
             document.getElementById('dictationCard').style.display = 'none';
             document.getElementById('completionScreen').classList.remove('show');
             document.getElementById('progressBar').style.width = '0%';
             
             updateStats();
+        }
+
+        // 工具函数：提取例句中的中文部分
+        function extractChineseExample(example) {
+            // 例句格式："I am a student. 我是一名学生。"
+            // 提取中文部分，避免显示英文答案
+            const parts = example.split('。');
+            if (parts.length >= 2) {
+                // 获取最后一个中文句子（通常是中文翻译）
+                const chinesePart = parts[parts.length - 2].trim();
+                // 如果包含中文字符，说明这是中文部分
+                if (/[\u4e00-\u9fa5]/.test(chinesePart)) {
+                    return chinesePart + '。';
+                }
+            }
+            
+            // 备用方案：查找中文字符开始的位置
+            const chineseMatch = example.match(/[\u4e00-\u9fa5].+/);
+            if (chineseMatch) {
+                return chineseMatch[0];
+            }
+            
+            // 如果都没找到，返回空字符串（不显示例句）
+            return '（暂无中文例句）';
         }
 
         // 工具函数：打乱数组
