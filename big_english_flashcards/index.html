@@ -358,11 +358,11 @@
         <!-- 统计信息 -->
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">213</div>
+                <div class="stat-number" id="statWords">213</div>
                 <div class="stat-label">核心词汇</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">10</div>
+                <div class="stat-number" id="statUnits">10</div>
                 <div class="stat-label">学习单元</div>
             </div>
             <div class="stat-item">
@@ -384,8 +384,8 @@
                     经典卡片学习模式，专注于单词记忆
                 </div>
                 <ul class="version-features">
-                    <li>213个核心词汇</li>
-                    <li>10个单元分类</li>
+                    <li id="basicWords">213个核心词汇</li>
+                    <li id="basicUnits">10个学习单元</li>
                     <li>卡片翻转效果</li>
                     <li>单元筛选功能</li>
                     <li>随机学习模式</li>
@@ -457,12 +457,12 @@
 
         // 教材信息
         const bookInfo = {
-            1: { desc: 'Book 1：入门到第9单元，共213个核心词汇', available: true },
-            2: { desc: 'Book 2：进阶教材，约140个核心词汇', available: true },
-            3: { desc: 'Book 3：深入学习，约150个核心词汇', available: true },
-            4: { desc: 'Book 4：即将推出...', available: false },
-            5: { desc: 'Book 5：即将推出...', available: false },
-            6: { desc: 'Book 6：即将推出...', available: false }
+            1: { desc: 'Book 1：入门到第9单元，共213个核心词汇（教室、家庭、动物等基础主题）', available: true, words: 213, units: 10 },
+            2: { desc: 'Book 2：进阶教材，共140个核心词汇（天气、职业、交通等进阶主题）', available: true, words: 140, units: 9 },
+            3: { desc: 'Book 3：深入学习，共138个核心词汇（房间、活动、地点等日常场景）', available: true, words: 138, units: 9 },
+            4: { desc: 'Book 4：即将推出...', available: false, words: 0, units: 0 },
+            5: { desc: 'Book 5：即将推出...', available: false, words: 0, units: 0 },
+            6: { desc: 'Book 6：即将推出...', available: false, words: 0, units: 0 }
         };
 
         // 选择教材
@@ -470,6 +470,7 @@
             if (!bookInfo[bookNumber].available) return;
             
             currentBook = bookNumber;
+            const info = bookInfo[bookNumber];
             
             // 更新按钮状态
             document.querySelectorAll('.book-btn').forEach((btn, index) => {
@@ -480,7 +481,15 @@
             });
             
             // 更新信息
-            document.getElementById('bookInfo').textContent = bookInfo[bookNumber].desc;
+            document.getElementById('bookInfo').textContent = info.desc;
+            
+            // 更新统计数字
+            document.getElementById('statWords').textContent = info.words;
+            document.getElementById('statUnits').textContent = info.units;
+            
+            // 更新版本卡片中的词汇数量
+            document.getElementById('basicWords').textContent = `${info.words}个核心词汇`;
+            document.getElementById('basicUnits').textContent = `${info.units}个学习单元`;
             
             // 更新链接
             document.getElementById('basicLink').href = `big_english_flashcards.html?book=${bookNumber}`;
