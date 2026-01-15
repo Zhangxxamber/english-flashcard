@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Big English 1 单词闪卡 - 多版本选择">
+    <meta name="keywords" content="Big English,英语单词,学习工具,闪卡">
+    <meta name="author" content="zhangxiaoxiao">
+    <title>Big English 1 单词闪卡 - 首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.9);
+            animation: fadeInUp 1s;
+        }
+
+        /* 版本选择卡片 */
+        .versions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .version-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s;
+        }
+
+        .version-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .version-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .version-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .version-desc {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .version-features {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .version-features li {
+            color: #555;
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .version-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .btn-enter {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        /* 标签 */
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #ffd700;
+            color: #333;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.new {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 50px;
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .footer a:hover {
+            color: #ffd700;
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .versions {
+                grid-template-columns: 1fr;
+            }
+            
+            .version-card {
+                padding: 30px 20px;
+            }
+        }
+
+        /* 统计信息 */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <h1>📚 Big English 1 单词闪卡</h1>
+            <p>选择适合您的学习方式</p>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">213</div>
+                <div class="stat-label">核心词汇</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10</div>
+                <div class="stat-label">学习单元</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">2</div>
+                <div class="stat-label">学习模式</div>
+            </div>
+        </div>
+
+        <!-- 版本选择 -->
+        <div class="versions">
+            <!-- 基础版 -->
+            <div class="version-card">
+                <div class="version-icon">📖</div>
+                <div class="version-title">
+                    基础版
+                    <span class="badge">推荐</span>
+                </div>
+                <div class="version-desc">
+                    经典卡片学习模式，专注于单词记忆
+                </div>
+                <ul class="version-features">
+                    <li>213个核心词汇</li>
+                    <li>10个单元分类</li>
+                    <li>卡片翻转效果</li>
+                    <li>单元筛选功能</li>
+                    <li>随机学习模式</li>
+                    <li>键盘快捷键支持</li>
+                </ul>
+                <a href="big_english_flashcards.html" class="btn-enter">开始学习</a>
+            </div>
+
+            <!-- 发音版 -->
+            <div class="version-card">
+                <div class="version-icon">🔊</div>
+                <div class="version-title">
+                    发音版
+                    <span class="badge new">NEW</span>
+                </div>
+                <div class="version-desc">
+                    增强版学习体验，支持真人语音朗读
+                </div>
+                <ul class="version-features">
+                    <li>包含基础版所有功能</li>
+                    <li>真人语音朗读</li>
+                    <li>自动发音切换</li>
+                    <li>语速调节（慢/正常/快）</li>
+                    <li>大型发音按钮</li>
+                    <li>键盘S键快速发音</li>
+                </ul>
+                <a href="big_english_flashcards_voice.html" class="btn-enter">开始学习</a>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>💡 建议：初学者从基础版开始，熟悉后尝试发音版提升听力</p>
+            <p>⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（发音版）</p>
+            <p style="margin-top: 30px;">
+                <a href="https://github.com/yourusername/your-repo" target="_blank">🌟 GitHub</a>
+                <span style="margin: 0 15px;">|</span>
+                Made with ❤️ by zhangxiaoxiao
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 记录访问统计（可选）
+        console.log('%c📚 Big English 1 单词闪卡', 'font-size: 20px; color: #667eea; font-weight: bold;');
+        console.log('欢迎使用！祝您学习愉快！');
+    </script>
+</body>
+</html>
