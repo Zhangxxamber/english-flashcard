@@ -578,6 +578,40 @@
         
         const allWords = getCurrentBookData();
         
+        // 动态生成单元选择器
+        function populateUnitSelector() {
+            const unitSelector = document.getElementById('unitSelector');
+            
+            // 统计每个单元的单词数
+            const unitCounts = {};
+            allWords.forEach(word => {
+                if (!unitCounts[word.unit]) {
+                    unitCounts[word.unit] = {
+                        name: word.unitName,
+                        count: 0
+                    };
+                }
+                unitCounts[word.unit].count++;
+            });
+            
+            // 生成选项
+            let options = '<option value="all">所有单元</option>';
+            
+            // 按单元顺序添加选项
+            const units = ['welcome', 'unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8', 'unit9'];
+            units.forEach(unitKey => {
+                if (unitCounts[unitKey]) {
+                    const unit = unitCounts[unitKey];
+                    options += `<option value="${unitKey}">${unit.name}</option>`;
+                }
+            });
+            
+            unitSelector.innerHTML = options;
+        }
+        
+        // 页面加载时初始化单元选择器
+        populateUnitSelector();
+        
         // 当前显示的单词列表（根据筛选）
         let currentWordBank = [...allWords];
         let currentIndex = 0;
