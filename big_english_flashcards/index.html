@@ -53,7 +53,7 @@
         /* 版本选择卡片 */
         .versions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             margin-bottom: 40px;
         }
@@ -274,7 +274,7 @@
                 <div class="stat-label">学习单元</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">2</div>
+                <div class="stat-number">3</div>
                 <div class="stat-label">学习模式</div>
             </div>
         </div>
@@ -307,7 +307,6 @@
                 <div class="version-icon">🔊</div>
                 <div class="version-title">
                     发音版
-                    <span class="badge new">NEW</span>
                 </div>
                 <div class="version-desc">
                     增强版学习体验，支持真人语音朗读
@@ -322,12 +321,36 @@
                 </ul>
                 <a href="big_english_flashcards_voice.html" class="btn-enter">开始学习</a>
             </div>
+
+            <!-- 默写版 -->
+            <div class="version-card">
+                <div class="version-icon">✍️</div>
+                <div class="version-title">
+                    默写版
+                    <span class="badge new">NEW</span>
+                </div>
+                <div class="version-desc">
+                    互动默写练习，提升拼写能力
+                </div>
+                <ul class="version-features">
+                    <li>根据中文默写英文</li>
+                    <li>实时拼写验证</li>
+                    <li>首字母和音标提示</li>
+                    <li>错题本自动收集</li>
+                    <li>正确率统计分析</li>
+                    <li>顺序/随机/错题模式</li>
+                </ul>
+                <a href="big_english_flashcards_dictation.html" class="btn-enter">开始练习</a>
+            </div>
         </div>
 
         <!-- 页脚 -->
         <div class="footer">
-            <p>💡 建议：初学者从基础版开始，熟悉后尝试发音版提升听力</p>
-            <p>⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（发音版）</p>
+            <p>💡 学习路径建议：</p>
+            <p style="font-size: 1em; margin-top: 10px;">
+                1️⃣ 基础版（记忆单词） → 2️⃣ 发音版（听说练习） → 3️⃣ 默写版（拼写巩固）
+            </p>
+            <p style="margin-top: 20px;">⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（发音版）</p>
             <p style="margin-top: 30px;">
                 <a href="https://github.com/Zhangxxamber/english-flashcard" target="_blank">🌟 GitHub</a>
                 <span style="margin: 0 15px;">|</span>

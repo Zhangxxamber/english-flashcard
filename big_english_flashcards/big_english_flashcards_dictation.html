@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Big English 1 单词默写练习工具">
+    <meta name="keywords" content="Big English,英语单词,默写,学习工具">
+    <meta name="author" content="Zhangxxamber">
+    <title>Big English 1 单词默写</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* 统计面板 */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-value.correct {
+            color: #4ecdc4;
+        }
+
+        .stat-value.wrong {
+            color: #ff6b6b;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-weight: bold;
+            color: #333;
+            min-width: 80px;
+        }
+
+        select, .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        select {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        /* 默写卡片 */
+        .dictation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .word-number {
+            font-size: 1.2em;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .word-meaning {
+            font-size: 2.5em;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .word-example {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .hint-area {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hint-item {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .hint-item strong {
+            color: #667eea;
+        }
+
+        .phonetic-hint {
+            color: #666;
+            font-size: 1em;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+        }
+
+        .letter-blanks {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .letter-blank {
+            width: 40px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .letter-blank.filled {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .letter-blank.correct {
+            border-color: #4ecdc4;
+            background: #e8f8f5;
+            color: #4ecdc4;
+        }
+
+        .letter-blank.wrong {
+            border-color: #ff6b6b;
+            background: #ffe8e8;
+            color: #ff6b6b;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        #wordInput {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.5em;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+        }
+
+        #wordInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        #wordInput.correct {
+            border-color: #4ecdc4;
+            background: #e8f8f5;
+        }
+
+        #wordInput.wrong {
+            border-color: #ff6b6b;
+            background: #ffe8e8;
+        }
+
+        /* 反馈消息 */
+        .feedback {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 错题本 */
+        .mistake-list {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin-top: 25px;
+        }
+
+        .mistake-list h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .mistake-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .mistake-item {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .mistake-item .word {
+            font-weight: bold;
+            color: #ff6b6b;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .mistake-item .meaning {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .mistake-item .wrong-answer {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* 完成界面 */
+        .completion-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .completion-screen.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .completion-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .completion-stats {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .completion-stat {
+            font-size: 1.3em;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .accuracy {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin: 20px 0;
+        }
+
+        .accuracy.low {
+            color: #ff6b6b;
+        }
+
+        .accuracy.medium {
+            color: #ffa500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .dictation-card {
+                padding: 25px;
+                min-height: 350px;
+            }
+
+            .word-meaning {
+                font-size: 2em;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            .letter-blank {
+                width: 35px;
+                height: 45px;
+                font-size: 1.5em;
+            }
+
+            .control-panel {
+                padding: 20px;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-label {
+                margin-bottom: 8px;
+            }
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        /* 返回按钮 */
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 返回主页 -->
+        <a href="index.html" class="back-link">← 返回主页</a>
+
+        <!-- 标题 -->
+        <div class="header">
+            <h1>✍️ Big English 1 单词默写</h1>
+            <p>根据中文意思，拼写出正确的英文单词</p>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-label">进度</div>
+                <div class="stat-value" id="currentIndex">0/0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">正确</div>
+                <div class="stat-value correct" id="correctCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">错误</div>
+                <div class="stat-value wrong" id="wrongCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">正确率</div>
+                <div class="stat-value" id="accuracy">100%</div>
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <div class="control-row">
+                <span class="control-label">选择单元：</span>
+                <select id="unitSelector" onchange="selectUnit()">
+                    <option value="all">所有单元 (213个)</option>
+                    <option value="welcome">入门单元 - Welcome to Class! (8个)</option>
+                    <option value="unit1">第1单元 - Good Morning, Class! (14个)</option>
+                    <option value="unit2">第2单元 - My Family (8个)</option>
+                    <option value="unit3">第3单元 - My Body (17个)</option>
+                    <option value="unit4">第4单元 - My Favorite Clothes! (14个)</option>
+                    <option value="unit5">第5单元 - Busy at Home (16个)</option>
+                    <option value="unit6">第6单元 - On the Farm (16个)</option>
+                    <option value="unit7">第7单元 - Party Time (20个)</option>
+                    <option value="unit8">第8单元 - Fun and Games (16个)</option>
+                    <option value="unit9">第9单元 - Play Time (10个)</option>
+                </select>
+            </div>
+            <div class="control-row">
+                <span class="control-label">学习模式：</span>
+                <button class="btn" onclick="startDictation('sequential')">📝 顺序默写</button>
+                <button class="btn" onclick="startDictation('random')">🎲 随机默写</button>
+                <button class="btn btn-danger" onclick="startDictation('mistakes')" id="mistakeBtn" disabled>❌ 错题重练 (0)</button>
+            </div>
+        </div>
+
+        <!-- 默写卡片 -->
+        <div class="dictation-card" id="dictationCard" style="display: none;">
+            <div class="word-number" id="wordNumber">1 / 10</div>
+            
+            <div class="word-meaning" id="wordMeaning">学生</div>
+            
+            <div class="word-example" id="wordExample">I am a student. 我是一名学生。</div>
+            
+            <div class="hint-area">
+                <div class="hint-item">
+                    <strong>首字母：</strong>
+                    <span id="firstLetter">s</span>
+                </div>
+                <div class="hint-item">
+                    <strong>长度：</strong>
+                    <span id="wordLength">7 个字母</span>
+                </div>
+                <div class="hint-item phonetic-hint" id="phoneticHint" style="display: none;">
+                    <strong>音标：</strong>
+                    <span id="phonetic">[ˈstuːdnt]</span>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="letter-blanks" id="letterBlanks"></div>
+                <input 
+                    type="text" 
+                    id="wordInput" 
+                    placeholder="请输入单词..." 
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                >
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="togglePhonetic()">💡 显示音标</button>
+                <button class="btn btn-secondary" onclick="showAnswer()">👁️ 显示答案</button>
+                <button class="btn" onclick="skipWord()">⏭️ 跳过</button>
+                <button class="btn" onclick="checkAnswer()">✔️ 检查答案</button>
+            </div>
+        </div>
+
+        <!-- 完成界面 -->
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">恭喜完成！</div>
+            <div class="completion-stats">
+                <div class="completion-stat">总共练习：<strong id="totalWords">0</strong> 个单词</div>
+                <div class="completion-stat">正确：<strong id="finalCorrect" style="color: #4ecdc4;">0</strong> 个</div>
+                <div class="completion-stat">错误：<strong id="finalWrong" style="color: #ff6b6b;">0</strong> 个</div>
+                <div class="accuracy" id="finalAccuracy">100%</div>
+                <div id="encouragement" style="font-size: 1.2em; color: #666; margin-top: 10px;"></div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="resetDictation()">🔄 重新开始</button>
+                <button class="btn btn-danger" onclick="startDictation('mistakes')" id="reviewMistakesBtn" style="display: none;">❌ 复习错题</button>
+                <a href="index.html" class="btn btn-secondary">🏠 返回主页</a>
+            </div>
+        </div>
+
+        <!-- 错题本 -->
+        <div class="mistake-list" id="mistakeList" style="display: none;">
+            <h3>❌ 错题记录</h3>
+            <div class="mistake-items" id="mistakeItems"></div>
+        </div>
+    </div>
+
+    <script>
+        // Big English 1 单词库（完整数据）
+        const allWords = [
+            // 入门单元：Welcome to Class!
+            { word: 'student', phonetic: '[ˈstuːdnt]', meaning: '学生', example: 'I am a student. 我是一名学生。', unit: 'welcome', unitName: '入门单元' },
+            { word: 'teacher', phonetic: '[ˈtiːtʃə(r)]', meaning: '老师', example: 'She is my teacher. 她是我的老师。', unit: 'welcome', unitName: '入门单元' },
+            { word: 'clap your hands', phonetic: '[klæp jɔː(r) hændz]', meaning: '拍手', example: 'Clap your hands! 拍拍手！', unit: 'welcome', unitName: '入门单元' },
+            { word: 'point to the door', phonetic: '[pɔɪnt tuː ðə dɔː(r)]', meaning: '指着门', example: 'Point to the door. 指着门。', unit: 'welcome', unitName: '入门单元' },
+            { word: 'raise your hand', phonetic: '[reɪz jɔː(r) hænd]', meaning: '举手', example: 'Raise your hand! 举起你的手！', unit: 'welcome', unitName: '入门单元' },
+            { word: 'sit down', phonetic: '[sɪt daʊn]', meaning: '坐下', example: 'Please sit down. 请坐下。', unit: 'welcome', unitName: '入门单元' },
+            { word: 'stand up', phonetic: '[stænd ʌp]', meaning: '起立', example: 'Stand up, please. 请起立。', unit: 'welcome', unitName: '入门单元' },
+            { word: 'turn around', phonetic: '[tɜːn əˈraʊnd]', meaning: '转圈', example: 'Turn around! 转个圈！', unit: 'welcome', unitName: '入门单元' },
+
+            // 第1单元：Good Morning, Class! (教室物品与颜色)
+            { word: 'backpack', phonetic: '[ˈbækpæk]', meaning: '书包', example: 'This is my backpack. 这是我的书包。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'book', phonetic: '[bʊk]', meaning: '书', example: 'I have a book. 我有一本书。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'chair', phonetic: '[tʃeə(r)]', meaning: '椅子', example: 'Sit on the chair. 坐在椅子上。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'crayon', phonetic: '[ˈkreɪən]', meaning: '蜡笔', example: 'I draw with crayons. 我用蜡笔画画。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'desk', phonetic: '[desk]', meaning: '课桌', example: 'My desk is clean. 我的课桌很干净。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'eraser', phonetic: '[ɪˈreɪzə(r)]', meaning: '橡皮', example: 'I need an eraser. 我需要一块橡皮。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'marker', phonetic: '[ˈmɑːkə(r)]', meaning: '记号笔', example: 'The marker is black. 记号笔是黑色的。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'pen', phonetic: '[pen]', meaning: '钢笔', example: 'I write with a pen. 我用钢笔写字。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'pencil', phonetic: '[ˈpensl]', meaning: '铅笔', example: 'This is my pencil. 这是我的铅笔。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'ruler', phonetic: '[ˈruːlə(r)]', meaning: '尺子', example: 'I use a ruler. 我用尺子。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'blue', phonetic: '[bluː]', meaning: '蓝色', example: 'The sky is blue. 天空是蓝色的。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'green', phonetic: '[ɡriːn]', meaning: '绿色', example: 'The grass is green. 草是绿色的。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'red', phonetic: '[red]', meaning: '红色', example: 'The apple is red. 苹果是红色的。', unit: 'unit1', unitName: '第1单元' },
+            { word: 'yellow', phonetic: '[ˈjeləʊ]', meaning: '黄色', example: 'The banana is yellow. 香蕉是黄色的。', unit: 'unit1', unitName: '第1单元' },
+
+            // 第2单元：My Family (家庭成员)
+            { word: 'father', phonetic: '[ˈfɑːðə(r)]', meaning: '父亲', example: 'This is my father. 这是我的父亲。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'mother', phonetic: '[ˈmʌðə(r)]', meaning: '母亲', example: 'I love my mother. 我爱我的母亲。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'brother', phonetic: '[ˈbrʌðə(r)]', meaning: '兄弟', example: 'He is my brother. 他是我的兄弟。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'sister', phonetic: '[ˈsɪstə(r)]', meaning: '姐妹', example: 'She is my sister. 她是我的姐妹。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'grandfather', phonetic: '[ˈɡrænfɑːðə(r)]', meaning: '祖父/外祖父', example: 'My grandfather is kind. 我的祖父很和蔼。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'grandmother', phonetic: '[ˈɡrænmʌðə(r)]', meaning: '祖母/外祖母', example: 'I visit my grandmother. 我去看望我的祖母。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'me', phonetic: '[miː]', meaning: '我', example: 'This is me. 这是我。', unit: 'unit2', unitName: '第2单元' },
+            { word: 'photo album', phonetic: '[ˈfəʊtəʊ ˈælbəm]', meaning: '相册', example: 'Look at my photo album. 看看我的相册。', unit: 'unit2', unitName: '第2单元' },
+
+            // 第3单元：My Body (身体部位与特征)
+            { word: 'arm', phonetic: '[ɑːm]', meaning: '手臂', example: 'I have two arms. 我有两只手臂。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'ear', phonetic: '[ɪə(r)]', meaning: '耳朵', example: 'I can hear with my ears. 我用耳朵听。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'eye', phonetic: '[aɪ]', meaning: '眼睛', example: 'I have two eyes. 我有两只眼睛。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'fingers', phonetic: '[ˈfɪŋɡəz]', meaning: '手指', example: 'I have ten fingers. 我有十根手指。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'foot', phonetic: '[fʊt]', meaning: '脚', example: 'My foot hurts. 我的脚疼。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'feet', phonetic: '[fiːt]', meaning: '脚(复数)', example: 'I have two feet. 我有两只脚。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'hand', phonetic: '[hænd]', meaning: '手', example: 'Wash your hands. 洗手。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'hair', phonetic: '[heə(r)]', meaning: '头发', example: 'I have long hair. 我有长头发。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'head', phonetic: '[hed]', meaning: '头', example: 'My head is big. 我的头很大。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'leg', phonetic: '[leɡ]', meaning: '腿', example: 'I have two legs. 我有两条腿。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'mouth', phonetic: '[maʊθ]', meaning: '嘴', example: 'Open your mouth. 张开你的嘴。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'nose', phonetic: '[nəʊz]', meaning: '鼻子', example: 'I smell with my nose. 我用鼻子闻。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'toes', phonetic: '[təʊz]', meaning: '脚趾', example: 'I have ten toes. 我有十根脚趾。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'big', phonetic: '[bɪɡ]', meaning: '大的', example: 'The elephant is big. 大象很大。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'long', phonetic: '[lɒŋ]', meaning: '长的', example: 'She has long hair. 她有长头发。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'short', phonetic: '[ʃɔːt]', meaning: '短的/矮的', example: 'He is short. 他很矮。', unit: 'unit3', unitName: '第3单元' },
+            { word: 'small', phonetic: '[smɔːl]', meaning: '小的', example: 'The mouse is small. 老鼠很小。', unit: 'unit3', unitName: '第3单元' },
+
+            // 第4单元：My Favorite Clothes! (衣服与形容词)
+            { word: 'blouse', phonetic: '[blaʊz]', meaning: '女衬衫', example: 'She wears a blouse. 她穿着女衬衫。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'boots', phonetic: '[buːts]', meaning: '靴子', example: 'I like my boots. 我喜欢我的靴子。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'dress', phonetic: '[dres]', meaning: '连衣裙', example: 'She has a pretty dress. 她有一条漂亮的连衣裙。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'gloves', phonetic: '[ɡlʌvz]', meaning: '手套', example: 'I wear gloves in winter. 我冬天戴手套。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'hat', phonetic: '[hæt]', meaning: '帽子', example: 'I have a red hat. 我有一顶红色的帽子。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'jacket', phonetic: '[ˈdʒækɪt]', meaning: '夹克', example: 'This is my jacket. 这是我的夹克。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'pants', phonetic: '[pænts]', meaning: '裤子', example: 'He wears blue pants. 他穿蓝色裤子。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'shirt', phonetic: '[ʃɜːt]', meaning: '男衬衫', example: 'I like this shirt. 我喜欢这件衬衫。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'shoes', phonetic: '[ʃuːz]', meaning: '鞋子', example: 'My shoes are new. 我的鞋子是新的。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'shorts', phonetic: '[ʃɔːts]', meaning: '短裤', example: 'I wear shorts in summer. 我夏天穿短裤。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'skirt', phonetic: '[skɜːt]', meaning: '半身裙', example: 'She has a yellow skirt. 她有一条黄色的半身裙。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'T-shirt', phonetic: '[ˈtiː ʃɜːt]', meaning: '体恤衫', example: 'I wear a T-shirt. 我穿体恤衫。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'new', phonetic: '[njuː]', meaning: '新的', example: 'This is my new bag. 这是我的新包。', unit: 'unit4', unitName: '第4单元' },
+            { word: 'old', phonetic: '[əʊld]', meaning: '旧的', example: 'This is my old toy. 这是我的旧玩具。', unit: 'unit4', unitName: '第4单元' },
+
+            // 第5单元：Busy at Home (家居活动与房间)
+            { word: 'brushing my teeth', phonetic: '[ˈbrʌʃɪŋ maɪ tiːθ]', meaning: '刷牙', example: 'I am brushing my teeth. 我在刷牙。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'combing my hair', phonetic: '[ˈkəʊmɪŋ maɪ heə(r)]', meaning: '梳头', example: 'She is combing her hair. 她在梳头。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'drawing', phonetic: '[ˈdrɔːɪŋ]', meaning: '画画', example: 'I am drawing a picture. 我在画画。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'drinking', phonetic: '[ˈdrɪŋkɪŋ]', meaning: '喝', example: 'He is drinking water. 他在喝水。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'eating', phonetic: '[ˈiːtɪŋ]', meaning: '吃', example: 'I am eating breakfast. 我在吃早餐。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'making lunch', phonetic: '[ˈmeɪkɪŋ lʌntʃ]', meaning: '做午饭', example: 'Mom is making lunch. 妈妈在做午饭。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'playing', phonetic: '[ˈpleɪɪŋ]', meaning: '玩耍', example: 'I am playing games. 我在玩游戏。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'reading', phonetic: '[ˈriːdɪŋ]', meaning: '阅读', example: 'She is reading a book. 她在读书。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'taking a bath', phonetic: '[ˈteɪkɪŋ ə bɑːθ]', meaning: '洗澡', example: 'I am taking a bath. 我在洗澡。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'talking on the phone', phonetic: '[ˈtɔːkɪŋ ɒn ðə fəʊn]', meaning: '打电话', example: 'Dad is talking on the phone. 爸爸在打电话。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'washing', phonetic: '[ˈwɒʃɪŋ]', meaning: '洗', example: 'I am washing my hands. 我在洗手。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'watching TV', phonetic: '[ˈwɒtʃɪŋ ˌtiːˈviː]', meaning: '看电视', example: 'We are watching TV. 我们在看电视。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'bathroom', phonetic: '[ˈbɑːθruːm]', meaning: '浴室', example: 'The bathroom is clean. 浴室很干净。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'bedroom', phonetic: '[ˈbedruːm]', meaning: '卧室', example: 'This is my bedroom. 这是我的卧室。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'kitchen', phonetic: '[ˈkɪtʃɪn]', meaning: '厨房', example: 'Mom is in the kitchen. 妈妈在厨房。', unit: 'unit5', unitName: '第5单元' },
+            { word: 'living room', phonetic: '[ˈlɪvɪŋ ruːm]', meaning: '客厅', example: 'We watch TV in the living room. 我们在客厅看电视。', unit: 'unit5', unitName: '第5单元' },
+
+            // 第6单元：On the Farm (农场动物)
+            { word: 'bird', phonetic: '[bɜːd]', meaning: '鸟', example: 'The bird is singing. 鸟儿在唱歌。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'cat', phonetic: '[kæt]', meaning: '猫', example: 'I have a cat. 我有一只猫。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'chicken', phonetic: '[ˈtʃɪkɪn]', meaning: '鸡', example: 'The chicken lays eggs. 鸡下蛋。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'cow', phonetic: '[kaʊ]', meaning: '奶牛', example: 'The cow gives milk. 奶牛产奶。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'dog', phonetic: '[dɒɡ]', meaning: '狗', example: 'My dog is friendly. 我的狗很友好。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'donkey', phonetic: '[ˈdɒŋki]', meaning: '驴', example: 'The donkey is strong. 驴很强壮。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'duck', phonetic: '[dʌk]', meaning: '鸭子', example: 'The duck swims in the pond. 鸭子在池塘里游泳。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'farm', phonetic: '[fɑːm]', meaning: '农场', example: 'I live on a farm. 我住在农场。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'goat', phonetic: '[ɡəʊt]', meaning: '山羊', example: 'The goat eats grass. 山羊吃草。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'horse', phonetic: '[hɔːs]', meaning: '马', example: 'I ride a horse. 我骑马。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'pig', phonetic: '[pɪɡ]', meaning: '猪', example: 'The pig is pink. 猪是粉红色的。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'rabbit', phonetic: '[ˈræbɪt]', meaning: '兔子', example: 'The rabbit is hopping. 兔子在跳。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'sheep', phonetic: '[ʃiːp]', meaning: '绵羊', example: 'The sheep has wool. 绵羊有羊毛。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'turtle', phonetic: '[ˈtɜːtl]', meaning: '乌龟', example: 'The turtle is slow. 乌龟很慢。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'fast', phonetic: '[fɑːst]', meaning: '快的', example: 'The horse runs fast. 马跑得快。', unit: 'unit6', unitName: '第6单元' },
+            { word: 'slow', phonetic: '[sləʊ]', meaning: '慢的', example: 'The turtle moves slow. 乌龟移动得慢。', unit: 'unit6', unitName: '第6单元' },
+
+            // 第7单元：Party Time (食物与数字)
+            { word: 'apple', phonetic: '[ˈæpl]', meaning: '苹果', example: 'I like apples. 我喜欢苹果。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'banana', phonetic: '[bəˈnɑːnə]', meaning: '香蕉', example: 'The banana is yellow. 香蕉是黄色的。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'cake', phonetic: '[keɪk]', meaning: '蛋糕', example: 'This is my birthday cake. 这是我的生日蛋糕。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'candy', phonetic: '[ˈkændi]', meaning: '糖果', example: 'I love candy. 我喜欢糖果。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'cookie', phonetic: '[ˈkʊki]', meaning: '饼干', example: 'Can I have a cookie? 我可以吃饼干吗？', unit: 'unit7', unitName: '第7单元' },
+            { word: 'grapes', phonetic: '[ɡreɪps]', meaning: '葡萄', example: 'Grapes are sweet. 葡萄很甜。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'ice cream', phonetic: '[ˈaɪs kriːm]', meaning: '冰淇淋', example: 'I want ice cream. 我想吃冰淇淋。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'juice', phonetic: '[dʒuːs]', meaning: '果汁', example: 'I drink orange juice. 我喝橙汁。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'milk', phonetic: '[mɪlk]', meaning: '牛奶', example: 'I drink milk every day. 我每天喝牛奶。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'orange', phonetic: '[ˈɒrɪndʒ]', meaning: '橙子', example: 'Oranges are juicy. 橙子多汁。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'pizza', phonetic: '[ˈpiːtsə]', meaning: '比萨', example: 'I like pizza. 我喜欢比萨。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'sandwich', phonetic: '[ˈsænwɪdʒ]', meaning: '三明治', example: 'This is my sandwich. 这是我的三明治。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'watermelon', phonetic: '[ˈwɔːtəmelən]', meaning: '西瓜', example: 'Watermelon is big. 西瓜很大。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'one', phonetic: '[wʌn]', meaning: '一', example: 'I have one apple. 我有一个苹果。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'two', phonetic: '[tuː]', meaning: '二', example: 'I see two birds. 我看到两只鸟。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'three', phonetic: '[θriː]', meaning: '三', example: 'I have three pencils. 我有三支铅笔。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'four', phonetic: '[fɔː(r)]', meaning: '四', example: 'There are four chairs. 有四把椅子。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'five', phonetic: '[faɪv]', meaning: '五', example: 'I am five years old. 我五岁了。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'six', phonetic: '[sɪks]', meaning: '六', example: 'I have six crayons. 我有六支蜡笔。', unit: 'unit7', unitName: '第7单元' },
+            { word: 'seven', phonetic: '[ˈsevn]', meaning: '七', example: 'There are seven days in a week. 一周有七天。', unit: 'unit7', unitName: '第7单元' },
+
+            // 第8单元：Fun and Games (玩具与活动)
+            { word: 'ball', phonetic: '[bɔːl]', meaning: '球', example: 'I play with a ball. 我玩球。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'bike', phonetic: '[baɪk]', meaning: '自行车', example: 'I ride my bike. 我骑自行车。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'blocks', phonetic: '[blɒks]', meaning: '积木', example: 'I build with blocks. 我用积木搭建。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'doll', phonetic: '[dɒl]', meaning: '玩偶', example: 'She has a doll. 她有一个玩偶。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'game', phonetic: '[ɡeɪm]', meaning: '游戏', example: 'Let\'s play a game. 我们来玩游戏吧。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'jump rope', phonetic: '[dʒʌmp rəʊp]', meaning: '跳绳', example: 'I like jump rope. 我喜欢跳绳。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'kite', phonetic: '[kaɪt]', meaning: '风筝', example: 'I fly a kite. 我放风筝。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'puzzle', phonetic: '[ˈpʌzl]', meaning: '拼图', example: 'I do a puzzle. 我做拼图。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'robot', phonetic: '[ˈrəʊbɒt]', meaning: '机器人', example: 'I have a toy robot. 我有一个玩具机器人。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'scooter', phonetic: '[ˈskuːtə(r)]', meaning: '滑板车', example: 'I ride a scooter. 我骑滑板车。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'teddy bear', phonetic: '[ˈtedi beə(r)]', meaning: '泰迪熊', example: 'I sleep with my teddy bear. 我抱着泰迪熊睡觉。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'top', phonetic: '[tɒp]', meaning: '陀螺', example: 'The top spins fast. 陀螺转得很快。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'toy car', phonetic: '[tɔɪ kɑː(r)]', meaning: '玩具车', example: 'I play with my toy car. 我玩玩具车。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'train', phonetic: '[treɪn]', meaning: '火车', example: 'I have a toy train. 我有一辆玩具火车。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'video game', phonetic: '[ˈvɪdiəʊ ɡeɪm]', meaning: '电子游戏', example: 'I play video games. 我玩电子游戏。', unit: 'unit8', unitName: '第8单元' },
+            { word: 'yo-yo', phonetic: '[ˈjəʊjəʊ]', meaning: '溜溜球', example: 'I can play yo-yo. 我会玩溜溜球。', unit: 'unit8', unitName: '第8单元' },
+
+            // 第9单元：Play Time (动作与位置)
+            { word: 'climb', phonetic: '[klaɪm]', meaning: '爬', example: 'I climb the tree. 我爬树。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'dance', phonetic: '[dɑːns]', meaning: '跳舞', example: 'I like to dance. 我喜欢跳舞。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'jump', phonetic: '[dʒʌmp]', meaning: '跳', example: 'I can jump high. 我能跳得很高。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'run', phonetic: '[rʌn]', meaning: '跑', example: 'I run fast. 我跑得快。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'sing', phonetic: '[sɪŋ]', meaning: '唱歌', example: 'I sing a song. 我唱歌。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'swim', phonetic: '[swɪm]', meaning: '游泳', example: 'I swim in the pool. 我在泳池里游泳。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'walk', phonetic: '[wɔːk]', meaning: '走', example: 'I walk to school. 我走路去学校。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'in', phonetic: '[ɪn]', meaning: '在...里面', example: 'The cat is in the box. 猫在盒子里。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'on', phonetic: '[ɒn]', meaning: '在...上面', example: 'The book is on the desk. 书在桌子上。', unit: 'unit9', unitName: '第9单元' },
+            { word: 'under', phonetic: '[ˈʌndə(r)]', meaning: '在...下面', example: 'The dog is under the table. 狗在桌子下面。', unit: 'unit9', unitName: '第9单元' },
+        ];
+
+        // 全局状态
+        let currentWords = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let mistakes = [];
+        let mode = 'sequential';
+        let phoneticVisible = false;
+        let selectedUnit = 'all';
+
+        // 初始化
+        function init() {
+            updateStats();
+            document.getElementById('wordInput').addEventListener('input', handleInput);
+            document.getElementById('wordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+
+        // 选择单元
+        function selectUnit() {
+            selectedUnit = document.getElementById('unitSelector').value;
+            // 重置状态
+            resetDictation();
+        }
+
+        // 开始默写
+        function startDictation(dictationMode) {
+            mode = dictationMode;
+            
+            // 选择词汇
+            if (mode === 'mistakes') {
+                if (mistakes.length === 0) {
+                    alert('暂无错题！');
+                    return;
+                }
+                currentWords = [...mistakes];
+            } else {
+                if (selectedUnit === 'all') {
+                    currentWords = [...allWords];
+                } else {
+                    currentWords = allWords.filter(w => w.unit === selectedUnit);
+                }
+            }
+
+            // 随机模式打乱顺序
+            if (mode === 'random') {
+                currentWords = shuffleArray(currentWords);
+            }
+
+            // 重置统计
+            currentIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            phoneticVisible = false;
+
+            // 显示第一个单词
+            document.getElementById('dictationCard').style.display = 'flex';
+            document.getElementById('completionScreen').classList.remove('show');
+            showCurrentWord();
+            updateStats();
+        }
+
+        // 显示当前单词
+        function showCurrentWord() {
+            if (currentIndex >= currentWords.length) {
+                showCompletion();
+                return;
+            }
+
+            const word = currentWords[currentIndex];
+            
+            // 更新界面
+            document.getElementById('wordNumber').textContent = `${currentIndex + 1} / ${currentWords.length}`;
+            document.getElementById('wordMeaning').textContent = word.meaning;
+            document.getElementById('wordExample').textContent = word.example;
+            document.getElementById('firstLetter').textContent = word.word[0].toLowerCase();
+            document.getElementById('wordLength').textContent = `${word.word.length} 个字母`;
+            document.getElementById('phonetic').textContent = word.phonetic;
+            document.getElementById('phoneticHint').style.display = 'none';
+            phoneticVisible = false;
+
+            // 创建字母空格
+            const blanksContainer = document.getElementById('letterBlanks');
+            blanksContainer.innerHTML = '';
+            for (let i = 0; i < word.word.length; i++) {
+                const blank = document.createElement('div');
+                blank.className = 'letter-blank';
+                blank.id = `blank-${i}`;
+                blanksContainer.appendChild(blank);
+            }
+
+            // 清空输入
+            const input = document.getElementById('wordInput');
+            input.value = '';
+            input.className = '';
+            input.focus();
+
+            // 隐藏反馈
+            document.getElementById('feedback').classList.remove('show');
+
+            updateStats();
+        }
+
+        // 处理输入
+        function handleInput(e) {
+            const input = e.target.value.toLowerCase();
+            const word = currentWords[currentIndex].word.toLowerCase();
+            
+            // 更新字母空格
+            for (let i = 0; i < word.length; i++) {
+                const blank = document.getElementById(`blank-${i}`);
+                if (i < input.length) {
+                    blank.textContent = input[i].toUpperCase();
+                    if (input[i] === word[i]) {
+                        blank.className = 'letter-blank filled correct';
+                    } else {
+                        blank.className = 'letter-blank filled wrong';
+                    }
+                } else {
+                    blank.textContent = '';
+                    blank.className = 'letter-blank';
+                }
+            }
+
+            // 完整输入后自动检查
+            if (input.length === word.length) {
+                setTimeout(() => checkAnswer(), 300);
+            }
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const input = document.getElementById('wordInput').value.trim().toLowerCase();
+            const word = currentWords[currentIndex];
+            const correctWord = word.word.toLowerCase();
+
+            const feedback = document.getElementById('feedback');
+            const inputField = document.getElementById('wordInput');
+
+            if (!input) {
+                alert('请先输入单词！');
+                return;
+            }
+
+            if (input === correctWord) {
+                // 正确
+                correctCount++;
+                feedback.textContent = '✅ 正确！做得好！';
+                feedback.className = 'feedback correct show';
+                inputField.className = 'correct';
+                
+                setTimeout(() => {
+                    currentIndex++;
+                    showCurrentWord();
+                }, 1500);
+            } else {
+                // 错误
+                wrongCount++;
+                feedback.textContent = `❌ 错误！正确答案是：${word.word}`;
+                feedback.className = 'feedback wrong show';
+                inputField.className = 'wrong';
+
+                // 添加到错题本
+                const existingMistake = mistakes.find(m => m.word === word.word);
+                if (!existingMistake) {
+                    mistakes.push({
+                        ...word,
+                        wrongAnswer: input
+                    });
+                }
+
+                setTimeout(() => {
+                    currentIndex++;
+                    showCurrentWord();
+                }, 2500);
+            }
+
+            updateStats();
+            updateMistakeList();
+        }
+
+        // 显示音标
+        function togglePhonetic() {
+            phoneticVisible = !phoneticVisible;
+            document.getElementById('phoneticHint').style.display = phoneticVisible ? 'block' : 'none';
+        }
+
+        // 显示答案
+        function showAnswer() {
+            const word = currentWords[currentIndex];
+            const input = document.getElementById('wordInput');
+            input.value = word.word;
+            input.className = 'correct';
+            handleInput({ target: input });
+            
+            // 不计入统计，直接跳过
+            setTimeout(() => {
+                currentIndex++;
+                showCurrentWord();
+            }, 2000);
+        }
+
+        // 跳过单词
+        function skipWord() {
+            currentIndex++;
+            showCurrentWord();
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('currentIndex').textContent = 
+                currentWords.length > 0 ? `${currentIndex}/${currentWords.length}` : '0/0';
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            
+            const total = correctCount + wrongCount;
+            const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 100;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            // 更新进度条
+            if (currentWords.length > 0) {
+                const progress = (currentIndex / currentWords.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+            }
+
+            // 更新错题按钮
+            const mistakeBtn = document.getElementById('mistakeBtn');
+            mistakeBtn.textContent = `❌ 错题重练 (${mistakes.length})`;
+            mistakeBtn.disabled = mistakes.length === 0;
+        }
+
+        // 更新错题列表
+        function updateMistakeList() {
+            if (mistakes.length === 0) {
+                document.getElementById('mistakeList').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('mistakeList').style.display = 'block';
+            const container = document.getElementById('mistakeItems');
+            container.innerHTML = '';
+
+            mistakes.forEach(mistake => {
+                const item = document.createElement('div');
+                item.className = 'mistake-item';
+                item.innerHTML = `
+                    <div class="word">${mistake.word}</div>
+                    <div class="meaning">${mistake.meaning}</div>
+                    ${mistake.wrongAnswer ? `<div class="wrong-answer">你的答案：${mistake.wrongAnswer}</div>` : ''}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 显示完成界面
+        function showCompletion() {
+            document.getElementById('dictationCard').style.display = 'none';
+            
+            const completionScreen = document.getElementById('completionScreen');
+            completionScreen.classList.add('show');
+
+            const total = correctCount + wrongCount;
+            const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 100;
+
+            document.getElementById('totalWords').textContent = total;
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalWrong').textContent = wrongCount;
+            
+            const accuracyElement = document.getElementById('finalAccuracy');
+            accuracyElement.textContent = accuracy + '%';
+            
+            // 根据准确率设置颜色和鼓励语
+            let encouragement = '';
+            if (accuracy >= 90) {
+                accuracyElement.className = 'accuracy';
+                encouragement = '🌟 太棒了！你的拼写能力非常出色！';
+            } else if (accuracy >= 70) {
+                accuracyElement.className = 'accuracy medium';
+                encouragement = '👍 做得不错！继续努力，你会更好的！';
+            } else {
+                accuracyElement.className = 'accuracy low';
+                encouragement = '💪 加油！多练习就能掌握这些单词！';
+            }
+            document.getElementById('encouragement').textContent = encouragement;
+
+            // 显示复习错题按钮
+            if (mistakes.length > 0) {
+                document.getElementById('reviewMistakesBtn').style.display = 'inline-block';
+            }
+        }
+
+        // 重置
+        function resetDictation() {
+            currentWords = [];
+            currentIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            phoneticVisible = false;
+            
+            document.getElementById('dictationCard').style.display = 'none';
+            document.getElementById('completionScreen').classList.remove('show');
+            document.getElementById('progressBar').style.width = '0%';
+            
+            updateStats();
+        }
+
+        // 工具函数：打乱数组
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

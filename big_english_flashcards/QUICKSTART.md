@@ -26,6 +26,7 @@ https://github.com/Zhangxxamber/english-flashcard
 | 🏠 主页 | https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/ |
 | 📖 基础版 | https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/big_english_flashcards.html |
 | 🔊 发音版 | https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/big_english_flashcards_voice.html |
+| ✍️ 默写版 | https://zhangxxamber.github.io/english-flashcard/big_english_flashcards/big_english_flashcards_dictation.html |
 
 ## 📱 分享你的网站
 
