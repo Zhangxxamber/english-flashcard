@@ -226,6 +226,82 @@
             .version-card {
                 padding: 30px 20px;
             }
+
+            .book-buttons {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .book-btn {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+        }
+
+        /* 教材选择器 */
+        .book-selector {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .selector-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .book-buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .book-btn {
+            padding: 15px 10px;
+            font-size: 1em;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .book-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .book-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .book-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #f0f0f0;
+            color: #999;
+            border-color: #ddd;
+        }
+
+        .book-info {
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
 
         /* 统计信息 */
@@ -259,8 +335,24 @@
     <div class="container">
         <!-- 标题 -->
         <div class="header">
-            <h1>📚 Big English 1 单词闪卡</h1>
-            <p>选择适合您的学习方式</p>
+            <h1>📚 Big English 单词闪卡</h1>
+            <p>选择教材等级和适合您的学习方式</p>
+        </div>
+
+        <!-- 教材选择 -->
+        <div class="book-selector">
+            <div class="selector-label">选择教材：</div>
+            <div class="book-buttons">
+                <button class="book-btn active" onclick="selectBook(1)">Book 1</button>
+                <button class="book-btn" onclick="selectBook(2)">Book 2</button>
+                <button class="book-btn" onclick="selectBook(3)" disabled>Book 3</button>
+                <button class="book-btn" onclick="selectBook(4)">Book 4</button>
+                <button class="book-btn" onclick="selectBook(5)">Book 5</button>
+                <button class="book-btn" onclick="selectBook(6)">Book 6</button>
+            </div>
+            <div class="book-info" id="bookInfo">
+                Book 1：入门到第9单元，共213个核心词汇
+            </div>
         </div>
 
         <!-- 统计信息 -->
@@ -299,7 +391,7 @@
                     <li>随机学习模式</li>
                     <li>键盘快捷键支持</li>
                 </ul>
-                <a href="big_english_flashcards.html" class="btn-enter">开始学习</a>
+                <a href="big_english_flashcards.html?book=1" class="btn-enter" id="basicLink">开始学习</a>
             </div>
 
             <!-- 发音版 -->
@@ -319,7 +411,7 @@
                     <li>大型发音按钮</li>
                     <li>键盘S键快速发音</li>
                 </ul>
-                <a href="big_english_flashcards_voice.html" class="btn-enter">开始学习</a>
+                <a href="big_english_flashcards_voice.html?book=1" class="btn-enter" id="voiceLink">开始学习</a>
             </div>
 
             <!-- 默写版 -->
@@ -340,7 +432,7 @@
                     <li>正确率统计分析</li>
                     <li>顺序/随机/错题模式</li>
                 </ul>
-                <a href="big_english_flashcards_dictation.html" class="btn-enter">开始练习</a>
+                <a href="big_english_flashcards_dictation.html?book=1" class="btn-enter" id="dictationLink">开始练习</a>
             </div>
         </div>
 
@@ -360,8 +452,44 @@
     </div>
 
     <script>
+        // 当前选中的教材
+        let currentBook = 1;
+
+        // 教材信息
+        const bookInfo = {
+            1: { desc: 'Book 1：入门到第9单元，共213个核心词汇', available: true },
+            2: { desc: 'Book 2：进阶教材，涵盖城镇、职业、季节等话题', available: true },
+            3: { desc: 'Book 3：即将推出...', available: false },
+            4: { desc: 'Book 4：涉及健康、动物、历史等深入话题', available: true },
+            5: { desc: 'Book 5：包含筹款、购物、假期等社会话题', available: true },
+            6: { desc: 'Book 6：进阶大纲，涵盖未来科技、历史遗产等', available: true }
+        };
+
+        // 选择教材
+        function selectBook(bookNumber) {
+            if (!bookInfo[bookNumber].available) return;
+            
+            currentBook = bookNumber;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.book-btn').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if (index + 1 === bookNumber) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新信息
+            document.getElementById('bookInfo').textContent = bookInfo[bookNumber].desc;
+            
+            // 更新链接
+            document.getElementById('basicLink').href = `big_english_flashcards.html?book=${bookNumber}`;
+            document.getElementById('voiceLink').href = `big_english_flashcards_voice.html?book=${bookNumber}`;
+            document.getElementById('dictationLink').href = `big_english_flashcards_dictation.html?book=${bookNumber}`;
+        }
+
         // 记录访问统计（可选）
-        console.log('%c📚 Big English 1 单词闪卡', 'font-size: 20px; color: #667eea; font-weight: bold;');
+        console.log('%c📚 Big English 单词闪卡', 'font-size: 20px; color: #667eea; font-weight: bold;');
         console.log('欢迎使用！祝您学习愉快！');
     </script>
 </body>

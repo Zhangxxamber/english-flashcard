@@ -7,6 +7,11 @@
     <meta name="keywords" content="Big English,英语单词,学习工具,闪卡">
     <meta name="author" content="zhangxiaoxiao">
     <title>Big English 1 单词闪卡</title>
+    
+    <!-- 引入 Book 2 和 Book 3 数据 -->
+    <script src="vocabulary_book2.js"></script>
+    <script src="vocabulary_book3.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -343,7 +348,7 @@
         // 日期: 2026-01-15
         // 按单元分类组织词汇
         
-        const allWords = [
+        const allWordsBook1 = [
             // 入门单元：Welcome to Class!
             { word: 'student', phonetic: '[ˈstuːdnt]', meaning: '学生', example: 'I am a student. 我是一名学生。', unit: 'welcome', unitName: '入门单元' },
             { word: 'teacher', phonetic: '[ˈtiːtʃə(r)]', meaning: '老师', example: 'She is my teacher. 她是我的老师。', unit: 'welcome', unitName: '入门单元' },
@@ -504,6 +509,54 @@
             { word: 'throwing', phonetic: '[ˈθrəʊɪŋ]', meaning: '扔', example: 'He is throwing the ball. 他在扔球。', unit: 'unit9', unitName: '第9单元' }
         ];
 
+        // 获取URL中的教材参数
+        function getBookNumber() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const book = urlParams.get('book');
+            return book ? parseInt(book) : 1;
+        }
+        
+        // 获取当前教材数据
+        function getCurrentBookData() {
+            const bookNumber = getBookNumber();
+            
+            switch(bookNumber) {
+                case 1:
+                    return allWordsBook1;
+                    
+                case 2:
+                    if (typeof book2Vocabulary !== 'undefined') {
+                        document.title = 'Big English 2 单词闪卡';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '📚 Big English 2 单词闪卡';
+                        return book2Vocabulary;
+                    }
+                    break;
+                    
+                case 3:
+                    if (typeof book3Vocabulary !== 'undefined') {
+                        document.title = 'Big English 3 单词闪卡';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '📚 Big English 3 单词闪卡';
+                        return book3Vocabulary;
+                    }
+                    break;
+                    
+                case 4:
+                case 5:
+                case 6:
+                    alert(`📚 Big English Book ${bookNumber} 的词汇数据正在整理中！\n\n暂时为您加载 Book 1 的内容作为示例。`);
+                    document.title = `Big English ${bookNumber} 单词闪卡（示例：Book 1）`;
+                    const header = document.querySelector('.header h1');
+                    if (header) header.textContent = `📚 Big English ${bookNumber} 单词闪卡`;
+                    break;
+            }
+            
+            return allWordsBook1;
+        }
+        
+        const allWords = getCurrentBookData();
+        
         // 当前显示的单词列表（根据筛选）
         let currentWordBank = [...allWords];
         let currentIndex = 0;

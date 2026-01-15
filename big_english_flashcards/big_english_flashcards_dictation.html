@@ -7,6 +7,11 @@
     <meta name="keywords" content="Big English,英语单词,默写,学习工具">
     <meta name="author" content="Zhangxxamber">
     <title>Big English 1 单词默写</title>
+    
+    <!-- 引入 Book 2 和 Book 3 数据 -->
+    <script src="vocabulary_book2.js"></script>
+    <script src="vocabulary_book3.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -672,7 +677,7 @@
 
     <script>
         // Big English 1 单词库（完整数据）
-        const allWords = [
+        const allWordsBook1 = [
             // 入门单元：Welcome to Class!
             { word: 'student', phonetic: '[ˈstuːdnt]', meaning: '学生', example: 'I am a student. 我是一名学生。', unit: 'welcome', unitName: '入门单元' },
             { word: 'teacher', phonetic: '[ˈtiːtʃə(r)]', meaning: '老师', example: 'She is my teacher. 她是我的老师。', unit: 'welcome', unitName: '入门单元' },
@@ -832,6 +837,60 @@
             { word: 'on', phonetic: '[ɒn]', meaning: '在...上面', example: 'The book is on the desk. 书在桌子上。', unit: 'unit9', unitName: '第9单元' },
             { word: 'under', phonetic: '[ˈʌndə(r)]', meaning: '在...下面', example: 'The dog is under the table. 狗在桌子下面。', unit: 'unit9', unitName: '第9单元' },
         ];
+
+        // 获取URL参数中的教材编号
+        function getBookNumber() {
+            const params = new URLSearchParams(window.location.search);
+            return parseInt(params.get('book')) || 1;
+        }
+
+        // 获取当前教材数据
+        function getCurrentBookData() {
+            const bookNumber = getBookNumber();
+            
+            // 根据教材编号返回对应数据
+            switch(bookNumber) {
+                case 1:
+                    // Book 1 数据
+                    return allWordsBook1;
+                    
+                case 2:
+                    // Book 2 数据
+                    if (typeof book2Vocabulary !== 'undefined') {
+                        document.title = 'Big English 2 单词默写';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '✍️ Big English 2 单词默写';
+                        return book2Vocabulary;
+                    }
+                    break;
+                    
+                case 3:
+                    // Book 3 数据
+                    if (typeof book3Vocabulary !== 'undefined') {
+                        document.title = 'Big English 3 单词默写';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '✍️ Big English 3 单词默写';
+                        return book3Vocabulary;
+                    }
+                    break;
+                    
+                case 4:
+                case 5:
+                case 6:
+                    // Book 4-6 暂时使用 Book 1 数据
+                    alert(`📚 Big English Book ${bookNumber} 的词汇数据正在整理中！\n\n暂时为您加载 Book 1 的内容作为示例。\n\n敬请期待更多教材的上线！`);
+                    document.title = `Big English ${bookNumber} 单词默写（示例：Book 1）`;
+                    const header = document.querySelector('.header h1');
+                    if (header) header.textContent = `✍️ Big English ${bookNumber} 单词默写`;
+                    break;
+            }
+            
+            // 默认返回 Book 1
+            return allWordsBook1;
+        }
+
+        // 使用当前教材的数据
+        const allWords = getCurrentBookData();
 
         // 全局状态
         let currentWords = [];
