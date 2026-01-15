@@ -8,9 +8,12 @@
     <meta name="author" content="Zhangxxamber">
     <title>Big English 1 单词默写</title>
     
-    <!-- 引入 Book 2 和 Book 3 数据 -->
+    <!-- 引入 Book 2-6 数据 -->
     <script src="vocabulary_book2.js"></script>
     <script src="vocabulary_book3.js"></script>
+    <script src="vocabulary_book4.js"></script>
+    <script src="vocabulary_book5.js"></script>
+    <script src="vocabulary_book6.js"></script>
     
     <style>
         * {
@@ -875,13 +878,33 @@
                     break;
                     
                 case 4:
+                    // Book 4 数据
+                    if (typeof book4Vocabulary !== 'undefined') {
+                        document.title = 'Big English 4 单词默写';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '✍️ Big English 4 单词默写';
+                        return book4Vocabulary;
+                    }
+                    break;
+                    
                 case 5:
+                    // Book 5 数据
+                    if (typeof book5Vocabulary !== 'undefined') {
+                        document.title = 'Big English 5 单词默写';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '✍️ Big English 5 单词默写';
+                        return book5Vocabulary;
+                    }
+                    break;
+                    
                 case 6:
-                    // Book 4-6 暂时使用 Book 1 数据
-                    alert(`📚 Big English Book ${bookNumber} 的词汇数据正在整理中！\n\n暂时为您加载 Book 1 的内容作为示例。\n\n敬请期待更多教材的上线！`);
-                    document.title = `Big English ${bookNumber} 单词默写（示例：Book 1）`;
-                    const header = document.querySelector('.header h1');
-                    if (header) header.textContent = `✍️ Big English ${bookNumber} 单词默写`;
+                    // Book 6 数据
+                    if (typeof book6Vocabulary !== 'undefined') {
+                        document.title = 'Big English 6 单词默写';
+                        const header = document.querySelector('.header h1');
+                        if (header) header.textContent = '✍️ Big English 6 单词默写';
+                        return book6Vocabulary;
+                    }
                     break;
             }
             
