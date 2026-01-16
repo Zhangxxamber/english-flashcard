@@ -18,7 +18,7 @@
 
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -47,16 +47,29 @@
         }
 
         .btn-home {
-            padding: 10px 20px;
-            background: #fa709a;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
             color: white;
             text-decoration: none;
             border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
             transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
         }
 
         .btn-home:hover {
-            background: #fe8c00;
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         /* 得分板 */
@@ -406,11 +419,13 @@
     </style>
 </head>
 <body>
+    <!-- 返回按钮（独立于容器外） -->
+    <a href="index.html" class="btn-home">← 返回二年级沪教版英语首页</a>
+    
     <div class="container">
         <!-- 头部 -->
         <div class="header">
             <div class="title">✍️ 默写练习</div>
-            <a href="index.html" class="btn-home">🏠 返回首页</a>
         </div>
 
         <!-- 得分板 -->

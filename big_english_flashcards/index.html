@@ -54,6 +54,7 @@
             border: 2px solid rgba(255,255,255,0.4);
             z-index: 1000;
             cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
         }
 
         .btn-back-home:hover {
@@ -375,10 +376,12 @@
     </style>
 </head>
 <body>
+    <!-- 返回按钮（独立于容器外） -->
+    <a href="../index.html" class="btn-back-home">← 返回平台首页</a>
+    
     <div class="container">
         <!-- 标题 -->
         <div class="header">
-            <a href="../index.html" class="btn-back-home">← 返回平台首页</a>
             <div class="emoji">📚</div>
             <h1>Big English 单词闪卡</h1>
             <p>听、说、读、写，全方位学习</p>

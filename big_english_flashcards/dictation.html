@@ -44,6 +44,33 @@
             color: white;
         }
 
+        /* 返回按钮 */
+        .btn-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
@@ -528,22 +555,7 @@
         }
 
         /* 返回按钮 */
-        .back-link {
-            display: inline-block;
-            color: white;
-            text-decoration: none;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 25px;
-            transition: all 0.3s;
-        }
-
-        .back-link:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateX(-5px);
-        }
+        /* 已在上方定义为 .btn-home */
 
         /* 发音按钮 */
         .speaker-btn {
@@ -567,10 +579,10 @@
     </style>
 </head>
 <body>
+    <!-- 返回按钮（独立于容器外） -->
+    <a href="index.html" class="btn-home">← 返回Big English首页</a>
+    
     <div class="container">
-        <!-- 返回主页 -->
-        <a href="index.html" class="back-link">← 返回主页</a>
-
         <!-- 标题 -->
         <div class="header">
             <h1>✍️ Big English 1 单词默写</h1>
