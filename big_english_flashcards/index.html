@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Big English 1 单词闪卡 - 多版本选择">
+    <meta name="description" content="Big English 单词闪卡 - 多版本选择">
     <meta name="keywords" content="Big English,英语单词,学习工具,闪卡">
     <meta name="author" content="zhangxiaoxiao">
-    <title>Big English 1 单词闪卡 - 首页</title>
+    <title>Big English 单词闪卡 - 首页</title>
     <style>
         * {
             margin: 0;
@@ -26,124 +26,169 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             width: 100%;
         }
 
         /* 标题区域 */
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             color: white;
+            animation: fadeInDown 1s;
         }
 
         .header h1 {
             font-size: 3em;
             margin-bottom: 15px;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            animation: fadeInDown 1s;
+        }
+
+        .header .emoji {
+            font-size: 3em;
+            animation: bounce 2s infinite;
         }
 
         .header p {
             font-size: 1.3em;
             color: rgba(255,255,255,0.9);
+        }
+
+        /* 教材选择器 */
+        .book-selector {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 1s;
+        }
+
+        .selector-label {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .book-buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .book-btn {
+            padding: 15px 10px;
+            font-size: 1em;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .book-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .book-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .book-info {
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        /* 统计信息 */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
             animation: fadeInUp 1s;
         }
 
-        /* 版本选择卡片 */
-        .versions {
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* 学习模式卡片 */
+        .modes {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
-            margin-bottom: 40px;
+            animation: fadeIn 1.2s;
         }
 
-        .version-card {
-            background: white;
+        .mode-card {
+            background: rgba(20, 20, 30, 0.9);
             border-radius: 20px;
-            padding: 40px 30px;
+            padding: 35px 25px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             transition: all 0.3s;
             text-align: center;
             position: relative;
             overflow: hidden;
-            animation: fadeIn 1s;
+            border: 2px solid transparent;
         }
 
-        .version-card:hover {
+        .mode-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.3);
         }
 
-        .version-card::before {
+        .mode-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
-        .version-icon {
+        .mode-icon {
             font-size: 4em;
             margin-bottom: 20px;
         }
 
-        .version-title {
+        .mode-title {
             font-size: 1.8em;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .version-desc {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .version-features {
-            text-align: left;
-            margin-bottom: 25px;
-        }
-
-        .version-features li {
-            color: #555;
-            padding: 8px 0;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .version-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #4ecdc4;
-            font-weight: bold;
-        }
-
-        .btn-enter {
-            display: inline-block;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-size: 1.2em;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
         }
 
-        .btn-enter:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        /* 标签 */
-        .badge {
+        .mode-badge {
             display: inline-block;
             padding: 5px 12px;
             background: #ffd700;
@@ -154,9 +199,61 @@
             margin-left: 10px;
         }
 
-        .badge.new {
+        .mode-badge.new {
             background: #ff6b6b;
             color: white;
+        }
+
+        .mode-badge.challenge {
+            background: #f39c12;
+            color: white;
+        }
+
+        .mode-desc {
+            font-size: 1.05em;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mode-features {
+            text-align: left;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+
+        .mode-features li {
+            color: rgba(255,255,255,0.7);
+            padding: 6px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 0.95em;
+        }
+
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .btn-start {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
 
         /* 页脚 */
@@ -164,6 +261,7 @@
             text-align: center;
             color: rgba(255,255,255,0.8);
             margin-top: 50px;
+            animation: fadeIn 2s;
         }
 
         .footer p {
@@ -213,17 +311,29 @@
             }
         }
 
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
             }
             
-            .versions {
+            .modes {
                 grid-template-columns: 1fr;
             }
             
-            .version-card {
+            .mode-card {
                 padding: 30px 20px;
             }
 
@@ -237,111 +347,20 @@
                 padding: 10px;
             }
         }
-
-        /* 教材选择器 */
-        .book-selector {
-            background: rgba(255,255,255,0.95);
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        .selector-label {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .book-buttons {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .book-btn {
-            padding: 15px 10px;
-            font-size: 1em;
-            font-weight: bold;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .book-btn:hover:not(:disabled) {
-            background: #667eea;
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .book-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #764ba2;
-        }
-
-        .book-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            background: #f0f0f0;
-            color: #999;
-            border-color: #ddd;
-        }
-
-        .book-info {
-            text-align: center;
-            color: #666;
-            font-size: 1em;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        /* 统计信息 */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            text-align: center;
-            color: white;
-        }
-
-        .stat-number {
-            font-size: 3em;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .stat-label {
-            font-size: 1.1em;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 标题 -->
         <div class="header">
-            <h1>📚 Big English 单词闪卡</h1>
-            <p>选择教材等级和适合您的学习方式</p>
+            <div class="emoji">📚</div>
+            <h1>Big English 单词闪卡</h1>
+            <p>听、说、读、写，全方位学习</p>
         </div>
 
         <!-- 教材选择 -->
         <div class="book-selector">
-            <div class="selector-label">选择教材：</div>
+            <div class="selector-label">📖 选择教材</div>
             <div class="book-buttons">
                 <button class="book-btn active" onclick="selectBook(1)">Book 1</button>
                 <button class="book-btn" onclick="selectBook(2)">Book 2</button>
@@ -359,64 +378,84 @@
         <div class="stats">
             <div class="stat-item">
                 <div class="stat-number" id="statWords">213</div>
-                <div class="stat-label">核心词汇</div>
+                <div class="stat-label">学习内容</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="statUnits">10</div>
-                <div class="stat-label">学习单元</div>
+                <div class="stat-label">单元数量</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">2</div>
+                <div class="stat-number">3</div>
                 <div class="stat-label">学习模式</div>
             </div>
         </div>
 
-        <!-- 版本选择 -->
-        <div class="versions">
-            <!-- 发音版 -->
-            <div class="version-card">
-                <div class="version-icon">🔊</div>
-                <div class="version-title">
-                    发音版
-                    <span class="badge">推荐</span>
+        <!-- 学习模式 -->
+        <div class="modes">
+            <!-- 听选版 -->
+            <div class="mode-card">
+                <div class="mode-icon">🎧</div>
+                <div class="mode-title">
+                    听选版
+                    <span class="mode-badge">推荐</span>
                 </div>
-                <div class="version-desc">
-                    增强版学习体验，支持真人语音朗读
+                <div class="mode-desc">
+                    听英文，选中文，最适合二年级听力训练
                 </div>
-                <ul class="version-features">
-                    <li id="voiceWords">213个核心词汇</li>
-                    <li id="voiceUnits">10个学习单元</li>
-                    <li>真人语音朗读</li>
-                    <li>自动发音切换</li>
-                    <li>语速调节（慢/正常/快）</li>
-                    <li>卡片翻转效果</li>
-                    <li>单元筛选功能</li>
-                    <li>键盘S键快速发音</li>
+                <ul class="mode-features">
+                    <li id="listeningWords">213个学习内容</li>
+                    <li id="listeningUnits">10个主题单元</li>
+                    <li>真人发音朗读</li>
+                    <li>4选1选择题</li>
+                    <li>即时反馈纠错</li>
+                    <li>正确率统计</li>
+                    <li>单元学习报告</li>
                 </ul>
-                <a href="big_english_flashcards_voice.html?book=1" class="btn-enter" id="voiceLink">开始学习</a>
+                <a href="listening_quiz.html?book=1" class="btn-start" id="listeningLink">开始练习</a>
+            </div>
+
+            <!-- 闪卡版 -->
+            <div class="mode-card">
+                <div class="mode-icon">🃏</div>
+                <div class="mode-title">
+                    闪卡版
+                </div>
+                <div class="mode-desc">
+                    翻卡片学习，轻松记忆单词短语
+                </div>
+                <ul class="mode-features">
+                    <li id="flashcardsWords">213个学习内容</li>
+                    <li id="flashcardsUnits">10个主题单元</li>
+                    <li>卡片翻转学习</li>
+                    <li>真人语音朗读</li>
+                    <li>单元筛选功能</li>
+                    <li>语速调节</li>
+                    <li>进度追踪</li>
+                </ul>
+                <a href="flashcards.html?book=1" class="btn-start" id="flashcardsLink">开始学习</a>
             </div>
 
             <!-- 默写版 -->
-            <div class="version-card">
-                <div class="version-icon">✍️</div>
-                <div class="version-title">
+            <div class="mode-card">
+                <div class="mode-icon">✍️</div>
+                <div class="mode-title">
                     默写版
-                    <span class="badge new">NEW</span>
+                    <span class="mode-badge challenge">挑战</span>
                 </div>
-                <div class="version-desc">
-                    互动默写练习，提升拼写能力
+                <div class="mode-desc">
+                    看中文写英文，巩固拼写能力
                 </div>
-                <ul class="version-features">
-                    <li id="dictationWords">213个核心词汇</li>
-                    <li id="dictationUnits">10个学习单元</li>
-                    <li>根据中文默写英文</li>
+                <ul class="mode-features">
+                    <li id="dictationWords">213个学习内容</li>
+                    <li id="dictationUnits">10个主题单元</li>
+                    <li>根据中文写英文</li>
                     <li>实时拼写验证</li>
-                    <li>首字母和音标提示</li>
-                    <li>错题本自动收集</li>
-                    <li>正确率统计分析</li>
+                    <li>首字母提示</li>
+                    <li>错题本收集</li>
+                    <li>拼写准确率</li>
                     <li>顺序/随机/错题模式</li>
                 </ul>
-                <a href="big_english_flashcards_dictation.html?book=1" class="btn-enter" id="dictationLink">开始练习</a>
+                <a href="dictation.html?book=1" class="btn-start" id="dictationLink">开始挑战</a>
             </div>
         </div>
 
@@ -424,9 +463,9 @@
         <div class="footer">
             <p>💡 学习路径建议：</p>
             <p style="font-size: 1em; margin-top: 10px;">
-                1️⃣ 发音版（听说练习，记忆单词） → 2️⃣ 默写版（拼写巩固，测试掌握）
+                1️⃣ 听选版（听说练习，记忆单词） → 2️⃣ 闪卡版（卡片复习，强化记忆） → 3️⃣ 默写版（拼写巩固，测试掌握）
             </p>
-            <p style="margin-top: 20px;">⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（发音版）</p>
+            <p style="margin-top: 20px;">⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（闪卡版）</p>
             <p style="margin-top: 30px;">
                 <a href="https://github.com/Zhangxxamber/english-flashcard" target="_blank">🌟 GitHub</a>
                 <span style="margin: 0 15px;">|</span>
@@ -471,15 +510,18 @@
             document.getElementById('statWords').textContent = info.words;
             document.getElementById('statUnits').textContent = info.units;
             
-            // 更新版本卡片中的词汇数量
-            document.getElementById('voiceWords').textContent = `${info.words}个核心词汇`;
-            document.getElementById('voiceUnits').textContent = `${info.units}个学习单元`;
-            document.getElementById('dictationWords').textContent = `${info.words}个核心词汇`;
-            document.getElementById('dictationUnits').textContent = `${info.units}个学习单元`;
+            // 更新模式卡片中的词汇数量
+            document.getElementById('listeningWords').textContent = `${info.words}个学习内容`;
+            document.getElementById('listeningUnits').textContent = `${info.units}个主题单元`;
+            document.getElementById('flashcardsWords').textContent = `${info.words}个学习内容`;
+            document.getElementById('flashcardsUnits').textContent = `${info.units}个主题单元`;
+            document.getElementById('dictationWords').textContent = `${info.words}个学习内容`;
+            document.getElementById('dictationUnits').textContent = `${info.units}个主题单元`;
             
             // 更新链接
-            document.getElementById('voiceLink').href = `big_english_flashcards_voice.html?book=${bookNumber}`;
-            document.getElementById('dictationLink').href = `big_english_flashcards_dictation.html?book=${bookNumber}`;
+            document.getElementById('listeningLink').href = `listening_quiz.html?book=${bookNumber}`;
+            document.getElementById('flashcardsLink').href = `flashcards.html?book=${bookNumber}`;
+            document.getElementById('dictationLink').href = `dictation.html?book=${bookNumber}`;
         }
 
         // 记录访问统计（可选）

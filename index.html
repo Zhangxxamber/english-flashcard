@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="英语单词闪卡学习平台 - 沪教版二年级 & Big English">
+    <meta name="keywords" content="英语学习,单词闪卡,小学英语,Big English,沪教版">
+    <meta name="author" content="zhangxiaoxiao">
+    <title>英语单词闪卡 - 学习平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* 头部标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 1s;
+        }
+
+        .logo {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.5em;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* 项目卡片区域 */
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 45px 35px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .project-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+
+        .project-icon {
+            font-size: 5em;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .project-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .project-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .project-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-top: 2px solid #f0f0f0;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .project-features {
+            margin-bottom: 30px;
+        }
+
+        .project-features ul {
+            list-style: none;
+        }
+
+        .project-features li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #555;
+            font-size: 1.05em;
+        }
+
+        .project-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .btn-enter {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.4em;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-top: 50px;
+            animation: fadeIn 2s;
+        }
+
+        .footer p {
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .footer a:hover {
+            background: rgba(255,255,255,0.2);
+            color: #ffd700;
+        }
+
+        .feature-highlight {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-highlight strong {
+            color: #667eea;
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-15px);
+            }
+            60% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .project-card {
+                padding: 35px 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1.2em;
+            }
+
+            .logo {
+                font-size: 4em;
+            }
+
+            .project-title {
+                font-size: 1.8em;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="logo">📚</div>
+            <h1>英语单词闪卡学习平台</h1>
+            <p>听、说、读、写，全方位提升英语能力</p>
+        </div>
+
+        <!-- 项目卡片 -->
+        <div class="projects">
+            <!-- 沪教版二年级 -->
+            <div class="project-card">
+                <div class="project-icon">🎓</div>
+                <div class="project-title">沪教版小学英语二年级</div>
+                <div class="project-subtitle">Shanghai Edition Grade 2</div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">147</span>
+                        <span class="stat-label">学习内容</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">11</span>
+                        <span class="stat-label">单元数量</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">学习模式</span>
+                    </div>
+                </div>
+
+                <div class="project-features">
+                    <ul>
+                        <li>完整覆盖二年级上下册教材</li>
+                        <li>词汇、短语、句型全面学习</li>
+                        <li>听选、闪卡、默写三种模式</li>
+                        <li>配套真人语音发音</li>
+                        <li>单元筛选，针对性练习</li>
+                    </ul>
+                </div>
+
+                <div class="feature-highlight">
+                    <strong>🎯 适合人群：</strong> 小学二年级学生，使用沪教版教材
+                </div>
+
+                <a href="grade2_english_flashcards/index.html" class="btn-enter">进入学习 →</a>
+            </div>
+
+            <!-- Big English -->
+            <div class="project-card">
+                <div class="project-icon">🌍</div>
+                <div class="project-title">Big English</div>
+                <div class="project-subtitle">Comprehensive English Learning</div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">738</span>
+                        <span class="stat-label">学习内容</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">58</span>
+                        <span class="stat-label">单元数量</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">教材等级</span>
+                    </div>
+                </div>
+
+                <div class="project-features">
+                    <ul>
+                        <li>涵盖 Book 1-6 全系列教材</li>
+                        <li>从基础到高级循序渐进</li>
+                        <li>听选、闪卡、默写三种模式</li>
+                        <li>丰富的词汇和例句</li>
+                        <li>多教材切换，灵活选择</li>
+                    </ul>
+                </div>
+
+                <div class="feature-highlight">
+                    <strong>🎯 适合人群：</strong> 使用 Big English 系列教材的学生（幼儿园-小学）
+                </div>
+
+                <a href="big_english_flashcards/index.html" class="btn-enter">进入学习 →</a>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>💡 <strong>学习建议：</strong>建议按照 听选版 → 闪卡版 → 默写版 的顺序进行学习</p>
+            <p>每天坚持练习 15-30 分钟，效果更佳！</p>
+            <p style="margin-top: 30px;">
+                <a href="https://github.com/Zhangxxamber/english-flashcard" target="_blank">🌟 GitHub</a>
+                <span style="margin: 0 15px; opacity: 0.5;">|</span>
+                Made with ❤️ by Zhangxxamber
+            </p>
+            <p style="font-size: 0.9em; opacity: 0.8; margin-top: 20px;">
+                © 2026 English Flashcard Learning Platform
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 欢迎信息
+        console.log('%c📚 英语单词闪卡学习平台', 'font-size: 24px; color: #667eea; font-weight: bold;');
+        console.log('%c欢迎使用！祝您学习愉快！', 'font-size: 16px; color: #764ba2;');
+        console.log('\n📖 沪教版二年级: 147个学习内容');
+        console.log('🌍 Big English: 738个学习内容\n');
+        
+        // 添加键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // 按 1 进入二年级
+            if (e.key === '1') {
+                window.location.href = 'grade2_english_flashcards/index.html';
+            }
+            // 按 2 进入 Big English
+            if (e.key === '2') {
+                window.location.href = 'big_english_flashcards/index.html';
+            }
+        });
+
+        // 页面加载完成提示
+        window.addEventListener('load', () => {
+            console.log('\n⌨️ 快捷键提示:');
+            console.log('  按 1 - 进入沪教版二年级');
+            console.log('  按 2 - 进入 Big English');
+        });
+    </script>
+</body>
+</html>

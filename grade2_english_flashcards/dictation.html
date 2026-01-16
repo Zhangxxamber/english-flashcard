@@ -218,6 +218,27 @@
             width: 20px;
         }
 
+        .letter-blank.word-space {
+            width: 45px;
+            height: 55px;
+            border: 3px solid #ccc;
+            border-radius: 10px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #999;
+            position: relative;
+        }
+
+        /* 在空格方框中显示空格符号 */
+        .letter-blank.word-space::after {
+            content: '␣';
+            font-size: 1.8em;
+            color: #aaa;
+        }
+
         .letter-blank.filled {
             border-color: #667eea;
             color: #667eea;
@@ -503,22 +524,42 @@
         function handleInput(e) {
             if (isAnswered || currentIndex >= currentData.length) return;
             
-            const input = e.target.value.toLowerCase().trim();
+            const input = e.target.value.toLowerCase();
             const item = currentData[currentIndex];
-            const correctPhrase = item.phrase.toLowerCase().trim();
+            const correctPhrase = item.phrase.toLowerCase();
             
             // 更新字母空格
             const blanksContainer = document.getElementById('letterBlanks');
             const blanks = blanksContainer.children;
             
-            let inputIndex = 0;
+            let inputIndex = 0;  // 用户输入的索引（包含空格）
+            let blankIndex = 0;  // 方框的索引
+            
+            // 遍历所有方框（包括word-space）
             for (let i = 0; i < blanks.length; i++) {
                 const blank = blanks[i];
-                if (blank.classList.contains('space')) continue;
                 
+                // 如果是单词间隔
+                if (blank.classList.contains('word-space')) {
+                    // 检查用户输入中对应位置是否是空格
+                    if (inputIndex < input.length && input[inputIndex] === ' ') {
+                        inputIndex++; // 跳过用户输入的空格
+                    }
+                    continue; // 跳过word-space，不填充内容
+                }
+                
+                // 处理字母方框
                 if (inputIndex < input.length) {
                     const inputChar = input[inputIndex];
                     const correctChar = correctPhrase[inputIndex];
+                    
+                    // 如果用户输入的是空格，也跳过
+                    if (inputChar === ' ') {
+                        inputIndex++;
+                        blank.textContent = '';
+                        blank.classList.remove('filled', 'correct', 'wrong');
+                        continue;
+                    }
                     
                     blank.textContent = inputChar.toUpperCase();
                     blank.classList.add('filled');
@@ -530,11 +571,11 @@
                         blank.classList.add('wrong');
                         blank.classList.remove('correct');
                     }
+                    inputIndex++;
                 } else {
                     blank.textContent = '';
                     blank.classList.remove('filled', 'correct', 'wrong');
                 }
-                inputIndex++;
             }
         }
 
@@ -573,22 +614,34 @@
             // 初始隐藏提示区域
             document.getElementById('phoneticHint').style.display = 'none';
             
-            // 创建字母空格
+            // 创建字母空格（按单词分组）
             const blanksContainer = document.getElementById('letterBlanks');
             blanksContainer.innerHTML = '';
             
-            for (let i = 0; i < item.phrase.length; i++) {
-                const char = item.phrase[i];
-                const blank = document.createElement('div');
+            // 将短语按单词分割
+            const words = item.phrase.split(' ');
+            console.log('当前短语:', item.phrase);
+            console.log('分割后的单词:', words);
+            
+            words.forEach((word, wordIndex) => {
+                console.log(`单词 ${wordIndex + 1}: "${word}" (${word.length}个字母)`);
                 
-                if (char === ' ') {
-                    blank.className = 'letter-blank space';
-                } else {
+                // 为每个单词创建字母空格
+                for (let i = 0; i < word.length; i++) {
+                    const blank = document.createElement('div');
                     blank.className = 'letter-blank';
+                    blank.setAttribute('data-word-index', wordIndex);
+                    blank.setAttribute('data-char-index', i);
+                    blanksContainer.appendChild(blank);
                 }
                 
-                blanksContainer.appendChild(blank);
-            }
+                // 在单词之间添加间隔（除了最后一个单词）
+                if (wordIndex < words.length - 1) {
+                    const spacer = document.createElement('div');
+                    spacer.className = 'letter-blank word-space';
+                    blanksContainer.appendChild(spacer);
+                }
+            });
             
             // 清空输入
             const input = document.getElementById('answerInput');
