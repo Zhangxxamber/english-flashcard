@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二年级语文学习平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* 返回平台首页按钮 */
+        .btn-back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-back-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 学期选择器 */
+        .semester-selector {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .selector-label {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .semester-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .semester-btn {
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .semester-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .semester-btn.active {
+            background: rgba(255,255,255,0.6);
+            border-color: white;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+        }
+
+        /* 学期信息框 */
+        .semester-info {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .semester-info h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .semester-info p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* 模式卡片容器 */
+        .modes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .mode-card {
+            background: rgba(40, 40, 60, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .mode-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .mode-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .mode-desc {
+            font-size: 1em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mode-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .mode-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .modes-container {
+                grid-template-columns: 1fr;
+            }
+
+            .semester-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="btn-back-home">← 返回平台首页</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>📚 二年级语文学习平台</h1>
+            <p>人教版 · 生字词语 · 互动学习</p>
+        </div>
+
+        <!-- 学期选择器 -->
+        <div class="semester-selector">
+            <div class="selector-label">选择学期</div>
+            <div class="semester-buttons">
+                <button class="semester-btn active" onclick="selectSemester(1)">上学期</button>
+                <button class="semester-btn" onclick="selectSemester(2)">下学期</button>
+            </div>
+        </div>
+
+        <!-- 学期信息 -->
+        <div class="semester-info" id="semesterInfo">
+            <h3>📖 上学期</h3>
+            <p>包含课文生字、词语及拼音练习</p>
+        </div>
+
+        <!-- 学习模式 -->
+        <div class="modes-container">
+            <!-- 听力测试 -->
+            <div class="mode-card">
+                <div class="mode-icon">🎧</div>
+                <div class="mode-title">听力测试</div>
+                <div class="mode-desc">听拼音选汉字，提升识字能力</div>
+                <a href="listening_quiz.html?semester=1" class="mode-btn" id="listeningLink">开始练习</a>
+            </div>
+
+            <!-- 闪卡学习 -->
+            <div class="mode-card">
+                <div class="mode-icon">📇</div>
+                <div class="mode-title">闪卡学习</div>
+                <div class="mode-desc">翻转卡片，学习生字词语</div>
+                <a href="flashcards.html?semester=1" class="mode-btn" id="flashcardsLink">开始学习</a>
+            </div>
+
+            <!-- 听写练习 -->
+            <div class="mode-card">
+                <div class="mode-icon">✍️</div>
+                <div class="mode-title">听写练习</div>
+                <div class="mode-desc">听拼音写汉字，巩固记忆</div>
+                <a href="dictation.html?semester=1" class="mode-btn" id="dictationLink">开始听写</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSemester = 1;
+
+        function selectSemester(semester) {
+            currentSemester = semester;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.semester-btn').forEach((btn, index) => {
+                if (index + 1 === semester) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 更新学期信息
+            const info = document.getElementById('semesterInfo');
+            if (semester === 1) {
+                info.innerHTML = '<h3>📖 上学期</h3><p>包含课文生字、词语及拼音练习</p>';
+            } else {
+                info.innerHTML = '<h3>📖 下学期</h3><p>包含课文生字、词语及拼音练习</p>';
+            }
+
+            // 更新所有链接
+            document.getElementById('listeningLink').href = `listening_quiz.html?semester=${semester}`;
+            document.getElementById('flashcardsLink').href = `flashcards.html?semester=${semester}`;
+            document.getElementById('dictationLink').href = `dictation.html?semester=${semester}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>听力测试 - 二年级语文</title>
+    
+    <script>
+        // 根据学期参数动态加载对应的词汇文件
+        const urlParams = new URLSearchParams(window.location.search);
+        const semester = parseInt(urlParams.get('semester')) || 1;
+        const script = document.createElement('script');
+        script.src = `vocabulary_semester${semester}.js`;
+        script.onload = function() {
+            // 数据加载完成后，触发初始化
+            if (typeof init === 'function') {
+                init();
+            }
+        };
+        document.head.appendChild(script);
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 音效开关按钮 */
+        .btn-sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-sound-toggle:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-sound-toggle.muted {
+            background: rgba(255,100,100,0.3);
+            border-color: rgba(255,100,100,0.5);
+        }
+
+        /* 连击徽章 */
+        .combo-badge {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+            animation: comboAppear 0.5s ease-out;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes comboAppear {
+            0% { 
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .btn-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            background: rgba(30, 30, 40, 0.85);
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .title {
+            font-size: 2em;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(30, 30, 40, 0.85);
+            padding: 15px;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: none;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .game-area {
+            background: rgba(30, 30, 40, 0.85);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            min-height: 500px;
+        }
+
+        .question-number {
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .speaker-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 3px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 4em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .speaker-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+        }
+
+        .hint-text {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 2em;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .option-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .option-btn.correct {
+            background: rgba(78,205,196,0.3);
+            border-color: #4ecdc4;
+            animation: correctPulse 0.5s;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255,107,107,0.3);
+            border-color: #ff6b6b;
+            animation: shake 0.5s;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-screen h2 {
+            font-size: 2.5em;
+            color: #ffffff;
+            margin: 20px 0;
+        }
+
+        .final-score {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 30px 0;
+        }
+
+        .score-details {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .btn-restart {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .option-btn {
+                font-size: 1.8em;
+            }
+
+            .speaker-btn {
+                width: 100px;
+                height: 100px;
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 音效开关按钮 -->
+    <button class="btn-sound-toggle" id="soundToggle" onclick="toggleSound()">
+        <span id="soundIcon">🔊</span>
+    </button>
+    <!-- 返回按钮 -->
+    <a href="index.html" class="btn-home">← 返回二年级语文首页</a>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">🎧 听力测试</div>
+        </div>
+
+        <div class="scoreboard">
+            <div class="score-item">
+                <div class="score-label">当前题目</div>
+                <div class="score-value" id="currentQuestion">0/0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">正确</div>
+                <div class="score-value" id="correctCount">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">正确率</div>
+                <div class="score-value" id="accuracy">0%</div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <!-- 游戏内容将在这里动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // ==================== 音效系统 ====================
+        
+        let soundEnabled = true;
+        let comboCount = 0;
+        
+        const encouragementPhrases = [
+            "太棒了！你真是个小天才！", "哇塞！简直完美！", "你是最棒的！继续加油！",
+            "真聪明！答对了！", "好样的！就是这样！", "太厉害了！你太优秀了！",
+            "棒极了！继续保持！", "真不错！你学得很快！", "超级棒！做得太好了！",
+            "真了不起！你真能干！", "完美答对！你真厉害！", "太优秀了！继续努力！",
+            "好极了！你太聪明了！", "真棒！答得很好！", "太好了！你学得真快！",
+            "真厉害！继续加油哦！", "非常好！你真出色！", "真不简单！你太牛了！",
+            "太赞了！你真行！", "好棒啊！继续保持！", "真优秀！你太棒了！",
+            "答对了！你真聪明！", "太厉害！做得真好！", "真能干！你最棒！"
+        ];
+        
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'correct1':
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    break;
+                    
+                case 'correct2':
+                    [523, 659, 784].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        osc.start(audioContext.currentTime + i * 0.05);
+                        osc.stop(audioContext.currentTime + 0.3);
+                    });
+                    return;
+                    
+                case 'correct3':
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1500, audioContext.currentTime + 0.05);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.25);
+                    break;
+                    
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                    break;
+                    
+                case 'combo3':
+                case 'combo5':
+                    for(let i = 0; i < 3; i++) {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = 800 + i * 200;
+                        gain.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.15);
+                        osc.start(audioContext.currentTime + i * 0.1);
+                        osc.stop(audioContext.currentTime + i * 0.1 + 0.15);
+                    }
+                    return;
+                    
+                case 'perfect':
+                    [400, 500, 600, 700, 800].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.15, audioContext.currentTime + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.08 + 0.3);
+                        osc.start(audioContext.currentTime + i * 0.08);
+                        osc.stop(audioContext.currentTime + i * 0.08 + 0.3);
+                    });
+                    return;
+                    
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(900, audioContext.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                    break;
+            }
+        }
+        
+        function playCorrectSound() {
+            const sounds = ['correct1', 'correct2', 'correct3'];
+            const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+            playSound(randomSound);
+        }
+        
+        function playEncouragement() {
+            if (!soundEnabled) return;
+            
+            const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+            const utterance = new SpeechSynthesisUtterance(phrase);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 1.1;
+            utterance.pitch = 1.2;
+            utterance.volume = 0.8;
+            
+            const voices = speechSynthesis.getVoices();
+            const preferredVoices = [
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
+                'Microsoft Xiaoxiao - Chinese (Mainland)',
+                'Google 普通话（中国大陆）'
+            ];
+            
+            for (const preferred of preferredVoices) {
+                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                if (voice) {
+                    utterance.voice = voice;
+                    break;
+                }
+            }
+            
+            if (!utterance.voice) {
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) utterance.voice = chineseVoice;
+            }
+            
+            setTimeout(() => {
+                speechSynthesis.speak(utterance);
+            }, 200);
+        }
+        
+        function showComboEffect(count) {
+            const comboTexts = {
+                3: '🔥 三连击！',
+                5: '⚡ 五连击！',
+                10: '🌟 十连击！',
+                15: '🏆 超神！'
+            };
+            
+            if (comboTexts[count]) {
+                const badge = document.createElement('div');
+                badge.className = 'combo-badge';
+                badge.textContent = comboTexts[count];
+                document.body.appendChild(badge);
+                
+                setTimeout(() => {
+                    badge.remove();
+                }, 1000);
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            const icon = document.getElementById('soundIcon');
+            
+            if (soundEnabled) {
+                btn.classList.remove('muted');
+                icon.textContent = '🔊';
+                playSound('correct1');
+            } else {
+                btn.classList.add('muted');
+                icon.textContent = '🔇';
+            }
+            
+            localStorage.setItem('soundEnabled', soundEnabled);
+        }
+        
+        function loadSoundPreference() {
+            const saved = localStorage.getItem('soundEnabled');
+            if (saved !== null) {
+                soundEnabled = saved === 'true';
+                const btn = document.getElementById('soundToggle');
+                const icon = document.getElementById('soundIcon');
+                if (!soundEnabled) {
+                    btn.classList.add('muted');
+                    icon.textContent = '🔇';
+                }
+            }
+        }
+        
+        // ==================== 游戏逻辑 ====================
+        
+        function getSemesterNumber() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('semester')) || 1;
+        }
+        
+        function getCurrentSemesterData() {
+            const semester = getSemesterNumber();
+            console.log('当前学期:', semester);
+            console.log('Semester1数据存在?', typeof grade2ChineseSemester1 !== 'undefined');
+            console.log('Semester2数据存在?', typeof grade2ChineseSemester2 !== 'undefined');
+            const data = semester === 1 ? grade2ChineseSemester1 : grade2ChineseSemester2;
+            console.log('获取到的数据条数:', data ? data.length : 0);
+            return data;
+        }
+        
+        let allData = []; // 初始化为空数组，等init()时再加载
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        let isAnswered = false;
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function generateQuestions() {
+            const shuffled = [...allData];
+            shuffleArray(shuffled);
+            currentQuestions = shuffled.slice(0, Math.min(20, shuffled.length));
+            totalQuestions = currentQuestions.length;
+        }
+        
+        function init() {
+            console.log('=== init() 开始执行 ===');
+            // 在init()中重新获取数据
+            allData = getCurrentSemesterData();
+            console.log('allData 数据条数:', allData ? allData.length : 0);
+            
+            loadSoundPreference();
+            generateQuestions();
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            if (currentIndex >= currentQuestions.length) {
+                showCompletion();
+                return;
+            }
+            
+            isAnswered = false;
+            const question = currentQuestions[currentIndex];
+            
+            // 生成选项（1个正确答案 + 3个错误答案）
+            const options = [question];
+            const usedIndices = new Set([currentQuestions.indexOf(question)]);
+            
+            while (options.length < 4 && options.length < allData.length) {
+                const randomIndex = Math.floor(Math.random() * allData.length);
+                if (!usedIndices.has(randomIndex)) {
+                    options.push(allData[randomIndex]);
+                    usedIndices.add(randomIndex);
+                }
+            }
+            
+            shuffleArray(options);
+            
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="question-number">第 ${currentIndex + 1} / ${totalQuestions} 题</div>
+                <div class="speaker-btn" onclick="playQuestion()">🔊</div>
+                <div class="hint-text">点击喇叭听拼音，选择对应的汉字</div>
+                <div class="options">
+                    ${options.map((opt, idx) => `
+                        <button class="option-btn" onclick="selectOption(${idx})">${opt.character}</button>
+                    `).join('')}
+                </div>
+            `;
+            
+            updateScoreboard();
+            setTimeout(() => playQuestion(), 500);
+            
+            // 保存当前题目信息
+            window.currentQuestion = question;
+            window.currentOptions = options;
+        }
+        
+        function playQuestion() {
+            const question = window.currentQuestion;
+            const utterance = new SpeechSynthesisUtterance(question.pinyin);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.0;
+            speechSynthesis.speak(utterance);
+        }
+        
+        function selectOption(optionIndex) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            const selectedOption = window.currentOptions[optionIndex];
+            const correctOption = window.currentQuestion;
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            if (selectedOption.character === correctOption.character) {
+                buttons[optionIndex].classList.add('correct');
+                correctAnswers++;
+                comboCount++;
+                
+                playCorrectSound();
+                playEncouragement();
+                
+                if (comboCount === 3) {
+                    playSound('combo3');
+                    showComboEffect(3);
+                } else if (comboCount === 5) {
+                    playSound('combo5');
+                    showComboEffect(5);
+                } else if (comboCount === 10) {
+                    showComboEffect(10);
+                } else if (comboCount === 15) {
+                    showComboEffect(15);
+                }
+            } else {
+                buttons[optionIndex].classList.add('wrong');
+                comboCount = 0;
+                playSound('wrong');
+                
+                // 高亮正确答案
+                buttons.forEach((btn, idx) => {
+                    if (window.currentOptions[idx].character === correctOption.character) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            updateScoreboard();
+            setTimeout(() => {
+                currentIndex++;
+                showQuestion();
+            }, 2000);
+        }
+        
+        function updateScoreboard() {
+            document.getElementById('currentQuestion').textContent = `${currentIndex + 1}/${totalQuestions}`;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            const accuracy = currentIndex > 0 ? Math.round((correctAnswers / currentIndex) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+        
+        function showCompletion() {
+            const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            let emoji = '🎉';
+            let title = '测试完成！';
+            
+            if (accuracy === 100) {
+                emoji = '🏆';
+                title = '完美！满分通关！';
+                playSound('perfect');
+            } else if (accuracy >= 80) {
+                emoji = '🌟';
+                title = '很棒！继续保持！';
+                playSound('complete');
+            } else if (accuracy >= 60) {
+                emoji = '👍';
+                title = '不错！再接再厉！';
+                playSound('complete');
+            } else {
+                emoji = '💪';
+                title = '加油！多多练习！';
+                playSound('complete');
+            }
+            
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="completion-screen">
+                    <div style="font-size:5em;">${emoji}</div>
+                    <h2>${title}</h2>
+                    <div class="final-score">${accuracy}%</div>
+                    <div class="score-details">
+                        <div class="detail-row">
+                            <span>总题数</span>
+                            <span class="detail-value">${totalQuestions}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>答对</span>
+                            <span class="detail-value">${correctAnswers}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>答错</span>
+                            <span class="detail-value">${totalQuestions - correctAnswers}</span>
+                        </div>
+                    </div>
+                    <button class="btn-restart" onclick="location.reload()">再来一次</button>
+                    <button class="btn-restart" onclick="location.href='index.html'" style="background:rgba(255,255,255,0.2);">返回首页</button>
+                </div>
+            `;
+        }
+        
+        // 移除页面底部的init()调用，改为在数据加载完成后触发（见head中的script.onload）
+    </script>
+</body>
+</html>

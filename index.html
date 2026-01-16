@@ -318,12 +318,50 @@
         <!-- 头部 -->
         <div class="header">
             <div class="logo">📚</div>
-            <h1>英语单词闪卡学习平台</h1>
-            <p>听、说、读、写，全方位提升英语能力</p>
+            <h1>小学学习平台</h1>
+            <p>英语 · 语文 · 互动学习 · 全方位提升</p>
         </div>
 
         <!-- 项目卡片 -->
         <div class="projects">
+            <!-- 二年级语文 -->
+            <div class="project-card">
+                <div class="project-icon">📖</div>
+                <div class="project-title">人教版小学语文二年级</div>
+                <div class="project-subtitle">Chinese Grade 2</div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">生字词语</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2</span>
+                        <span class="stat-label">学期教材</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">学习模式</span>
+                    </div>
+                </div>
+
+                <div class="project-features">
+                    <ul>
+                        <li>完整覆盖二年级上下册教材</li>
+                        <li>生字、词语、成语全面学习</li>
+                        <li>听力、闪卡、听写三种模式</li>
+                        <li>配套拼音发音系统</li>
+                        <li>课文例句巩固记忆</li>
+                    </ul>
+                </div>
+
+                <div class="feature-highlight">
+                    <strong>🎯 适合人群：</strong> 小学二年级学生，使用人教版教材
+                </div>
+
+                <a href="grade2_chinese_flashcards/index.html" class="btn-enter">进入学习 →</a>
+            </div>
+
             <!-- 沪教版二年级 -->
             <div class="project-card">
                 <div class="project-icon">🎓</div>
@@ -411,26 +449,31 @@
                 Made with ❤️ by Zhangxxamber
             </p>
             <p style="font-size: 0.9em; opacity: 0.8; margin-top: 20px;">
-                © 2026 English Flashcard Learning Platform
+                © 2026 小学学习平台 · 语文英语同步学习
             </p>
         </div>
     </div>
 
     <script>
         // 欢迎信息
-        console.log('%c📚 英语单词闪卡学习平台', 'font-size: 24px; color: #667eea; font-weight: bold;');
+        console.log('%c📚 小学学习平台', 'font-size: 24px; color: #667eea; font-weight: bold;');
         console.log('%c欢迎使用！祝您学习愉快！', 'font-size: 16px; color: #764ba2;');
-        console.log('\n📖 沪教版二年级: 147个学习内容');
+        console.log('\n📖 二年级语文: 100+个生字词语');
+        console.log('🎓 沪教版二年级英语: 147个学习内容');
         console.log('🌍 Big English: 738个学习内容\n');
         
         // 添加键盘快捷键
         document.addEventListener('keydown', (e) => {
-            // 按 1 进入二年级
+            // 按 1 进入语文
             if (e.key === '1') {
+                window.location.href = 'grade2_chinese_flashcards/index.html';
+            }
+            // 按 2 进入英语二年级
+            if (e.key === '2') {
                 window.location.href = 'grade2_english_flashcards/index.html';
             }
-            // 按 2 进入 Big English
-            if (e.key === '2') {
+            // 按 3 进入 Big English
+            if (e.key === '3') {
                 window.location.href = 'big_english_flashcards/index.html';
             }
         });
@@ -438,8 +481,9 @@
         // 页面加载完成提示
         window.addEventListener('load', () => {
             console.log('\n⌨️ 快捷键提示:');
-            console.log('  按 1 - 进入沪教版二年级');
-            console.log('  按 2 - 进入 Big English');
+            console.log('  按 1 - 进入二年级语文');
+            console.log('  按 2 - 进入沪教版二年级英语');
+            console.log('  按 3 - 进入 Big English');
         });
     </script>
 </body>
