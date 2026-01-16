@@ -689,6 +689,37 @@
             utterance.lang = 'zh-CN';
             utterance.rate = 0.8;
             utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // 选择高质量的中文语音引擎（与鼓励语音使用相同的优质引擎）
+            const voices = speechSynthesis.getVoices();
+            const preferredVoices = [
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
+                'Microsoft Xiaoxiao - Chinese (Mainland)',
+                'Google 普通话（中国大陆）'
+            ];
+            
+            // 尝试使用优选的高质量语音
+            for (const preferred of preferredVoices) {
+                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                if (voice) {
+                    utterance.voice = voice;
+                    console.log('拼音播放使用语音:', voice.name);
+                    break;
+                }
+            }
+            
+            // 如果没有找到优选语音，使用任何中文语音
+            if (!utterance.voice) {
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) {
+                    utterance.voice = chineseVoice;
+                    console.log('拼音播放使用备用语音:', chineseVoice.name);
+                }
+            }
+            
             speechSynthesis.speak(utterance);
         }
         

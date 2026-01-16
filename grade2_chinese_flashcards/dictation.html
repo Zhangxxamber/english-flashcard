@@ -768,8 +768,8 @@
             document.getElementById('pinyinDisplay').innerHTML = 
                 `<button onclick="playPinyin()" style="background:none;border:none;color:white;font-size:inherit;cursor:pointer;">🔊 点击播放拼音</button>`;
             
-            // 将例句中的答案替换为下划线
-            const hiddenExample = item.example.replace(item.character, '_'.repeat(item.character.length));
+            // 将例句中的答案替换为下划线（每个字符用2个下划线，更明显）
+            const hiddenExample = item.example.replace(item.character, '_'.repeat(item.character.length * 2));
             document.getElementById('exampleText').textContent = hiddenExample;
             
             document.getElementById('hintDisplay').textContent = '';
@@ -795,6 +795,33 @@
             utterance.lang = 'zh-CN';
             utterance.rate = 0.8;
             utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // 选择高质量的中文语音引擎（与鼓励语音使用相同的优质引擎）
+            const voices = speechSynthesis.getVoices();
+            const preferredVoices = [
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
+                'Microsoft Xiaoxiao - Chinese (Mainland)',
+                'Google 普通话（中国大陆）'
+            ];
+            
+            // 尝试使用优选的高质量语音
+            for (const preferred of preferredVoices) {
+                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                if (voice) {
+                    utterance.voice = voice;
+                    break;
+                }
+            }
+            
+            // 如果没有找到优选语音，使用任何中文语音
+            if (!utterance.voice) {
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) utterance.voice = chineseVoice;
+            }
+            
             speechSynthesis.speak(utterance);
             
             // 显示拼音（但不显示完整答案）
