@@ -74,6 +74,68 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
+        /* 音效开关按钮 */
+        .btn-sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-sound-toggle:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-sound-toggle.muted {
+            background: rgba(255,100,100,0.3);
+            border-color: rgba(255,100,100,0.5);
+        }
+
+        /* 连击徽章 */
+        .combo-badge {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+            animation: comboAppear 0.5s ease-out;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes comboAppear {
+            0% { 
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
@@ -582,6 +644,10 @@
     </style>
 </head>
 <body>
+    <!-- 音效开关按钮 -->
+    <button class="btn-sound-toggle" id="soundToggle" onclick="toggleSound()">
+        <span id="soundIcon">🔊</span>
+    </button>
     <!-- 返回按钮（独立于容器外） -->
     <a href="index.html" class="btn-home">← 返回Big English首页</a>
     
@@ -721,6 +787,231 @@
     </div>
 
     <script>
+        // ==================== 音效系统 ====================
+        
+        // 音效状态控制
+        let soundEnabled = true;
+        let comboCount = 0; // 连对次数
+        
+        // 丰富的鼓励语音库
+        const encouragementPhrases = [
+            "太棒了！你真是个小天才！",
+            "哇塞！简直完美！",
+            "你是最棒的！继续加油！",
+            "真聪明！答对了！",
+            "好样的！就是这样！",
+            "太厉害了！你太优秀了！",
+            "棒极了！继续保持！",
+            "真不错！你学得很快！",
+            "超级棒！做得太好了！",
+            "真了不起！你真能干！",
+            "完美答对！你真厉害！",
+            "太优秀了！继续努力！",
+            "好极了！你太聪明了！",
+            "真棒！答得很好！",
+            "太好了！你学得真快！",
+            "真厉害！继续加油哦！",
+            "非常好！你真出色！",
+            "真不简单！你太牛了！",
+            "太赞了！你真行！",
+            "好棒啊！继续保持！",
+            "真优秀！你太棒了！",
+            "答对了！你真聪明！",
+            "太厉害！做得真好！",
+            "真能干！你最棒！"
+        ];
+        
+        // 使用 Web Audio API 生成卡通音效
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'correct1':
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    break;
+                    
+                case 'correct2':
+                    [523, 659, 784].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        osc.start(audioContext.currentTime + i * 0.05);
+                        osc.stop(audioContext.currentTime + 0.3);
+                    });
+                    return;
+                    
+                case 'correct3':
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1500, audioContext.currentTime + 0.05);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.25);
+                    break;
+                    
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                    break;
+                    
+                case 'combo3':
+                case 'combo5':
+                    for(let i = 0; i < 3; i++) {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = 800 + i * 200;
+                        gain.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.15);
+                        osc.start(audioContext.currentTime + i * 0.1);
+                        osc.stop(audioContext.currentTime + i * 0.1 + 0.15);
+                    }
+                    return;
+                    
+                case 'perfect':
+                    [400, 500, 600, 700, 800].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.15, audioContext.currentTime + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.08 + 0.3);
+                        osc.start(audioContext.currentTime + i * 0.08);
+                        osc.stop(audioContext.currentTime + i * 0.08 + 0.3);
+                    });
+                    return;
+                    
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(900, audioContext.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                    break;
+            }
+        }
+        
+        function playCorrectSound() {
+            const sounds = ['correct1', 'correct2', 'correct3'];
+            const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+            playSound(randomSound);
+        }
+        
+        function playEncouragement() {
+            if (!soundEnabled) return;
+            
+            const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+            const utterance = new SpeechSynthesisUtterance(phrase);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 1.1;
+            utterance.pitch = 1.2;
+            utterance.volume = 0.8;
+            
+            const voices = speechSynthesis.getVoices();
+            const preferredVoices = [
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
+                'Microsoft Xiaoxiao - Chinese (Mainland)',
+                'Microsoft Yunyang - Chinese (Mainland)',
+                'Google 普通话（中国大陆）',
+                'zh-CN'
+            ];
+            
+            for (const preferred of preferredVoices) {
+                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                if (voice) {
+                    utterance.voice = voice;
+                    break;
+                }
+            }
+            
+            if (!utterance.voice) {
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) utterance.voice = chineseVoice;
+            }
+            
+            setTimeout(() => {
+                speechSynthesis.speak(utterance);
+            }, 200);
+        }
+        
+        function showComboEffect(count) {
+            const comboTexts = {
+                3: '🔥 三连击！',
+                5: '⚡ 五连击！',
+                10: '🌟 十连击！',
+                15: '🏆 超神！'
+            };
+            
+            if (comboTexts[count]) {
+                const badge = document.createElement('div');
+                badge.className = 'combo-badge';
+                badge.textContent = comboTexts[count];
+                document.body.appendChild(badge);
+                
+                setTimeout(() => {
+                    badge.remove();
+                }, 1000);
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            const icon = document.getElementById('soundIcon');
+            
+            if (soundEnabled) {
+                btn.classList.remove('muted');
+                icon.textContent = '🔊';
+                playSound('correct1');
+            } else {
+                btn.classList.add('muted');
+                icon.textContent = '🔇';
+            }
+            
+            localStorage.setItem('soundEnabled', soundEnabled);
+        }
+        
+        function loadSoundPreference() {
+            const saved = localStorage.getItem('soundEnabled');
+            if (saved !== null) {
+                soundEnabled = saved === 'true';
+                const btn = document.getElementById('soundToggle');
+                const icon = document.getElementById('soundIcon');
+                if (!soundEnabled) {
+                    btn.classList.add('muted');
+                    icon.textContent = '🔇';
+                }
+            }
+        }
+        
+        // ==================== 原有代码 ====================
+        
         // Big English 1 单词库（完整数据）
         const allWordsBook1 = [
             // 入门单元：Welcome to Class!
@@ -1292,6 +1583,25 @@
             if (input === correctWord) {
                 // 正确
                 correctCount++;
+                comboCount++; // 增加连击计数
+                
+                // 播放音效和鼓励
+                playCorrectSound();
+                playEncouragement();
+                
+                // 检查连击
+                if (comboCount === 3) {
+                    playSound('combo3');
+                    showComboEffect(3);
+                } else if (comboCount === 5) {
+                    playSound('combo5');
+                    showComboEffect(5);
+                } else if (comboCount === 10) {
+                    showComboEffect(10);
+                } else if (comboCount === 15) {
+                    showComboEffect(15);
+                }
+                
                 feedback.textContent = '✅ 正确！做得好！';
                 feedback.className = 'feedback correct show';
                 inputField.className = 'correct';
@@ -1311,6 +1621,11 @@
             } else {
                 // 错误
                 wrongCount++;
+                comboCount = 0; // 重置连击
+                
+                // 播放错误音效
+                playSound('wrong');
+                
                 feedback.textContent = `❌ 错误！正确答案是：${word.word}`;
                 feedback.className = 'feedback wrong show';
                 inputField.className = 'wrong';
@@ -1480,12 +1795,15 @@
             if (accuracy >= 90) {
                 accuracyElement.className = 'accuracy';
                 encouragement = '🌟 太棒了！你的拼写能力非常出色！';
+                playSound('perfect'); // 满分音效
             } else if (accuracy >= 70) {
                 accuracyElement.className = 'accuracy medium';
                 encouragement = '👍 做得不错！继续努力，你会更好的！';
+                playSound('complete'); // 完成音效
             } else {
                 accuracyElement.className = 'accuracy low';
                 encouragement = '💪 加油！多练习就能掌握这些单词！';
+                playSound('complete'); // 完成音效
             }
             document.getElementById('encouragement').textContent = encouragement;
 
@@ -1546,7 +1864,10 @@
         }
 
         // 页面加载时初始化
-        window.onload = init;
+        window.onload = function() {
+            loadSoundPreference(); // 加载音效偏好
+            init();
+        };
     </script>
 </body>
 </html>

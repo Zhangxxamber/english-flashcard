@@ -196,14 +196,16 @@
 
         /* 卡片正面（英文单词） */
         .card-front {
-            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            background: rgba(40, 40, 60, 0.85); /* 深色半透明背景 */
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
         }
 
         .card-front .word {
             font-size: 3.5em;
             font-weight: bold;
             color: white;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.5);
             margin-bottom: 20px;
             text-align: center;
             word-wrap: break-word;
@@ -212,10 +214,12 @@
         .card-front .unit-badge {
             font-size: 1em;
             color: rgba(255,255,255,0.9);
-            background: rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.2); /* 更亮一点的背景 */
             padding: 8px 16px;
             border-radius: 15px;
             margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
         }
 
         /* 发音按钮 */
@@ -268,27 +272,30 @@
 
         /* 卡片反面（中文和音标） */
         .card-back {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            background: rgba(50, 50, 70, 0.85); /* 深色半透明背景 */
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             transform: rotateY(180deg);
         }
 
         .card-back .phonetic {
             font-size: 1.8em;
-            color: #555;
+            color: rgba(255,255,255,0.8); /* 浅白色音标 */
             margin-bottom: 20px;
         }
 
         .card-back .meaning {
             font-size: 2.8em;
             font-weight: bold;
-            color: #333;
+            color: #ffffff; /* 白色中文意思 */
             margin-bottom: 20px;
             text-align: center;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
         }
 
         .card-back .example {
             font-size: 1.1em;
-            color: #666;
+            color: rgba(255,255,255,0.7); /* 浅白色例句 */
             text-align: center;
             line-height: 1.6;
         }
