@@ -366,49 +366,31 @@
                 <div class="stat-label">学习单元</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">3</div>
+                <div class="stat-number">2</div>
                 <div class="stat-label">学习模式</div>
             </div>
         </div>
 
         <!-- 版本选择 -->
         <div class="versions">
-            <!-- 基础版 -->
-            <div class="version-card">
-                <div class="version-icon">📖</div>
-                <div class="version-title">
-                    基础版
-                    <span class="badge">推荐</span>
-                </div>
-                <div class="version-desc">
-                    经典卡片学习模式，专注于单词记忆
-                </div>
-                <ul class="version-features">
-                    <li id="basicWords">213个核心词汇</li>
-                    <li id="basicUnits">10个学习单元</li>
-                    <li>卡片翻转效果</li>
-                    <li>单元筛选功能</li>
-                    <li>随机学习模式</li>
-                    <li>键盘快捷键支持</li>
-                </ul>
-                <a href="big_english_flashcards.html?book=1" class="btn-enter" id="basicLink">开始学习</a>
-            </div>
-
             <!-- 发音版 -->
             <div class="version-card">
                 <div class="version-icon">🔊</div>
                 <div class="version-title">
                     发音版
+                    <span class="badge">推荐</span>
                 </div>
                 <div class="version-desc">
                     增强版学习体验，支持真人语音朗读
                 </div>
                 <ul class="version-features">
-                    <li>包含基础版所有功能</li>
+                    <li id="voiceWords">213个核心词汇</li>
+                    <li id="voiceUnits">10个学习单元</li>
                     <li>真人语音朗读</li>
                     <li>自动发音切换</li>
                     <li>语速调节（慢/正常/快）</li>
-                    <li>大型发音按钮</li>
+                    <li>卡片翻转效果</li>
+                    <li>单元筛选功能</li>
                     <li>键盘S键快速发音</li>
                 </ul>
                 <a href="big_english_flashcards_voice.html?book=1" class="btn-enter" id="voiceLink">开始学习</a>
@@ -425,6 +407,8 @@
                     互动默写练习，提升拼写能力
                 </div>
                 <ul class="version-features">
+                    <li id="dictationWords">213个核心词汇</li>
+                    <li id="dictationUnits">10个学习单元</li>
                     <li>根据中文默写英文</li>
                     <li>实时拼写验证</li>
                     <li>首字母和音标提示</li>
@@ -440,7 +424,7 @@
         <div class="footer">
             <p>💡 学习路径建议：</p>
             <p style="font-size: 1em; margin-top: 10px;">
-                1️⃣ 基础版（记忆单词） → 2️⃣ 发音版（听说练习） → 3️⃣ 默写版（拼写巩固）
+                1️⃣ 发音版（听说练习，记忆单词） → 2️⃣ 默写版（拼写巩固，测试掌握）
             </p>
             <p style="margin-top: 20px;">⌨️ 快捷键：← → 切换单词 | 空格/回车 翻转卡片 | S 发音（发音版）</p>
             <p style="margin-top: 30px;">
@@ -488,11 +472,12 @@
             document.getElementById('statUnits').textContent = info.units;
             
             // 更新版本卡片中的词汇数量
-            document.getElementById('basicWords').textContent = `${info.words}个核心词汇`;
-            document.getElementById('basicUnits').textContent = `${info.units}个学习单元`;
+            document.getElementById('voiceWords').textContent = `${info.words}个核心词汇`;
+            document.getElementById('voiceUnits').textContent = `${info.units}个学习单元`;
+            document.getElementById('dictationWords').textContent = `${info.words}个核心词汇`;
+            document.getElementById('dictationUnits').textContent = `${info.units}个学习单元`;
             
             // 更新链接
-            document.getElementById('basicLink').href = `big_english_flashcards.html?book=${bookNumber}`;
             document.getElementById('voiceLink').href = `big_english_flashcards_voice.html?book=${bookNumber}`;
             document.getElementById('dictationLink').href = `big_english_flashcards_dictation.html?book=${bookNumber}`;
         }

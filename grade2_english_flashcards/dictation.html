@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>默写练习 - 小学英语二年级</title>
+    
+    <!-- 引入词汇数据 -->
+    <script src="data/vocabulary_book1.js"></script>
+    <script src="data/vocabulary_book2.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .title {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .btn-home {
+            padding: 10px 20px;
+            background: #fa709a;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .btn-home:hover {
+            background: #fe8c00;
+        }
+
+        /* 得分板 */
+        .scoreboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            justify-content: space-around;
+            color: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* 练习区域 */
+        .practice-area {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            min-height: 500px;
+        }
+
+        .question-number {
+            text-align: center;
+            font-size: 1.2em;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .chinese-text {
+            text-align: center;
+            font-size: 2.5em;
+            color: #333;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+        }
+
+        .hint-area {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .hint-btn {
+            padding: 10px 20px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+
+        .hint-btn:hover {
+            background: #44a08d;
+            transform: scale(1.05);
+        }
+
+        .hint-text {
+            font-size: 1.5em;
+            color: #666;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-area {
+            margin: 30px 0;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.8em;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .answer-input.correct {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.wrong {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-skip {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-next {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: rgba(78, 205, 196, 0.2);
+            color: #2d6a4f;
+        }
+
+        .feedback.wrong {
+            background: rgba(255, 107, 107, 0.2);
+            color: #c92a2a;
+        }
+
+        .correct-answer {
+            font-size: 1.5em;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 完成界面 */
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-screen .emoji {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen h2 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .chinese-text {
+                font-size: 1.8em;
+            }
+            
+            .answer-input {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="title">✍️ 默写练习</div>
+            <a href="index.html" class="btn-home">🏠 返回首页</a>
+        </div>
+
+        <!-- 得分板 -->
+        <div class="scoreboard">
+            <div class="score-item">
+                <div class="score-label">进度</div>
+                <div class="score-value" id="progress">0/0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">正确</div>
+                <div class="score-value" id="correct">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">正确率</div>
+                <div class="score-value" id="accuracy">0%</div>
+            </div>
+        </div>
+
+        <!-- 练习区域 -->
+        <div class="practice-area" id="practiceArea">
+            <div class="question-number" id="questionNumber">第 1 题</div>
+            <div class="chinese-text" id="chineseText">加载中...</div>
+            
+            <div class="hint-area">
+                <button class="hint-btn" onclick="showFirstLetter()">💡 首字母提示</button>
+                <button class="hint-btn" onclick="playAudio()">🔊 听发音</button>
+                <div class="hint-text" id="hintText"></div>
+            </div>
+
+            <div class="input-area">
+                <input 
+                    type="text" 
+                    class="answer-input" 
+                    id="answerInput" 
+                    placeholder="在这里输入英文..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-check" onclick="checkAnswer()" id="checkBtn">✓ 检查答案</button>
+                <button class="btn btn-skip" onclick="skipQuestion()">⏭️ 跳过</button>
+                <button class="btn btn-next" onclick="nextQuestion()" id="nextBtn" style="display: none;">下一题 ➡️</button>
+            </div>
+
+            <div id="feedbackArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取教材数据
+        function getBookNumber() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const book = urlParams.get('book');
+            return book ? parseInt(book) : 1;
+        }
+
+        function getCurrentBookData() {
+            const bookNumber = getBookNumber();
+            if (bookNumber === 2 && typeof grade2Book2Vocabulary !== 'undefined') {
+                document.title = '默写练习 - 二年级下册';
+                return grade2Book2Vocabulary;
+            }
+            return grade2Book1Vocabulary;
+        }
+
+        let allData = getCurrentBookData();
+        let currentData = [...allData];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let totalAnswered = 0;
+        let isAnswered = false;
+        let usedHints = {};
+
+        // 打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 初始化
+        function init() {
+            shuffleArray(currentData);
+            updateScoreboard();
+            showQuestion();
+        }
+
+        // 显示题目
+        function showQuestion() {
+            if (currentIndex >= currentData.length) {
+                showCompletion();
+                return;
+            }
+
+            isAnswered = false;
+            usedHints = {};
+            const item = currentData[currentIndex];
+            
+            document.getElementById('questionNumber').textContent = `第 ${currentIndex + 1} 题 / 共 ${currentData.length} 题`;
+            document.getElementById('chineseText').textContent = item.chinese;
+            document.getElementById('hintText').textContent = '';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').className = 'answer-input';
+            document.getElementById('answerInput').disabled = false;
+            document.getElementById('answerInput').focus();
+            document.getElementById('feedbackArea').innerHTML = '';
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        // 显示首字母提示
+        function showFirstLetter() {
+            if (isAnswered) return;
+            
+            const item = currentData[currentIndex];
+            const firstLetter = item.phrase.charAt(0).toUpperCase();
+            document.getElementById('hintText').textContent = `提示: ${firstLetter}...`;
+            usedHints.firstLetter = true;
+        }
+
+        // 播放发音
+        function playAudio() {
+            const item = currentData[currentIndex];
+            const utterance = new SpeechSynthesisUtterance(item.phrase);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+            usedHints.audio = true;
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            totalAnswered++;
+            
+            const userAnswer = document.getElementById('answerInput').value.trim().toLowerCase();
+            const correctAnswer = currentData[currentIndex].phrase.toLowerCase();
+            
+            const input = document.getElementById('answerInput');
+            const feedbackArea = document.getElementById('feedbackArea');
+            
+            // 标准化比较（去除标点符号和多余空格）
+            const normalizeText = (text) => {
+                return text.replace(/[.,!?;:'"]/g, '').replace(/\s+/g, ' ').trim();
+            };
+            
+            const isCorrect = normalizeText(userAnswer) === normalizeText(correctAnswer);
+            
+            if (isCorrect) {
+                input.classList.add('correct');
+                correctCount++;
+                feedbackArea.innerHTML = `
+                    <div class="feedback correct">
+                        <div>🎉 太棒了！完全正确！</div>
+                        <div class="correct-answer">${currentData[currentIndex].phrase}</div>
+                    </div>
+                `;
+            } else {
+                input.classList.add('wrong');
+                feedbackArea.innerHTML = `
+                    <div class="feedback wrong">
+                        <div>💪 加油！再接再厉！</div>
+                        <div>你的答案：<span class="correct-answer">${userAnswer || '(空)'}</span></div>
+                        <div>正确答案：<span class="correct-answer">${currentData[currentIndex].phrase}</span></div>
+                    </div>
+                `;
+            }
+            
+            input.disabled = true;
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updateScoreboard();
+        }
+
+        // 跳过题目
+        function skipQuestion() {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            totalAnswered++;
+            
+            const feedbackArea = document.getElementById('feedbackArea');
+            feedbackArea.innerHTML = `
+                <div class="feedback wrong">
+                    <div>已跳过</div>
+                    <div>正确答案：<span class="correct-answer">${currentData[currentIndex].phrase}</span></div>
+                </div>
+            `;
+            
+            document.getElementById('answerInput').disabled = true;
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updateScoreboard();
+        }
+
+        // 下一题
+        function nextQuestion() {
+            currentIndex++;
+            showQuestion();
+        }
+
+        // 更新得分板
+        function updateScoreboard() {
+            document.getElementById('progress').textContent = `${totalAnswered}/${currentData.length}`;
+            document.getElementById('correct').textContent = correctCount;
+            const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // 显示完成界面
+        function showCompletion() {
+            const accuracy = Math.round((correctCount / totalAnswered) * 100);
+            let emoji = '🎉';
+            let title = '练习完成！';
+            
+            if (accuracy === 100) {
+                emoji = '🏆';
+                title = '完美！满分通关！';
+            } else if (accuracy >= 80) {
+                emoji = '🌟';
+                title = '很棒！继续保持！';
+            } else if (accuracy >= 60) {
+                emoji = '👍';
+                title = '不错！再接再厉！';
+            } else {
+                emoji = '💪';
+                title = '加油！多多练习！';
+            }
+            
+            const practiceArea = document.getElementById('practiceArea');
+            practiceArea.innerHTML = `
+                <div class="completion-screen">
+                    <div class="emoji">${emoji}</div>
+                    <h2>${title}</h2>
+                    <div class="final-score">${accuracy}%</div>
+                    <div class="score-details" style="font-size: 1.3em; color: #666; margin-bottom: 30px;">
+                        答对 ${correctCount} 题，共 ${totalAnswered} 题
+                    </div>
+                    <div class="buttons">
+                        <button class="btn btn-check" onclick="location.reload()">🔄 再来一次</button>
+                        <button class="btn btn-skip" onclick="location.href='index.html'">🏠 返回首页</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 键盘事件
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (!isAnswered) {
+                    checkAnswer();
+                } else {
+                    nextQuestion();
+                }
+                event.preventDefault();
+            }
+        });
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
