@@ -685,6 +685,34 @@
             utterance.pitch = 1.2; // 音调稍高，更欢快
             utterance.volume = 0.8;
             
+            // 优先选择高质量的中文语音引擎
+            const voices = speechSynthesis.getVoices();
+            // 优先级：Microsoft 自然语音 > Google 中文 > 其他中文语音
+            const preferredVoices = [
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
+                'Microsoft Xiaoxiao - Chinese (Mainland)',
+                'Microsoft Yunyang - Chinese (Mainland)',
+                'Google 普通话（中国大陆）',
+                'zh-CN'
+            ];
+            
+            // 查找最佳语音
+            for (const preferred of preferredVoices) {
+                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                if (voice) {
+                    utterance.voice = voice;
+                    break;
+                }
+            }
+            
+            // 如果没有找到，使用第一个中文语音
+            if (!utterance.voice) {
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) utterance.voice = chineseVoice;
+            }
+            
             // 延迟一点播放，让音效先出来
             setTimeout(() => {
                 speechSynthesis.speak(utterance);
