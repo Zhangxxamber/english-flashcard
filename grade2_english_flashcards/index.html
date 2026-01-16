@@ -38,6 +38,31 @@
             animation: fadeInDown 1s;
         }
 
+        .btn-back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .btn-back-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .header h1 {
             font-size: 3em;
             margin-bottom: 15px;
@@ -318,6 +343,7 @@
     <div class="container">
         <!-- 标题 -->
         <div class="header">
+            <a href="../index.html" class="btn-back-home">← 返回平台首页</a>
             <div class="emoji">🎒</div>
             <h1>小学英语二年级</h1>
             <p>沪教版 - 趣味互动学习</p>
