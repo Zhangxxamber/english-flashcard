@@ -91,7 +91,9 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            min-height: 500px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
         }
 
         .question-number {
@@ -117,6 +119,26 @@
             margin: 20px 0;
         }
 
+        .hint-area {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hint-item {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .hint-item strong {
+            color: #667eea;
+            margin-right: 5px;
+        }
+
         .hint-btn {
             padding: 10px 20px;
             background: #4ecdc4;
@@ -134,11 +156,96 @@
             transform: scale(1.05);
         }
 
-        .hint-text {
-            font-size: 1.5em;
-            color: #666;
-            margin-top: 15px;
+        .phonetic-hint {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+
+        .example-hint {
+            background: #d1ecf1;
+            border: 1px solid #74b9ff;
+        }
+
+        /* 发音按钮 */
+        .speaker-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .speaker-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .speaker-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 字母空格 */
+        .letter-blanks {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .letter-blank {
+            width: 45px;
+            height: 55px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s;
             font-family: 'Courier New', monospace;
+        }
+
+        .letter-blank.space {
+            border: none;
+            width: 20px;
+        }
+
+        .letter-blank.filled {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .letter-blank.correct {
+            border-color: #4ecdc4;
+            background: #e8f8f5;
+            color: #4ecdc4;
+            animation: correctPulse 0.5s;
+        }
+
+        .letter-blank.wrong {
+            border-color: #ff6b6b;
+            background: #ffe8e8;
+            color: #ff6b6b;
+            animation: shake 0.5s;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
 
         .input-area {
@@ -173,19 +280,22 @@
 
         .buttons {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-top: 30px;
+            padding: 20px 0;
         }
 
         .btn {
-            padding: 15px 35px;
-            font-size: 1.2em;
+            padding: 18px 40px;
+            font-size: 1.3em;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
         }
 
         .btn-check {
@@ -194,17 +304,18 @@
         }
 
         .btn-skip {
-            background: #e9ecef;
+            background: #ffc107;
             color: #333;
         }
 
         .btn-next {
-            background: #4ecdc4;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
             color: white;
         }
 
         .btn:hover:not(:disabled) {
             transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
         .btn:disabled {
@@ -303,24 +414,39 @@
             <div class="chinese-text" id="chineseText">加载中...</div>
             
             <div class="hint-area">
-                <button class="hint-btn" onclick="showFirstLetter()">💡 首字母提示</button>
-                <button class="hint-btn" onclick="playAudio()">🔊 听发音</button>
-                <div class="hint-text" id="hintText"></div>
+                <div class="hint-item">
+                    <strong>首字母：</strong>
+                    <span id="firstLetter">?</span>
+                </div>
+                <div class="hint-item">
+                    <strong>长度：</strong>
+                    <span id="wordLength">? 个字母</span>
+                </div>
+                <div class="hint-item phonetic-hint" id="phoneticHint" style="display: none;">
+                    <strong>音标：</strong>
+                    <span id="phonetic" style="margin-right: 10px;"></span>
+                    <button class="speaker-btn" onclick="playAudio()" title="点击发音">🔊 听发音</button>
+                </div>
             </div>
 
             <div class="input-area">
+                <div class="letter-blanks" id="letterBlanks"></div>
                 <input 
                     type="text" 
                     class="answer-input" 
                     id="answerInput" 
                     placeholder="在这里输入英文..."
                     autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
                 >
             </div>
 
             <div class="buttons">
-                <button class="btn btn-check" onclick="checkAnswer()" id="checkBtn">✓ 检查答案</button>
+                <button class="btn btn-check" onclick="toggleHint()" id="hintBtn">💡 显示提示</button>
+                <button class="btn btn-check" onclick="showAnswer()" id="showAnswerBtn">👁️ 显示答案</button>
                 <button class="btn btn-skip" onclick="skipQuestion()">⏭️ 跳过</button>
+                <button class="btn btn-check" onclick="checkAnswer()" id="checkBtn">✓ 检查答案</button>
                 <button class="btn btn-next" onclick="nextQuestion()" id="nextBtn" style="display: none;">下一题 ➡️</button>
             </div>
 
@@ -338,6 +464,7 @@
 
         function getCurrentBookData() {
             const bookNumber = getBookNumber();
+            
             if (bookNumber === 2 && typeof grade2Book2Vocabulary !== 'undefined') {
                 document.title = '默写练习 - 二年级下册';
                 return grade2Book2Vocabulary;
@@ -352,6 +479,7 @@
         let totalAnswered = 0;
         let isAnswered = false;
         let usedHints = {};
+        let phoneticVisible = false;
 
         // 打乱数组
         function shuffleArray(array) {
@@ -366,6 +494,48 @@
             shuffleArray(currentData);
             updateScoreboard();
             showQuestion();
+            
+            // 添加输入事件监听
+            document.getElementById('answerInput').addEventListener('input', handleInput);
+        }
+
+        // 处理输入
+        function handleInput(e) {
+            if (isAnswered || currentIndex >= currentData.length) return;
+            
+            const input = e.target.value.toLowerCase().trim();
+            const item = currentData[currentIndex];
+            const correctPhrase = item.phrase.toLowerCase().trim();
+            
+            // 更新字母空格
+            const blanksContainer = document.getElementById('letterBlanks');
+            const blanks = blanksContainer.children;
+            
+            let inputIndex = 0;
+            for (let i = 0; i < blanks.length; i++) {
+                const blank = blanks[i];
+                if (blank.classList.contains('space')) continue;
+                
+                if (inputIndex < input.length) {
+                    const inputChar = input[inputIndex];
+                    const correctChar = correctPhrase[inputIndex];
+                    
+                    blank.textContent = inputChar.toUpperCase();
+                    blank.classList.add('filled');
+                    
+                    if (inputChar === correctChar) {
+                        blank.classList.add('correct');
+                        blank.classList.remove('wrong');
+                    } else {
+                        blank.classList.add('wrong');
+                        blank.classList.remove('correct');
+                    }
+                } else {
+                    blank.textContent = '';
+                    blank.classList.remove('filled', 'correct', 'wrong');
+                }
+                inputIndex++;
+            }
         }
 
         // 显示题目
@@ -377,28 +547,112 @@
 
             isAnswered = false;
             usedHints = {};
+            phoneticVisible = false;
             const item = currentData[currentIndex];
             
             document.getElementById('questionNumber').textContent = `第 ${currentIndex + 1} 题 / 共 ${currentData.length} 题`;
             document.getElementById('chineseText').textContent = item.chinese;
-            document.getElementById('hintText').textContent = '';
-            document.getElementById('answerInput').value = '';
-            document.getElementById('answerInput').className = 'answer-input';
-            document.getElementById('answerInput').disabled = false;
-            document.getElementById('answerInput').focus();
+            document.getElementById('firstLetter').textContent = item.phrase.charAt(0).toLowerCase();
+            
+            // 计算长度（不包括空格）
+            const phraseNoSpace = item.phrase.replace(/\s+/g, '');
+            document.getElementById('wordLength').textContent = `${phraseNoSpace.length} 个字母`;
+            
+            // 设置音标内容
+            const phoneticSpan = document.getElementById('phonetic');
+            
+            if (item.phonetic && item.phonetic.includes('[')) {
+                // 有音标：显示音标文本
+                phoneticSpan.textContent = item.phonetic;
+            } else {
+                // 没有音标：显示"无"或提示信息
+                phoneticSpan.textContent = '点击发音按钮听读音';
+                phoneticSpan.style.color = '#999';
+            }
+            
+            // 初始隐藏提示区域
+            document.getElementById('phoneticHint').style.display = 'none';
+            
+            // 创建字母空格
+            const blanksContainer = document.getElementById('letterBlanks');
+            blanksContainer.innerHTML = '';
+            
+            for (let i = 0; i < item.phrase.length; i++) {
+                const char = item.phrase[i];
+                const blank = document.createElement('div');
+                
+                if (char === ' ') {
+                    blank.className = 'letter-blank space';
+                } else {
+                    blank.className = 'letter-blank';
+                }
+                
+                blanksContainer.appendChild(blank);
+            }
+            
+            // 清空输入
+            const input = document.getElementById('answerInput');
+            input.value = '';
+            input.className = 'answer-input';
+            input.disabled = false;
+            input.focus();
+            
+            // 清空反馈
             document.getElementById('feedbackArea').innerHTML = '';
+            
+            // 重置按钮文本
+            document.getElementById('hintBtn').textContent = '💡 显示提示';
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
             document.getElementById('checkBtn').style.display = 'inline-block';
             document.getElementById('nextBtn').style.display = 'none';
         }
 
-        // 显示首字母提示
-        function showFirstLetter() {
+        // 切换提示显示（音标和发音）
+        function toggleHint() {
+            phoneticVisible = !phoneticVisible;
+            const phoneticHint = document.getElementById('phoneticHint');
+            const hintBtn = document.getElementById('hintBtn');
+            const phoneticSpan = document.getElementById('phonetic');
+            
+            phoneticHint.style.display = phoneticVisible ? 'block' : 'none';
+            hintBtn.textContent = phoneticVisible ? '🔒 隐藏提示' : '💡 显示提示';
+            
+            // 重置音标文字颜色（打开时恢复正常颜色）
+            if (phoneticVisible) {
+                phoneticSpan.style.color = '#667eea';
+            }
+        }
+
+        // 显示答案
+        function showAnswer() {
             if (isAnswered) return;
             
             const item = currentData[currentIndex];
-            const firstLetter = item.phrase.charAt(0).toUpperCase();
-            document.getElementById('hintText').textContent = `提示: ${firstLetter}...`;
-            usedHints.firstLetter = true;
+            const input = document.getElementById('answerInput');
+            
+            // 显示答案在输入框
+            input.value = item.phrase;
+            input.className = 'answer-input correct';
+            input.disabled = true;
+            
+            // 更新字母空格
+            handleInput({ target: input });
+            
+            // 显示反馈
+            const feedbackArea = document.getElementById('feedbackArea');
+            feedbackArea.innerHTML = `
+                <div style="background: #d1ecf1; padding: 15px; border-radius: 10px; text-align: center; margin-top: 20px; border: 2px solid #74b9ff;">
+                    <div style="font-size: 1.2em; color: #0c5460; margin-bottom: 10px;">💡 正确答案</div>
+                    <div style="font-size: 1.8em; font-weight: bold; color: #004085;">${item.phrase}</div>
+                </div>
+            `;
+            
+            isAnswered = true;
+            
+            // 隐藏检查答案和显示答案按钮
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
         }
 
         // 播放发音
@@ -406,9 +660,8 @@
             const item = currentData[currentIndex];
             const utterance = new SpeechSynthesisUtterance(item.phrase);
             utterance.lang = 'en-US';
-            utterance.rate = 0.8;
+            utterance.rate = 0.8; // 慢速，适合儿童
             speechSynthesis.speak(utterance);
-            usedHints.audio = true;
         }
 
         // 检查答案
