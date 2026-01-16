@@ -17,6 +17,7 @@
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed; /* 防止Edge浏览器背景闪烁 */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -24,6 +25,8 @@
             justify-content: center;
             padding: 20px;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased; /* 改善字体渲染 */
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -67,7 +70,7 @@
         }
 
         .project-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(30, 30, 40, 0.85); /* 深色半透明背景 */
             border-radius: 25px;
             padding: 45px 35px;
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
@@ -75,6 +78,9 @@
             position: relative;
             overflow: hidden;
             animation: fadeInUp 1s;
+            backdrop-filter: blur(10px); /* 增强毛玻璃效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); /* 添加细边框增强层次 */
         }
 
         .project-card::before {
@@ -101,14 +107,14 @@
         .project-title {
             font-size: 2.2em;
             font-weight: bold;
-            color: #333;
+            color: #ffffff; /* 白色标题 */
             text-align: center;
             margin-bottom: 15px;
         }
 
         .project-subtitle {
             font-size: 1.2em;
-            color: #666;
+            color: rgba(255,255,255,0.7); /* 浅色副标题 */
             text-align: center;
             margin-bottom: 25px;
         }
@@ -118,8 +124,8 @@
             justify-content: space-around;
             margin-bottom: 30px;
             padding: 20px 0;
-            border-top: 2px solid #f0f0f0;
-            border-bottom: 2px solid #f0f0f0;
+            border-top: 2px solid rgba(255,255,255,0.1); /* 深色主题边框 */
+            border-bottom: 2px solid rgba(255,255,255,0.1);
         }
 
         .stat-item {
@@ -129,13 +135,13 @@
         .stat-number {
             font-size: 2.5em;
             font-weight: bold;
-            color: #667eea;
+            color: #8b9cfc; /* 浅紫色数字，更柔和 */
             display: block;
         }
 
         .stat-label {
             font-size: 0.95em;
-            color: #999;
+            color: rgba(255,255,255,0.5); /* 深色主题下的标签 */
             margin-top: 5px;
         }
 
@@ -151,7 +157,7 @@
             padding: 10px 0;
             padding-left: 30px;
             position: relative;
-            color: #555;
+            color: rgba(255,255,255,0.8); /* 深色主题下的列表文字 */
             font-size: 1.05em;
         }
 
@@ -159,7 +165,7 @@
             content: '✓';
             position: absolute;
             left: 0;
-            color: #4ecdc4;
+            color: #4ecdc4; /* 保持亮色对勾 */
             font-weight: bold;
             font-size: 1.3em;
         }
@@ -177,6 +183,8 @@
             text-align: center;
             transition: all 0.3s;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border: none; /* 确保Edge浏览器不显示边框 */
+            -webkit-appearance: none; /* 移除默认样式 */
         }
 
         .btn-enter:hover {
@@ -212,15 +220,15 @@
         }
 
         .feature-highlight {
-            background: #f8f9fa;
+            background: rgba(255,255,255,0.08); /* 深色主题下的高亮区域 */
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #8b9cfc; /* 浅紫色边框 */
         }
 
         .feature-highlight strong {
-            color: #667eea;
+            color: #ff6b6b; /* 橙红色强调 */
         }
 
         /* 动画 */

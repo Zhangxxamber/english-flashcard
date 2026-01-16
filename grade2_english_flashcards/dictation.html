@@ -19,8 +19,11 @@
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed; /* 防止Edge浏览器背景闪烁 */
             min-height: 100vh;
             padding: 20px;
+            -webkit-font-smoothing: antialiased; /* 改善字体渲染 */
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -30,7 +33,7 @@
 
         /* 头部 */
         .header {
-            background: white;
+            background: rgba(30, 30, 40, 0.85); /* 深色背景 */
             padding: 20px;
             border-radius: 20px 20px 0 0;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
@@ -39,11 +42,14 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .title {
             font-size: 2em;
-            color: #333;
+            color: #ffffff; /* 白色标题 */
         }
 
         .btn-home {
@@ -100,26 +106,29 @@
 
         /* 练习区域 */
         .practice-area {
-            background: white;
+            background: rgba(30, 30, 40, 0.85); /* 深色背景 */
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             min-height: 400px;
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .question-number {
             text-align: center;
             font-size: 1.2em;
-            color: #999;
+            color: rgba(255,255,255,0.6); /* 浅色 */
             margin-bottom: 20px;
         }
 
         .chinese-text {
             text-align: center;
             font-size: 2.5em;
-            color: #333;
+            color: #333; /* 保持深色，因为背景是浅色渐变 */
             font-weight: bold;
             margin: 30px 0;
             padding: 20px;

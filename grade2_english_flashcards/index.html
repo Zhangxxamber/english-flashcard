@@ -17,12 +17,15 @@
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed; /* 防止Edge浏览器背景闪烁 */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            -webkit-font-smoothing: antialiased; /* 改善字体渲染 */
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -82,18 +85,21 @@
 
         /* 学期选择器 */
         .semester-selector {
-            background: rgba(255,255,255,0.95);
+            background: rgba(30, 30, 40, 0.85); /* 深色背景 */
             padding: 25px;
             border-radius: 20px;
             margin-bottom: 30px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             animation: fadeIn 1s;
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); /* 细边框 */
         }
 
         .selector-label {
             font-size: 1.3em;
             font-weight: bold;
-            color: #333;
+            color: #ffffff; /* 白色标题 */
             margin-bottom: 15px;
             text-align: center;
         }
@@ -108,20 +114,20 @@
             padding: 20px;
             font-size: 1.2em;
             font-weight: bold;
-            border: 3px solid #667eea;
-            background: white;
-            color: #667eea;
+            border: 3px solid rgba(255,255,255,0.3); /* 深色主题边框 */
+            background: rgba(255,255,255,0.1); /* 半透明背景 */
+            color: rgba(255,255,255,0.9); /* 浅色文字 */
             border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
 
         .semester-btn:hover {
-            background: #667eea;
+            background: rgba(255,255,255,0.2); /* 悬停时更亮 */
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
         }
 
         .semester-btn.active {
@@ -133,12 +139,13 @@
 
         .semester-info {
             text-align: center;
-            color: #666;
+            color: rgba(255,255,255,0.8); /* 深色主题文字 */
             font-size: 1.1em;
             padding: 15px;
             margin-top: 15px;
-            background: #f8f9fa;
+            background: rgba(255,255,255,0.08); /* 半透明背景 */
             border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         /* 统计信息 */
@@ -177,7 +184,7 @@
         }
 
         .mode-card {
-            background: white;
+            background: rgba(30, 30, 40, 0.85); /* 深色半透明背景 */
             border-radius: 20px;
             padding: 40px 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -185,6 +192,9 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); /* 细边框 */
         }
 
         .mode-card:hover {
@@ -210,13 +220,13 @@
         .mode-title {
             font-size: 1.8em;
             font-weight: bold;
-            color: #333;
+            color: #ffffff; /* 白色标题 */
             margin-bottom: 15px;
         }
 
         .mode-desc {
             font-size: 1.1em;
-            color: #666;
+            color: rgba(255,255,255,0.7); /* 浅色描述 */
             margin-bottom: 20px;
             line-height: 1.6;
         }
@@ -227,7 +237,7 @@
         }
 
         .mode-features li {
-            color: #555;
+            color: rgba(255,255,255,0.8); /* 深色主题列表文字 */
             padding: 8px 0;
             padding-left: 25px;
             position: relative;
