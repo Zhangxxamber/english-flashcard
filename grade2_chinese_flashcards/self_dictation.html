@@ -730,6 +730,14 @@
         // 标记为"会了"
         function markCorrect() {
             correctCount++;
+            
+            // 如果是错题本模式，从错题本中移除这道题
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            if (mode === 'errorbook') {
+                removeFromErrorBook(allData[currentIndex]);
+            }
+            
             if (soundEnabled) {
                 playEncouragementSound();
             }
@@ -1049,6 +1057,30 @@
             
             updateProgress();
             showQuestion();
+        }
+        
+        // 从错题本中移除某道题（答对时调用）
+        function removeFromErrorBook(item) {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const contentType = urlParams.get('content_type') || 'xiezibiao';
+                const semester = parseInt(urlParams.get('semester')) || 1;
+                
+                const key = `wrongItems_s${semester}_${contentType}`;
+                const saved = localStorage.getItem(key);
+                
+                if (saved) {
+                    let wrongItems = JSON.parse(saved);
+                    // 移除匹配的题目
+                    wrongItems = wrongItems.filter(w => 
+                        !(w.character === item.character && w.lesson === item.lesson)
+                    );
+                    localStorage.setItem(key, JSON.stringify(wrongItems));
+                    console.log(`已从错题本移除: ${item.character}，剩余错题: ${wrongItems.length}`);
+                }
+            } catch (e) {
+                console.error('移除错题失败:', e);
+            }
         }
         
         // 清除错题（可选功能）
