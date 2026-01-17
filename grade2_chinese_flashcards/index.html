@@ -302,6 +302,14 @@
                 <div class="mode-desc">听拼音写汉字，巩固记忆</div>
                 <a href="dictation.html?semester=1" class="mode-btn" id="dictationLink">开始听写</a>
             </div>
+
+            <!-- 自主听写 - 新增 -->
+            <div class="mode-card">
+                <div class="mode-icon">📝</div>
+                <div class="mode-title">自主听写</div>
+                <div class="mode-desc">手写练习，自我评估</div>
+                <a href="self_dictation.html?semester=1" class="mode-btn" id="selfDictationLink">开始练习</a>
+            </div>
         </div>
     </div>
 
@@ -332,6 +340,7 @@
             document.getElementById('listeningLink').href = `listening_quiz.html?semester=${semester}`;
             document.getElementById('flashcardsLink').href = `flashcards.html?semester=${semester}`;
             document.getElementById('dictationLink').href = `dictation.html?semester=${semester}`;
+            document.getElementById('selfDictationLink').href = `self_dictation.html?semester=${semester}`;
         }
     </script>
 </body>

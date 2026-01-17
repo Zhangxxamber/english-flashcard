@@ -728,6 +728,27 @@
         let totalAnswered = 0;
         let isAnswered = false;
         let usedHints = {};
+        let voicesLoaded = false; // 标记语音是否已加载
+        let availableVoices = []; // 保存可用的语音列表
+
+        // 等待语音引擎加载完成
+        function loadVoices() {
+            return new Promise((resolve) => {
+                let voices = speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    availableVoices = voices;
+                    voicesLoaded = true;
+                    resolve(voices);
+                } else {
+                    speechSynthesis.addEventListener('voiceschanged', () => {
+                        voices = speechSynthesis.getVoices();
+                        availableVoices = voices;
+                        voicesLoaded = true;
+                        resolve(voices);
+                    });
+                }
+            });
+        }
         
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -736,11 +757,14 @@
             }
         }
         
-        function init() {
+        async function init() {
             // 在init()中加载数据
             allData = getCurrentSemesterData();
             currentData = [...allData];
             console.log('听写页 - 加载数据条数:', allData ? allData.length : 0);
+            
+            // 等待语音引擎加载完成
+            await loadVoices();
             
             loadSoundPreference();
             shuffleArray(currentData);
@@ -797,8 +821,17 @@
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
             
+            // 等待语音加载完成后再选择
+            if (!voicesLoaded || availableVoices.length === 0) {
+                speechSynthesis.speak(utterance);
+                document.getElementById('pinyinDisplay').innerHTML = 
+                    `<button onclick="playPinyin()" style="background:none;border:none;color:white;font-size:inherit;cursor:pointer;">
+                        ${item.pinyin} 🔊
+                    </button>`;
+                return;
+            }
+            
             // 选择高质量的中文语音引擎（与鼓励语音使用相同的优质引擎）
-            const voices = speechSynthesis.getVoices();
             const preferredVoices = [
                 'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
                 'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
@@ -809,7 +842,7 @@
             
             // 尝试使用优选的高质量语音
             for (const preferred of preferredVoices) {
-                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+                const voice = availableVoices.find(v => v.name.includes(preferred) || v.name === preferred);
                 if (voice) {
                     utterance.voice = voice;
                     break;
@@ -818,7 +851,7 @@
             
             // 如果没有找到优选语音，使用任何中文语音
             if (!utterance.voice) {
-                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
+                const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
                 if (chineseVoice) utterance.voice = chineseVoice;
             }
             
