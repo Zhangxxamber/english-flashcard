@@ -249,67 +249,76 @@
             box-shadow: 0 5px 20px rgba(255,255,255,0.3);
         }
 
-        /* 模式卡片容器 */
+        /* 模式卡片容器 - 单个卡片居中显示 */
         .modes-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            display: flex;
+            justify-content: center;
             animation: fadeInUp 0.8s ease-out 0.4s backwards;
+            padding: 20px 0;
         }
 
         .mode-card {
             background: rgba(40, 40, 60, 0.85);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 25px;
+            padding: 50px 60px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            border: 2px solid rgba(255,255,255,0.15);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.2);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
         }
 
         .mode-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.4);
         }
 
         .mode-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
+            font-size: 5em;
+            margin-bottom: 25px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .mode-title {
-            font-size: 1.8em;
+            font-size: 2.5em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #ffffff;
         }
 
         .mode-desc {
-            font-size: 1em;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 20px;
-            line-height: 1.6;
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            line-height: 1.8;
         }
 
         .mode-btn {
             display: inline-block;
-            padding: 12px 30px;
+            padding: 18px 50px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            font-size: 1.1em;
+            border-radius: 30px;
+            font-size: 1.3em;
             font-weight: bold;
             transition: all 0.3s;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.4);
         }
 
         .mode-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.5);
+            border-color: rgba(255,255,255,0.6);
         }
 
         @keyframes fadeIn {
@@ -399,36 +408,12 @@
 
         <!-- 学习模式 -->
         <div class="modes-container">
-            <!-- 听力测试 -->
-            <div class="mode-card">
-                <div class="mode-icon">🎧</div>
-                <div class="mode-title">听力测试</div>
-                <div class="mode-desc">听拼音选汉字，提升识字能力</div>
-                <a href="listening_quiz.html?semester=1" class="mode-btn" id="listeningLink">开始练习</a>
-            </div>
-
-            <!-- 闪卡学习 -->
-            <div class="mode-card">
-                <div class="mode-icon">📇</div>
-                <div class="mode-title">闪卡学习</div>
-                <div class="mode-desc">翻转卡片，学习生字词语</div>
-                <a href="flashcards.html?semester=1" class="mode-btn" id="flashcardsLink">开始学习</a>
-            </div>
-
-            <!-- 听写练习 -->
+            <!-- 自主听写 - 唯一模式 -->
             <div class="mode-card">
                 <div class="mode-icon">✍️</div>
-                <div class="mode-title">听写练习</div>
-                <div class="mode-desc">听拼音写汉字，巩固记忆</div>
-                <a href="dictation.html?semester=1" class="mode-btn" id="dictationLink">开始听写</a>
-            </div>
-
-            <!-- 自主听写 - 新增 -->
-            <div class="mode-card">
-                <div class="mode-icon">📝</div>
                 <div class="mode-title">自主听写</div>
-                <div class="mode-desc">手写练习，自我评估</div>
-                <a href="self_dictation.html?semester=1" class="mode-btn" id="selfDictationLink">开始练习</a>
+                <div class="mode-desc">听拼音手写汉字，自我评估学习效果<br>支持课文顺序练习，巩固课堂知识</div>
+                <a href="self_dictation.html?semester=1&content_type=xiezibiao" class="mode-btn" id="selfDictationLink">开始练习</a>
             </div>
         </div>
     </div>
@@ -541,9 +526,7 @@
                 params += `&lesson=${encodeURIComponent(currentLesson)}`;
             }
             
-            document.getElementById('listeningLink').href = `listening_quiz.html?${params}`;
-            document.getElementById('flashcardsLink').href = `flashcards.html?${params}`;
-            document.getElementById('dictationLink').href = `dictation.html?${params}`;
+            // 只更新自主听写链接
             document.getElementById('selfDictationLink').href = `self_dictation.html?${params}`;
         }
     </script>
