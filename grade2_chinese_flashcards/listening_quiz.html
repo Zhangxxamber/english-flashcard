@@ -6,11 +6,13 @@
     <title>听力测试 - 二年级语文</title>
     
     <script>
-        // 根据学期参数动态加载对应的词汇文件
+        // 根据学期和内容类型参数动态加载对应的词汇文件
         const urlParams = new URLSearchParams(window.location.search);
         const semester = parseInt(urlParams.get('semester')) || 1;
+        const contentType = urlParams.get('content_type') || 'xiezibiao'; // 默认写字表
+        
         const script = document.createElement('script');
-        script.src = `vocabulary_semester${semester}.js`;
+        script.src = `vocabulary_${contentType}.js`; // 加载对应的内容类型文件
         script.onload = function() {
             // 数据加载完成后，触发初始化
             if (typeof init === 'function') {
@@ -600,10 +602,23 @@
         
         function getCurrentSemesterData() {
             const semester = getSemesterNumber();
+            const contentType = urlParams.get('content_type') || 'xiezibiao';
+            
             console.log('当前学期:', semester);
-            console.log('Semester1数据存在?', typeof grade2ChineseSemester1 !== 'undefined');
-            console.log('Semester2数据存在?', typeof grade2ChineseSemester2 !== 'undefined');
-            const data = semester === 1 ? grade2ChineseSemester1 : grade2ChineseSemester2;
+            console.log('内容类型:', contentType);
+            
+            // 根据内容类型获取对应的数据对象
+            let dataObj;
+            if (contentType === 'xiezibiao') {
+                dataObj = typeof grade2ChineseXiezibiao !== 'undefined' ? grade2ChineseXiezibiao : null;
+            } else if (contentType === 'shizibiao') {
+                dataObj = typeof grade2ChineseShizibiao !== 'undefined' ? grade2ChineseShizibiao : null;
+            } else if (contentType === 'ciyubiao') {
+                dataObj = typeof grade2ChineseCiyubiao !== 'undefined' ? grade2ChineseCiyubiao : null;
+            }
+            
+            console.log('数据对象存在?', dataObj !== null);
+            const data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
             console.log('获取到的数据条数:', data ? data.length : 0);
             return data;
         }

@@ -147,6 +147,49 @@
             opacity: 0.9;
         }
 
+        /* 内容类型选择器 - 新增 */
+        .content-type-selector {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.3s backwards;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .content-type-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .content-type-btn {
+            padding: 15px 35px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .content-type-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .content-type-btn.active {
+            background: rgba(255,255,255,0.6);
+            border-color: white;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+        }
+
         /* 模式卡片容器 */
         .modes-container {
             display: grid;
@@ -274,7 +317,17 @@
         <!-- 学期信息 -->
         <div class="semester-info" id="semesterInfo">
             <h3>📖 上学期</h3>
-            <p>包含课文生字、词语及拼音练习</p>
+            <p>包含写字表、识字表、词语表内容</p>
+        </div>
+
+        <!-- 内容类型选择器 - 新增 -->
+        <div class="content-type-selector">
+            <div class="selector-label">选择内容类型</div>
+            <div class="content-type-buttons">
+                <button class="content-type-btn active" onclick="selectContentType('xiezibiao')">📝 写字表</button>
+                <button class="content-type-btn" onclick="selectContentType('shizibiao')">👁️ 识字表</button>
+                <button class="content-type-btn" onclick="selectContentType('ciyubiao')">📚 词语表</button>
+            </div>
         </div>
 
         <!-- 学习模式 -->
@@ -315,6 +368,12 @@
 
     <script>
         let currentSemester = 1;
+        let currentContentType = 'xiezibiao'; // 默认选择写字表
+
+        // 页面加载时初始化
+        window.onload = function() {
+            updateLinks();
+        };
 
         function selectSemester(semester) {
             currentSemester = semester;
@@ -331,16 +390,36 @@
             // 更新学期信息
             const info = document.getElementById('semesterInfo');
             if (semester === 1) {
-                info.innerHTML = '<h3>📖 上学期</h3><p>包含课文生字、词语及拼音练习</p>';
+                info.innerHTML = '<h3>📖 上学期</h3><p>包含写字表、识字表、词语表内容</p>';
             } else {
-                info.innerHTML = '<h3>📖 下学期</h3><p>包含课文生字、词语及拼音练习</p>';
+                info.innerHTML = '<h3>📖 下学期</h3><p>包含写字表、识字表、词语表内容</p>';
             }
+            
+            // 更新链接
+            updateLinks();
+        }
 
-            // 更新所有链接
-            document.getElementById('listeningLink').href = `listening_quiz.html?semester=${semester}`;
-            document.getElementById('flashcardsLink').href = `flashcards.html?semester=${semester}`;
-            document.getElementById('dictationLink').href = `dictation.html?semester=${semester}`;
-            document.getElementById('selfDictationLink').href = `self_dictation.html?semester=${semester}`;
+        function selectContentType(contentType) {
+            currentContentType = contentType;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 更新链接
+            updateLinks();
+        }
+
+        function updateLinks() {
+            // 构建URL参数：semester和content_type
+            const params = `semester=${currentSemester}&content_type=${currentContentType}`;
+            
+            document.getElementById('listeningLink').href = `listening_quiz.html?${params}`;
+            document.getElementById('flashcardsLink').href = `flashcards.html?${params}`;
+            document.getElementById('dictationLink').href = `dictation.html?${params}`;
+            document.getElementById('selfDictationLink').href = `self_dictation.html?${params}`;
         }
     </script>
 </body>

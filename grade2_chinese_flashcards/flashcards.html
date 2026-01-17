@@ -6,11 +6,13 @@
     <title>闪卡学习 - 二年级语文</title>
     
     <script>
-        // 根据学期参数动态加载对应的词汇文件
+        // 根据学期和内容类型参数动态加载对应的词汇文件
         const urlParams = new URLSearchParams(window.location.search);
         const semester = parseInt(urlParams.get('semester')) || 1;
+        const contentType = urlParams.get('content_type') || 'xiezibiao'; // 默认写字表
+        
         const script = document.createElement('script');
-        script.src = `vocabulary_semester${semester}.js`;
+        script.src = `vocabulary_${contentType}.js`; // 加载对应的内容类型文件
         script.onload = function() {
             // 数据加载完成后，触发初始化
             if (typeof init === 'function') {
@@ -298,7 +300,19 @@
 
         function getCurrentSemesterData() {
             const semester = getSemesterNumber();
-            return semester === 1 ? grade2ChineseSemester1 : grade2ChineseSemester2;
+            const contentType = urlParams.get('content_type') || 'xiezibiao';
+            
+            // 根据内容类型获取对应的数据对象
+            let dataObj;
+            if (contentType === 'xiezibiao') {
+                dataObj = typeof grade2ChineseXiezibiao !== 'undefined' ? grade2ChineseXiezibiao : null;
+            } else if (contentType === 'shizibiao') {
+                dataObj = typeof grade2ChineseShizibiao !== 'undefined' ? grade2ChineseShizibiao : null;
+            } else if (contentType === 'ciyubiao') {
+                dataObj = typeof grade2ChineseCiyubiao !== 'undefined' ? grade2ChineseCiyubiao : null;
+            }
+            
+            return dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
         }
 
         let allData = []; // 初始化为空数组，等init()时再加载
