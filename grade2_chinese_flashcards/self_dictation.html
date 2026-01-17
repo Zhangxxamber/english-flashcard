@@ -532,9 +532,9 @@
             const semester = getSemesterNumber();
             const urlParams = new URLSearchParams(window.location.search);
             const contentType = urlParams.get('content_type') || 'xiezibiao';
-            const lesson = urlParams.get('lesson'); // 获取课文参数
+            const lesson = urlParams.get('lesson'); // 获取课文/单元参数
             
-            console.log('自主听写 - 学期:', semester, '内容类型:', contentType, '课文:', lesson || '全部');
+            console.log('自主听写 - 学期:', semester, '内容类型:', contentType, '选择:', lesson || '全部');
             
             // 根据内容类型获取对应的数据对象
             let dataObj;
@@ -548,10 +548,29 @@
             
             let data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
             
-            // 如果指定了课文，则只返回该课文的数据
+            // 如果指定了课文或单元，则筛选数据
             if (lesson && lesson !== 'all') {
-                data = data.filter(item => item.lesson === lesson);
-                console.log('自主听写 - 筛选课文后数据条数:', data.length);
+                // 判断是单元还是课文
+                if (lesson.startsWith('unit')) {
+                    // 单元选择（如 unit1）
+                    const unitMap = {
+                        'unit1': '第一单元',
+                        'unit2': '第二单元',
+                        'unit3': '第三单元',
+                        'unit4': '第四单元',
+                        'unit5': '第五单元',
+                        'unit6': '第六单元',
+                        'unit7': '第七单元',
+                        'unit8': '第八单元'
+                    };
+                    const unitName = unitMap[lesson];
+                    data = data.filter(item => item.unit === unitName);
+                    console.log('自主听写 - 筛选单元后数据条数:', data.length);
+                } else {
+                    // 课文选择（如 第1课）
+                    data = data.filter(item => item.lesson === lesson);
+                    console.log('自主听写 - 筛选课文后数据条数:', data.length);
+                }
             }
             
             console.log('自主听写 - 数据对象存在?', dataObj !== null, '总数据条数:', data.length);
@@ -561,8 +580,26 @@
 
         // 初始化
         async function init() {
-            allData = getCurrentSemesterData();
-            console.log('自主听写页 - 加载数据条数:', allData ? allData.length : 0);
+            // 检查是否是错题本模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            if (mode === 'errorbook') {
+                // 错题本模式：加载错题
+                allData = loadWrongItems();
+                if (allData.length === 0) {
+                    alert('还没有错题记录哦！\n\n建议：先完成一些练习，系统会自动记录做错的题目。');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                console.log('错题本模式 - 加载错题数:', allData.length);
+                // 更新页面标题提示
+                document.querySelector('.header h1').textContent = '📕 错题本练习';
+            } else {
+                // 正常模式：加载课文数据
+                allData = getCurrentSemesterData();
+                console.log('自主听写页 - 加载数据条数:', allData ? allData.length : 0);
+            }
             
             // 等待语音引擎加载完成
             await loadVoices();
@@ -684,6 +721,9 @@
         function markWrong() {
             wrongCount++;
             wrongItems.push(allData[currentIndex]);
+            if (soundEnabled) {
+                playWrongSound();
+            }
             nextQuestion();
         }
 
@@ -727,6 +767,11 @@
             document.getElementById('finalCorrect').textContent = correctCount;
             document.getElementById('finalWrong').textContent = wrongCount;
             
+            // 保存错题到localStorage
+            if (wrongItems.length > 0) {
+                saveWrongItems(wrongItems);
+            }
+            
             // 显示需要复习的内容
             if (wrongItems.length > 0) {
                 const container = document.getElementById('reviewListContainer');
@@ -735,6 +780,7 @@
                     html += `<div class="review-item">${item.character} (${item.pinyin}) - ${item.example}</div>`;
                 });
                 html += '</div>';
+                html += '<button onclick="practiceWrongItems()" style="margin-top:20px;padding:12px 30px;background:rgba(255,100,100,0.8);color:white;border:none;border-radius:25px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">🔄 错题重练</button>';
                 container.innerHTML = html;
             }
             
@@ -781,8 +827,23 @@
             }
         }
 
-        function playEncouragementSound() {
-            const sounds = ['correct1', 'correct2', 'correct3'];
+        // === 音效系统 ===
+        
+        // 24种鼓励语音
+        const encouragementPhrases = [
+            "太棒了！", "真聪明！", "你真厉害！", "完美！",
+            "好样的！", "继续加油！", "你是最棒的！", "真了不起！",
+            "真厉害！", "太优秀了！", "你真棒！", "非常好！",
+            "真是天才！", "超级棒！", "太牛了！", "很棒！",
+            "做得好！", "真不错！", "了不起！", "真优秀！",
+            "棒极了！", "太聪明了！", "真能干！", "真出色！"
+        ];
+        
+        // 播放答对音效（3种随机）
+        function playCorrectSound() {
+            if (!soundEnabled) return;
+            
+            const sounds = ['woohoo', 'boing', 'ding'];
             const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
             
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -792,12 +853,93 @@
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
+            if (randomSound === 'woohoo') {
+                // 欢快上扬音
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } else if (randomSound === 'boing') {
+                // 弹跳音
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.1);
+                oscillator.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.25);
+            } else {
+                // 双铃铛音
+                oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+                
+                // 第二个音
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.setValueAtTime(1400, audioContext.currentTime);
+                    gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.1);
+                }, 100);
+            }
+        }
+        
+        // 播放鼓励语音（使用语音合成）
+        function playEncouragement() {
+            if (!soundEnabled) return;
+            
+            const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+            const utterance = new SpeechSynthesisUtterance(phrase);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 1.1;
+            utterance.pitch = 1.2;
+            utterance.volume = 0.8;
+            
+            // 使用已加载的语音
+            if (availableVoices.length > 0) {
+                const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
+                if (chineseVoice) utterance.voice = chineseVoice;
+            }
+            
+            // 延迟播放，让音效先出来
+            setTimeout(() => {
+                speechSynthesis.speak(utterance);
+            }, 200);
+        }
+        
+        // 播放答错音效
+        function playWrongSound() {
+            if (!soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // 温和下滑音
             oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
             oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.15);
+            oscillator.stop(audioContext.currentTime + 0.25);
+        }
+        
+        // 整合的鼓励音效（答对时调用）
+        function playEncouragementSound() {
+            playCorrectSound();
+            playEncouragement();
         }
 
         // 音效开关
@@ -828,6 +970,98 @@
             }
         }
 
+        // === 错题本功能 ===
+        
+        // 保存错题到localStorage
+        function saveWrongItems(items) {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const contentType = urlParams.get('content_type') || 'xiezibiao';
+                const semester = parseInt(urlParams.get('semester')) || 1;
+                
+                // 使用 semester + contentType 作为key，区分不同类型的错题
+                const key = `wrongItems_s${semester}_${contentType}`;
+                
+                // 获取现有错题
+                let existingWrong = [];
+                const saved = localStorage.getItem(key);
+                if (saved) {
+                    existingWrong = JSON.parse(saved);
+                }
+                
+                // 合并新错题（去重）
+                items.forEach(item => {
+                    if (!existingWrong.find(w => w.character === item.character && w.lesson === item.lesson)) {
+                        existingWrong.push(item);
+                    }
+                });
+                
+                // 限制错题数量（最多100个）
+                if (existingWrong.length > 100) {
+                    existingWrong = existingWrong.slice(-100);
+                }
+                
+                localStorage.setItem(key, JSON.stringify(existingWrong));
+                console.log(`保存了 ${items.length} 个错题，总错题数：${existingWrong.length}`);
+            } catch (e) {
+                console.error('保存错题失败:', e);
+            }
+        }
+        
+        // 加载错题
+        function loadWrongItems() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const contentType = urlParams.get('content_type') || 'xiezibiao';
+                const semester = parseInt(urlParams.get('semester')) || 1;
+                
+                const key = `wrongItems_s${semester}_${contentType}`;
+                const saved = localStorage.getItem(key);
+                
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                return [];
+            } catch (e) {
+                console.error('加载错题失败:', e);
+                return [];
+            }
+        }
+        
+        // 错题重练
+        function practiceWrongItems() {
+            const wrong = loadWrongItems();
+            if (wrong.length === 0) {
+                alert('没有错题记录');
+                return;
+            }
+            
+            // 使用错题数据替换当前数据
+            allData = wrong;
+            currentIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            wrongItems = [];
+            
+            // 重新开始
+            document.getElementById('completionScreen').classList.remove('show');
+            document.getElementById('practiceArea').style.display = 'block';
+            
+            updateProgress();
+            showQuestion();
+        }
+        
+        // 清除错题（可选功能）
+        function clearWrongItems() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const contentType = urlParams.get('content_type') || 'xiezibiao';
+            const semester = parseInt(urlParams.get('semester')) || 1;
+            
+            const key = `wrongItems_s${semester}_${contentType}`;
+            localStorage.removeItem(key);
+            console.log('已清除错题记录');
+        }
+    
         // 移除页面底部的init()调用，改为在数据加载完成后触发（见head中的script.onload）
     </script>
 </body>

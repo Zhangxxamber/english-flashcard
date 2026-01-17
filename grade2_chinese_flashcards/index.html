@@ -208,6 +208,21 @@
             border-color: gold;
         }
 
+        .lesson-btn.unit-btn {
+            background: rgba(100,149,237,0.3);
+            border-color: rgba(100,149,237,0.6);
+            font-size: 1em;
+        }
+
+        .lesson-btn.unit-btn:hover {
+            background: rgba(100,149,237,0.5);
+        }
+
+        .lesson-btn.unit-btn.active {
+            background: rgba(100,149,237,0.7);
+            border-color: cornflowerblue;
+        }
+
         /* 内容类型选择器 */
         .content-type-selector {
             background: rgba(255,255,255,0.2);
@@ -586,6 +601,12 @@
                 <div class="mode-title">自主听写</div>
                 <div class="mode-desc">听拼音手写汉字，自我评估学习效果<br>支持课文顺序练习，巩固课堂知识</div>
                 <a href="self_dictation.html?semester=1&content_type=xiezibiao" class="mode-btn" id="selfDictationLink">开始练习</a>
+                
+                <!-- 错题本入口 -->
+                <div style="margin-top:20px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.2);">
+                    <p style="color:rgba(255,255,255,0.8);font-size:1em;margin-bottom:10px;">📚 系统会自动记录错题</p>
+                    <button onclick="goToErrorBook()" style="padding:10px 30px;background:rgba(255,100,100,0.6);color:white;border:2px solid rgba(255,255,255,0.4);border-radius:20px;font-size:1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">查看错题本</button>
+                </div>
             </div>
         </div>
     </div>
@@ -599,6 +620,15 @@
         const lessonConfig = {
             1: [ // 上学期
                 { id: 'all', name: '🌟 全部内容', isAll: true },
+                // 单元选择
+                { id: 'unit1', name: '📘 第一单元（全部）', isUnit: true, unit: '第一单元' },
+                { id: 'unit2', name: '📘 第二单元（全部）', isUnit: true, unit: '第二单元' },
+                { id: 'unit3', name: '📘 第三单元（全部）', isUnit: true, unit: '第三单元' },
+                { id: 'unit4', name: '📘 第四单元（全部）', isUnit: true, unit: '第四单元' },
+                { id: 'unit5', name: '📘 第五单元（全部）', isUnit: true, unit: '第五单元' },
+                { id: 'unit6', name: '📘 第六单元（全部）', isUnit: true, unit: '第六单元' },
+                { id: 'unit7', name: '📘 第七单元（全部）', isUnit: true, unit: '第七单元' },
+                { id: 'unit8', name: '📘 第八单元（全部）', isUnit: true, unit: '第八单元' },
                 // 第一单元
                 { id: '第1课', name: '第一单元（第1课）', unit: '第一单元' },
                 { id: '第2课', name: '第一单元（第2课）', unit: '第一单元' },
@@ -682,7 +712,8 @@
             container.innerHTML = lessons.map(lesson => {
                 const activeClass = lesson.id === currentLesson ? 'active' : '';
                 const allClass = lesson.isAll ? 'all-lessons' : '';
-                return `<button class="lesson-btn ${activeClass} ${allClass}" onclick="selectLesson('${lesson.id}')">${lesson.name}</button>`;
+                const unitClass = lesson.isUnit ? 'unit-btn' : '';
+                return `<button class="lesson-btn ${activeClass} ${allClass} ${unitClass}" onclick="selectLesson('${lesson.id}')">${lesson.name}</button>`;
             }).join('');
         }
 
@@ -724,6 +755,13 @@
             
             // 只更新自主听写链接
             document.getElementById('selfDictationLink').href = `self_dictation.html?${params}`;
+        }
+        
+        // 跳转到错题本
+        function goToErrorBook() {
+            // 使用当前选择的学期和内容类型
+            const params = `semester=${currentSemester}&content_type=${currentContentType}&mode=errorbook`;
+            window.location.href = `self_dictation.html?${params}`;
         }
     </script>
 </body>
