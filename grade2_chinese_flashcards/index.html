@@ -160,7 +160,7 @@
 
         .lesson-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 12px;
             margin-top: 15px;
         }
@@ -171,11 +171,13 @@
             color: white;
             border: 2px solid rgba(255,255,255,0.4);
             border-radius: 15px;
-            font-size: 1em;
+            font-size: 0.95em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .lesson-btn:hover {
@@ -350,16 +352,186 @@
 
         /* 响应式设计 */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
+            body {
+                padding: 15px;
             }
 
-            .modes-container {
-                grid-template-columns: 1fr;
+            /* 返回按钮优化 */
+            .btn-back-home {
+                position: relative;
+                top: auto;
+                left: auto;
+                display: block;
+                margin-bottom: 20px;
+                padding: 14px 26px;
+                font-size: 1.05em;
+            }
+
+            /* 标题优化 */
+            .header h1 {
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .header {
+                margin-bottom: 25px;
+            }
+
+            /* 学期选择器优化 */
+            .semester-selector {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .selector-label {
+                font-size: 1.1em;
+                margin-bottom: 12px;
             }
 
             .semester-buttons {
+                gap: 12px;
+            }
+
+            .semester-btn {
+                padding: 14px 32px;
+                font-size: 1.15em;
+                flex: 1;
+                min-width: 140px;
+            }
+
+            /* 学期信息优化 */
+            .semester-info {
+                padding: 18px;
+                margin-bottom: 20px;
+            }
+
+            .semester-info h3 {
+                font-size: 1.3em;
+            }
+
+            .semester-info p {
+                font-size: 1em;
+            }
+
+            /* 课文选择器优化 - 关键优化 */
+            .lesson-selector {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .lesson-buttons {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+                margin-top: 12px;
+            }
+
+            .lesson-btn {
+                padding: 16px 12px;
+                font-size: 1.05em;
+                border-radius: 12px;
+                min-height: 52px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .lesson-btn.all-lessons {
+                font-size: 1.15em;
+                padding: 18px 12px;
+            }
+
+            /* 内容类型选择器优化 */
+            .content-type-selector {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .content-type-buttons {
+                gap: 12px;
+            }
+
+            .content-type-btn {
+                padding: 16px 28px;
+                font-size: 1.1em;
+                flex: 1;
+                min-width: 120px;
+            }
+
+            /* 模式卡片优化 */
+            .mode-card {
+                padding: 40px 30px;
+            }
+
+            .mode-icon {
+                font-size: 4em;
+                margin-bottom: 20px;
+            }
+
+            .mode-title {
+                font-size: 2em;
+                margin-bottom: 12px;
+            }
+
+            .mode-desc {
+                font-size: 1.15em;
+                margin-bottom: 25px;
+            }
+
+            .mode-btn {
+                padding: 16px 40px;
+                font-size: 1.2em;
+            }
+        }
+
+        /* 小屏幕设备进一步优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 0.95em;
+            }
+
+            /* 课文按钮在小屏幕上每行2个 */
+            .lesson-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .lesson-btn {
+                font-size: 0.95em;
+                padding: 14px 8px;
+            }
+
+            .lesson-btn.all-lessons {
+                font-size: 1.05em;
+            }
+
+            /* 内容类型按钮垂直排列 */
+            .content-type-buttons {
                 flex-direction: column;
+            }
+
+            .content-type-btn {
+                width: 100%;
+                padding: 16px 20px;
+            }
+        }
+
+        /* 超大屏幕优化 */
+        @media (min-width: 1200px) {
+            .lesson-buttons {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             }
         }
     </style>
@@ -426,19 +598,43 @@
         // 课文列表配置
         const lessonConfig = {
             1: [ // 上学期
-                { id: 'all', name: '🌟 全部内容', isAll: true }
-            ].concat(
-                // 第1-23课
-                Array.from({length: 23}, (_, i) => ({ 
-                    id: `第${i+1}课`, 
-                    name: `第${i+1}课` 
-                })),
-                // 识字1-4
-                Array.from({length: 4}, (_, i) => ({ 
-                    id: `识字${i+1}`, 
-                    name: `识字${i+1}` 
-                }))
-            ),
+                { id: 'all', name: '🌟 全部内容', isAll: true },
+                // 第一单元
+                { id: '第1课', name: '第一单元（第1课）', unit: '第一单元' },
+                { id: '第2课', name: '第一单元（第2课）', unit: '第一单元' },
+                { id: '第3课', name: '第一单元（第3课）', unit: '第一单元' },
+                // 第二单元（识字单元）
+                { id: '识字1', name: '第二单元（识字1）', unit: '第二单元' },
+                { id: '识字2', name: '第二单元（识字2）', unit: '第二单元' },
+                { id: '识字3', name: '第二单元（识字3）', unit: '第二单元' },
+                { id: '识字4', name: '第二单元（识字4）', unit: '第二单元' },
+                // 第三单元
+                { id: '第4课', name: '第三单元（第4课）', unit: '第三单元' },
+                { id: '第5课', name: '第三单元（第5课）', unit: '第三单元' },
+                { id: '第6课', name: '第三单元（第6课）', unit: '第三单元' },
+                { id: '第7课', name: '第三单元（第7课）', unit: '第三单元' },
+                // 第四单元
+                { id: '第8课', name: '第四单元（第8课）', unit: '第四单元' },
+                { id: '第9课', name: '第四单元（第9课）', unit: '第四单元' },
+                { id: '第10课', name: '第四单元（第10课）', unit: '第四单元' },
+                // 第五单元
+                { id: '第11课', name: '第五单元（第11课）', unit: '第五单元' },
+                { id: '第12课', name: '第五单元（第12课）', unit: '第五单元' },
+                { id: '第13课', name: '第五单元（第13课）', unit: '第五单元' },
+                // 第六单元
+                { id: '第14课', name: '第六单元（第14课）', unit: '第六单元' },
+                { id: '第15课', name: '第六单元（第15课）', unit: '第六单元' },
+                { id: '第16课', name: '第六单元（第16课）', unit: '第六单元' },
+                { id: '第17课', name: '第六单元（第17课）', unit: '第六单元' },
+                // 第七单元
+                { id: '第18课', name: '第七单元（第18课）', unit: '第七单元' },
+                { id: '第19课', name: '第七单元（第19课）', unit: '第七单元' },
+                { id: '第20课', name: '第七单元（第20课）', unit: '第七单元' },
+                // 第八单元
+                { id: '第21课', name: '第八单元（第21课）', unit: '第八单元' },
+                { id: '第22课', name: '第八单元（第22课）', unit: '第八单元' },
+                { id: '第23课', name: '第八单元（第23课）', unit: '第八单元' }
+            ],
             2: [ // 下学期（占位）
                 { id: 'all', name: '🌟 全部内容', isAll: true }
             ]
