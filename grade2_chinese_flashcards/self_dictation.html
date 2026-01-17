@@ -788,7 +788,24 @@
                     html += `<div class="review-item">${item.character} (${item.pinyin}) - ${item.example}</div>`;
                 });
                 html += '</div>';
-                html += '<button onclick="practiceWrongItems()" style="margin-top:20px;padding:12px 30px;background:rgba(255,100,100,0.8);color:white;border:none;border-radius:25px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">🔄 错题重练</button>';
+                
+                // 获取当前错题本总数（包括本次新增的）
+                const urlParams = new URLSearchParams(window.location.search);
+                const contentType = urlParams.get('content_type') || 'xiezibiao';
+                const semester = parseInt(urlParams.get('semester')) || 1;
+                const key = `wrongItems_s${semester}_${contentType}`;
+                const saved = localStorage.getItem(key);
+                let totalWrongCount = wrongItems.length; // 默认为当前错题数
+                if (saved) {
+                    try {
+                        const savedItems = JSON.parse(saved);
+                        totalWrongCount = savedItems.length;
+                    } catch (e) {
+                        totalWrongCount = wrongItems.length;
+                    }
+                }
+                
+                html += `<button onclick="practiceWrongItems()" style="margin-top:20px;padding:12px 30px;background:rgba(255,100,100,0.8);color:white;border:none;border-radius:25px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">🔄 错题重练 (${totalWrongCount}题)</button>`;
                 container.innerHTML = html;
             }
             
