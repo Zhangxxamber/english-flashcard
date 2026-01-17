@@ -674,6 +674,7 @@
         window.onload = function() {
             renderLessonButtons();
             updateLinks();
+            updateErrorBookCount(); // 更新错题本计数
         };
 
         function selectSemester(semester) {
@@ -702,6 +703,9 @@
             
             // 更新链接
             updateLinks();
+            
+            // 更新错题本计数
+            updateErrorBookCount();
         }
 
         // 渲染课文按钮
@@ -742,6 +746,9 @@
             
             // 更新链接
             updateLinks();
+            
+            // 更新错题本计数
+            updateErrorBookCount();
         }
 
         function updateLinks() {
@@ -759,9 +766,57 @@
         
         // 跳转到错题本
         function goToErrorBook() {
-            // 使用当前选择的学期和内容类型
+            // 检查是否有错题记录
+            const contentType = currentContentType;
+            const semester = currentSemester;
+            const key = `wrongItems_s${semester}_${contentType}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            if (wrongCount === 0) {
+                // 没有错题，给出友好提示
+                alert('✨ 还没有错题记录哦！\n\n📝 建议：先完成一些"自主听写"练习\n系统会自动记录做错的题目\n\n💡 提示：练习时选择"还不会"的题目会被记录到错题本');
+                return;
+            }
+            
+            // 有错题，跳转到错题本
             const params = `semester=${currentSemester}&content_type=${currentContentType}&mode=errorbook`;
             window.location.href = `self_dictation.html?${params}`;
+        }
+        
+        // 更新错题本计数显示
+        function updateErrorBookCount() {
+            const contentType = currentContentType;
+            const semester = currentSemester;
+            const key = `wrongItems_s${semester}_${contentType}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            // 更新错题本按钮文字
+            const errorBookBtn = document.querySelector('button[onclick="goToErrorBook()"]');
+            if (errorBookBtn && wrongCount > 0) {
+                errorBookBtn.innerHTML = `查看错题本 (${wrongCount}题)`;
+            } else if (errorBookBtn) {
+                errorBookBtn.innerHTML = '查看错题本';
+            }
         }
     </script>
 </body>
