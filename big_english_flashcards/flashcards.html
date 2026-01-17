@@ -89,26 +89,66 @@
 
         /* 单元筛选器 */
         .unit-filter {
-            text-align: center;
+            background: rgba(30, 30, 40, 0.85);
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .unit-filter select {
-            padding: 12px 20px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.9);
-            color: #667eea;
+        .unit-selector-label {
+            font-size: 1.2em;
             font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
-        .unit-filter select:hover {
+        .unit-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .unit-btn {
+            padding: 12px 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unit-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .unit-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .unit-btn.all-units {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border-color: #44a08d;
+        }
+
+        .unit-btn.all-units.active {
+            background: linear-gradient(135deg, #45b7d1 0%, #3a9d8f 100%);
         }
 
         /* 发音设置区域 */
@@ -434,19 +474,10 @@
             
             <!-- 单元筛选器 -->
             <div class="unit-filter">
-                <select id="unitSelector" onchange="changeUnit()">
-                    <option value="all">所有单元</option>
-                    <option value="welcome">入门单元 - Welcome to Class!</option>
-                    <option value="unit1">第1单元 - Good Morning, Class!</option>
-                    <option value="unit2">第2单元 - My Family</option>
-                    <option value="unit3">第3单元 - My Body</option>
-                    <option value="unit4">第4单元 - My Favorite Clothes!</option>
-                    <option value="unit5">第5单元 - Busy at Home</option>
-                    <option value="unit6">第6单元 - On the Farm</option>
-                    <option value="unit7">第7单元 - Party Time</option>
-                    <option value="unit8">第8单元 - Fun and Games</option>
-                    <option value="unit9">第9单元 - Play Time</option>
-                </select>
+                <div class="unit-selector-label">📚 选择单元</div>
+                <div class="unit-buttons" id="unitButtons">
+                    <!-- 单元按钮将通过 JavaScript 动态生成 -->
+                </div>
             </div>
 
             <!-- 发音设置 -->
@@ -823,9 +854,11 @@
         // 获取当前教材编号
         const currentBookNumber = getBookNumber();
         
-        // 动态生成单元选择器
+        let currentUnit = 'all'; // 当前选中的单元
+        
+        // 动态生成单元选择器（改为按钮形式）
         function populateUnitSelector() {
-            const unitSelector = document.getElementById('unitSelector');
+            const unitButtons = document.getElementById('unitButtons');
             
             // 统计每个单元的单词数
             const unitCounts = {};
@@ -839,24 +872,38 @@
                 unitCounts[word.unit].count++;
             });
             
-            // 生成选项
-            let options = '<option value="all">所有单元</option>';
-            
             // 获取当前教材的单元标题
             const titles = unitTitles[currentBookNumber] || unitTitles[1];
             
-            // 按单元顺序添加选项
+            // 生成按钮
+            let html = '<button class="unit-btn all-units active" onclick="selectUnit(\'all\')">所有单元</button>';
+            
+            // 按单元顺序添加按钮
             const units = ['welcome', 'unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8', 'unit9'];
             units.forEach(unitKey => {
                 if (unitCounts[unitKey]) {
                     const unitName = unitCounts[unitKey].name;
                     const title = titles[unitKey] || '';
                     const displayName = title ? `${unitName} - ${title}` : unitName;
-                    options += `<option value="${unitKey}">${displayName}</option>`;
+                    html += `<button class="unit-btn" onclick="selectUnit('${unitKey}')">${displayName}</button>`;
                 }
             });
             
-            unitSelector.innerHTML = options;
+            unitButtons.innerHTML = html;
+        }
+        
+        // 选择单元
+        function selectUnit(unit) {
+            currentUnit = unit;
+            
+            // 更新按钮激活状态
+            document.querySelectorAll('.unit-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 切换单元
+            changeUnit();
         }
         
         // 页面加载时初始化单元选择器
@@ -953,14 +1000,11 @@
 
         // 单元切换功能
         function changeUnit() {
-            const selector = document.getElementById('unitSelector');
-            const selectedUnit = selector.value;
-            
             // 根据选择的单元筛选单词
-            if (selectedUnit === 'all') {
+            if (currentUnit === 'all') {
                 currentWordBank = [...allWords];
             } else {
-                currentWordBank = allWords.filter(word => word.unit === selectedUnit);
+                currentWordBank = allWords.filter(word => word.unit === currentUnit);
             }
             
             // 重置索引并显示第一个单词

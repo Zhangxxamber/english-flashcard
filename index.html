@@ -319,7 +319,7 @@
         <div class="header">
             <div class="logo">📚</div>
             <h1>小学学习平台</h1>
-            <p>英语 · 语文 · 互动学习 · 全方位提升</p>
+            <p>语文 · 英语 · 数学 · 互动学习 · 全方位提升</p>
         </div>
 
         <!-- 项目卡片 -->
@@ -400,6 +400,44 @@
                 <a href="grade2_english_flashcards/index.html" class="btn-enter">进入学习 →</a>
             </div>
 
+            <!-- 二年级数学 -->
+            <div class="project-card">
+                <div class="project-icon">📊</div>
+                <div class="project-title">沪教版小学数学二年级</div>
+                <div class="project-subtitle">Math Grade 2 - Practice</div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">14</span>
+                        <span class="stat-label">计算类型</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2</span>
+                        <span class="stat-label">学期教材</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">无限题库</span>
+                    </div>
+                </div>
+
+                <div class="project-features">
+                    <ul>
+                        <li>完整覆盖二年级上下册教材</li>
+                        <li>加减乘除四则运算练习</li>
+                        <li>自动生成题目，无限练习</li>
+                        <li>练习模式 + 速算测验</li>
+                        <li>实时批改，错题解析</li>
+                    </ul>
+                </div>
+
+                <div class="feature-highlight">
+                    <strong>🎯 适合人群：</strong> 小学二年级学生，使用沪教版教材
+                </div>
+
+                <a href="grade2_math_flashcards/index.html" class="btn-enter">进入练习 →</a>
+            </div>
+
             <!-- Big English -->
             <div class="project-card">
                 <div class="project-icon">🌍</div>
@@ -449,7 +487,7 @@
                 Made with ❤️ by Zhangxxamber
             </p>
             <p style="font-size: 0.9em; opacity: 0.8; margin-top: 20px;">
-                © 2026 小学学习平台 · 语文英语同步学习
+                © 2026 小学学习平台 · 语文英语数学同步学习
             </p>
         </div>
     </div>
@@ -460,6 +498,7 @@
         console.log('%c欢迎使用！祝您学习愉快！', 'font-size: 16px; color: #764ba2;');
         console.log('\n📖 二年级语文: 100+个生字词语');
         console.log('🎓 沪教版二年级英语: 147个学习内容');
+        console.log('📊 沪教版二年级数学: 14种计算类型');
         console.log('🌍 Big English: 738个学习内容\n');
         
         // 添加键盘快捷键
@@ -472,8 +511,12 @@
             if (e.key === '2') {
                 window.location.href = 'grade2_english_flashcards/index.html';
             }
-            // 按 3 进入 Big English
+            // 按 3 进入数学二年级
             if (e.key === '3') {
+                window.location.href = 'grade2_math_flashcards/index.html';
+            }
+            // 按 4 进入 Big English
+            if (e.key === '4') {
                 window.location.href = 'big_english_flashcards/index.html';
             }
         });
@@ -483,7 +526,8 @@
             console.log('\n⌨️ 快捷键提示:');
             console.log('  按 1 - 进入二年级语文');
             console.log('  按 2 - 进入沪教版二年级英语');
-            console.log('  按 3 - 进入 Big English');
+            console.log('  按 3 - 进入沪教版二年级数学');
+            console.log('  按 4 - 进入 Big English');
         });
     </script>
 </body>

@@ -124,15 +124,67 @@
             flex-wrap: wrap;
         }
 
-        .unit-selector select {
-            padding: 10px 15px;
-            font-size: 1em;
-            border: 2px solid rgba(255,255,255,0.3); /* 深色边框 */
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1); /* 半透明背景 */
-            color: rgba(255,255,255,0.9); /* 白色文字 */
-            cursor: pointer;
+        .unit-selector {
+            background: rgba(30, 30, 40, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+        }
+
+        .unit-selector-label {
+            font-size: 1.2em;
             font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .unit-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .unit-btn {
+            padding: 12px 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unit-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .unit-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .unit-btn.all-units {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border-color: #44a08d;
+        }
+
+        .unit-btn.all-units.active {
+            background: linear-gradient(135deg, #45b7d1 0%, #3a9d8f 100%);
         }
 
         /* 得分板 */
@@ -500,9 +552,10 @@
             </div>
             <div class="controls-row">
                 <div class="unit-selector">
-                    <select id="unitSelector" onchange="changeUnit()">
-                        <option value="all">所有单元</option>
-                    </select>
+                    <div class="unit-selector-label">📚 选择单元</div>
+                    <div class="unit-buttons" id="unitButtons">
+                        <!-- 单元按钮将通过 JavaScript 动态生成 -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -823,35 +876,49 @@
         let currentQuestion = null;
         let isAnswered = false;
 
-        // 初始化单元选择器
+        let currentUnit = 'all'; // 当前选中的单元
+
+        // 初始化单元选择器（改为按钮形式）
         function populateUnitSelector() {
-            const unitSelector = document.getElementById('unitSelector');
+            const unitButtons = document.getElementById('unitButtons');
             const units = {};
             
+            // 收集所有单元信息
             allData.forEach(item => {
                 if (!units[item.unit]) {
                     units[item.unit] = item.unitName;
                 }
             });
             
-            let options = '<option value="all">所有单元</option>';
+            let html = '<button class="unit-btn all-units active" onclick="selectUnit(\'all\')">所有单元</button>';
             Object.keys(units).forEach(unitKey => {
                 const count = allData.filter(item => item.unit === unitKey).length;
-                options += `<option value="${unitKey}">${units[unitKey]} (${count}个)</option>`;
+                html += `<button class="unit-btn" onclick="selectUnit('${unitKey}')">${units[unitKey]} (${count}个)</button>`;
             });
             
-            unitSelector.innerHTML = options;
+            unitButtons.innerHTML = html;
+        }
+
+        // 选择单元
+        function selectUnit(unit) {
+            currentUnit = unit;
+            
+            // 更新按钮激活状态
+            document.querySelectorAll('.unit-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 切换单元
+            changeUnit();
         }
 
         // 切换单元
         function changeUnit() {
-            const selector = document.getElementById('unitSelector');
-            const selectedUnit = selector.value;
-            
-            if (selectedUnit === 'all') {
+            if (currentUnit === 'all') {
                 currentData = [...allData];
             } else {
-                currentData = allData.filter(item => item.unit === selectedUnit);
+                currentData = allData.filter(item => item.unit === currentUnit);
             }
             
             // 重置游戏

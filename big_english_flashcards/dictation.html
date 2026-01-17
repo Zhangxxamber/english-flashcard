@@ -210,6 +210,60 @@
             min-width: 80px;
         }
 
+        /* 单元选择器按钮样式 */
+        .unit-selector-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .unit-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .unit-btn {
+            padding: 12px 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unit-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .unit-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .unit-btn.all-units {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border-color: #44a08d;
+        }
+
+        .unit-btn.all-units.active {
+            background: linear-gradient(135deg, #45b7d1 0%, #3a9d8f 100%);
+        }
+
         select, .btn {
             padding: 10px 20px;
             font-size: 1em;
@@ -686,20 +740,12 @@
         <!-- 控制面板 -->
         <div class="control-panel">
             <div class="control-row">
-                <span class="control-label">选择单元：</span>
-                <select id="unitSelector" onchange="selectUnit()">
-                    <option value="all">所有单元 (213个)</option>
-                    <option value="welcome">入门单元 - Welcome to Class! (8个)</option>
-                    <option value="unit1">第1单元 - Good Morning, Class! (14个)</option>
-                    <option value="unit2">第2单元 - My Family (8个)</option>
-                    <option value="unit3">第3单元 - My Body (17个)</option>
-                    <option value="unit4">第4单元 - My Favorite Clothes! (14个)</option>
-                    <option value="unit5">第5单元 - Busy at Home (16个)</option>
-                    <option value="unit6">第6单元 - On the Farm (16个)</option>
-                    <option value="unit7">第7单元 - Party Time (20个)</option>
-                    <option value="unit8">第8单元 - Fun and Games (16个)</option>
-                    <option value="unit9">第9单元 - Play Time (10个)</option>
-                </select>
+                <div class="unit-selector-label">📚 选择单元</div>
+            </div>
+            <div class="control-row">
+                <div class="unit-buttons" id="unitButtons" style="width: 100%;">
+                    <!-- 单元按钮将通过 JavaScript 动态生成 -->
+                </div>
             </div>
             <div class="control-row">
                 <span class="control-label">学习模式：</span>
@@ -1327,9 +1373,9 @@
         // 获取当前教材编号
         const currentBookNumber = getBookNumber();
 
-        // 动态生成单元选择器
+        // 动态生成单元选择器（改为按钮形式）
         function populateUnitSelector() {
-            const unitSelector = document.getElementById('unitSelector');
+            const unitButtons = document.getElementById('unitButtons');
             
             // 统计每个单元的单词数
             const unitCounts = {};
@@ -1343,13 +1389,13 @@
                 unitCounts[word.unit].count++;
             });
             
-            // 生成选项
-            let options = `<option value="all">所有单元 (${allWords.length}个)</option>`;
-            
             // 获取当前教材的单元标题
             const titles = unitTitles[currentBookNumber] || unitTitles[1];
             
-            // 按单元顺序添加选项
+            // 生成按钮
+            let html = `<button class="unit-btn all-units active" onclick="selectUnitButton('all')">所有单元 (${allWords.length}个)</button>`;
+            
+            // 按单元顺序添加按钮
             const units = ['welcome', 'unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8', 'unit9'];
             units.forEach(unitKey => {
                 if (unitCounts[unitKey]) {
@@ -1357,11 +1403,22 @@
                     const count = unitCounts[unitKey].count;
                     const title = titles[unitKey] || '';
                     const displayName = title ? `${unitName} - ${title} (${count}个)` : `${unitName} (${count}个)`;
-                    options += `<option value="${unitKey}">${displayName}</option>`;
+                    html += `<button class="unit-btn" onclick="selectUnitButton('${unitKey}')">${displayName}</button>`;
                 }
             });
             
-            unitSelector.innerHTML = options;
+            unitButtons.innerHTML = html;
+        }
+        
+        // 选择单元按钮
+        function selectUnitButton(unit) {
+            selectedUnit = unit;
+            
+            // 更新按钮激活状态
+            document.querySelectorAll('.unit-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
         }
         
         // 页面加载时初始化单元选择器
@@ -1397,9 +1454,10 @@
         }
 
         // 选择单元
+        // 保留旧的 selectUnit 函数用于兼容
         function selectUnit() {
-            selectedUnit = document.getElementById('unitSelector').value;
-            // 重置状态
+            // 由于改为按钮，这个函数可能不再需要
+            // 但保留以防其他地方调用
             resetDictation();
         }
 
