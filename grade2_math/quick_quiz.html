@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>速算测验 - 二年级数学</title>
+    
+    <script>
+        // 从URL参数获取学期
+        const urlParams = new URLSearchParams(window.location.search);
+        const semester = parseInt(urlParams.get('semester')) || 1;
+        
+        // 动态加载数据文件
+        const script1 = document.createElement('script');
+        script1.src = 'data/math_semester1.js';
+        document.head.appendChild(script1);
+        
+        const script2 = document.createElement('script');
+        script2.src = 'data/math_semester2.js';
+        document.head.appendChild(script2);
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 返回按钮 */
+        .btn-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 音效开关 */
+        .btn-sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-sound-toggle:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        /* 标题 */
+        .header {
+            background: rgba(40, 40, 60, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.15);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* 配置卡片 */
+        .config-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .config-section {
+            margin-bottom: 30px;
+        }
+
+        .config-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .type-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .type-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .type-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+            font-weight: bold;
+        }
+
+        .type-option .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .count-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .count-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .count-btn:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .count-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 测验界面 */
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .timer-bar {
+            background: rgba(40, 40, 60, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .timer {
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .progress-text {
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .question-list {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .question-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .question-item:last-child {
+            border-bottom: none;
+        }
+
+        .question-num {
+            min-width: 40px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .question-expr {
+            flex: 1;
+            font-size: 1.3em;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .question-input {
+            width: 120px;
+            padding: 10px;
+            font-size: 1.1em;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .question-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .question-input.correct {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .question-input.wrong {
+            border-color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .submit-quiz-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 25px;
+        }
+
+        .submit-quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        /* 结果页面 */
+        .result-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .wrong-questions {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .wrong-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #f87171;
+            margin-bottom: 15px;
+        }
+
+        .wrong-item {
+            padding: 15px;
+            background: rgba(248, 113, 113, 0.1);
+            border-left: 4px solid #f87171;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .type-options {
+                grid-template-columns: 1fr;
+            }
+
+            .question-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .question-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回按钮 -->
+    <a href="index.html" class="btn-home">← 返回</a>
+
+    <!-- 音效开关 -->
+    <button class="btn-sound-toggle" id="soundToggle">🔊</button>
+
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <div class="title">⚡ 速算测验</div>
+            <div class="subtitle" id="headerSubtitle">挑战你的计算速度！</div>
+        </div>
+
+        <!-- 配置卡片 -->
+        <div class="config-card" id="configCard">
+            <div class="config-section">
+                <div class="config-label">📝 选择计算类型</div>
+                <div class="type-options" id="typeOptions">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-label">🎯 选择题目数量</div>
+                <div class="count-options">
+                    <button class="count-btn" data-count="10">10题</button>
+                    <button class="count-btn selected" data-count="20">20题</button>
+                    <button class="count-btn" data-count="30">30题</button>
+                    <button class="count-btn" data-count="50">50题</button>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startQuiz()">🚀 开始测验</button>
+        </div>
+
+        <!-- 测验界面 -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="timer-bar">
+                <div class="timer" id="timer">00:00</div>
+                <div class="progress-text" id="progressText">0 / 20</div>
+            </div>
+
+            <div class="question-list" id="questionList">
+                <!-- 动态加载题目 -->
+            </div>
+
+            <button class="submit-quiz-btn" onclick="submitQuiz()">✅ 提交测验</button>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="result-card" id="resultCard">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-title" id="resultTitle">测验完成！</div>
+            
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-label">用时</div>
+                    <div class="stat-value" id="timeUsed">--</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">答对</div>
+                    <div class="stat-value" id="correctNum">--</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">正确率</div>
+                    <div class="stat-value" id="accuracyRate">--%</div>
+                </div>
+            </div>
+
+            <div class="wrong-questions" id="wrongQuestions" style="display: none;">
+                <div class="wrong-title">❌ 错题回顾</div>
+                <div id="wrongList"></div>
+            </div>
+
+            <div class="result-buttons">
+                <button class="btn btn-primary" onclick="restartQuiz()">🔄 再测一次</button>
+                <a href="index.html" class="btn btn-secondary">🏠 返回首页</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 全局变量 ==========
+        let currentSemester = semester;
+        let semesterData = null;
+        let selectedTypeId = null;
+        let selectedCount = 20;
+        let questions = [];
+        let startTime = null;
+        let timerInterval = null;
+        let isSoundEnabled = localStorage.getItem('mathSoundEnabled') !== 'false';
+
+        // ========== 音效系统 ==========
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!isSoundEnabled) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            if (type === 'complete') {
+                // 完成音效：欢快音阶
+                [523, 587, 659, 698, 784, 880, 988, 1047].forEach((freq, i) => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.08 + 0.1);
+                    osc.start(audioContext.currentTime + i * 0.08);
+                    osc.stop(audioContext.currentTime + i * 0.08 + 0.1);
+                });
+            }
+        }
+
+        // 音效开关
+        document.getElementById('soundToggle').addEventListener('click', function() {
+            isSoundEnabled = !isSoundEnabled;
+            localStorage.setItem('mathSoundEnabled', isSoundEnabled);
+            this.textContent = isSoundEnabled ? '🔊' : '🔇';
+        });
+
+        // ========== 初始化 ==========
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                initConfig();
+            }, 100);
+        });
+
+        function initConfig() {
+            // 获取学期数据
+            semesterData = currentSemester === 1 ? mathSemester1 : mathSemester2;
+            
+            // 更新标题
+            document.getElementById('headerSubtitle').textContent = 
+                `${semesterData.semesterName} · 挑战你的计算速度！`;
+
+            // 设置音效按钮
+            const soundBtn = document.getElementById('soundToggle');
+            soundBtn.textContent = isSoundEnabled ? '🔊' : '🔇';
+
+            // 渲染计算类型
+            renderTypeOptions();
+
+            // 题目数量选择
+            document.querySelectorAll('.count-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedCount = parseInt(this.dataset.count);
+                });
+            });
+        }
+
+        function renderTypeOptions() {
+            const typeOptions = document.getElementById('typeOptions');
+            typeOptions.innerHTML = '';
+
+            semesterData.calculationTypes.forEach((type, index) => {
+                const option = document.createElement('div');
+                option.className = 'type-option';
+                if (index === 0) {
+                    option.classList.add('selected');
+                    selectedTypeId = type.id;
+                }
+
+                option.innerHTML = `
+                    <div class="icon">${type.icon}</div>
+                    <div>${type.name}</div>
+                `;
+
+                option.onclick = function() {
+                    document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedTypeId = type.id;
+                };
+
+                typeOptions.appendChild(option);
+            });
+        }
+
+        // ========== 开始测验 ==========
+        function startQuiz() {
+            if (!selectedTypeId) {
+                alert('请选择计算类型！');
+                return;
+            }
+
+            // 隐藏配置卡片
+            document.getElementById('configCard').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+
+            // 生成题目
+            generateQuestions();
+
+            // 渲染题目列表
+            renderQuestions();
+
+            // 开始计时
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function generateQuestions() {
+            questions = [];
+            
+            const typeConfig = semesterData.calculationTypes.find(t => t.id === selectedTypeId);
+            let generator;
+            
+            if (currentSemester === 2) {
+                generator = new MathQuestionGeneratorS2(typeConfig.config);
+            } else {
+                generator = new MathQuestionGenerator(typeConfig.config);
+            }
+
+            for (let i = 0; i < selectedCount; i++) {
+                const q = generator.generate();
+                questions.push({
+                    ...q,
+                    userAnswer: '',
+                    isCorrect: null
+                });
+            }
+        }
+
+        function renderQuestions() {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+
+                item.innerHTML = `
+                    <div class="question-num">${index + 1}.</div>
+                    <div class="question-expr">${q.question}</div>
+                    <input type="text" 
+                           class="question-input" 
+                           id="input-${index}"
+                           placeholder="?"
+                           autocomplete="off">
+                `;
+
+                // 输入框事件
+                const input = item.querySelector('.question-input');
+                input.addEventListener('input', function() {
+                    questions[index].userAnswer = this.value.trim();
+                    updateProgress();
+                });
+
+                // 回车跳转到下一题
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const nextInput = document.getElementById(`input-${index + 1}`);
+                        if (nextInput) {
+                            nextInput.focus();
+                        } else {
+                            submitQuiz();
+                        }
+                    }
+                });
+
+                questionList.appendChild(item);
+            });
+
+            // 自动聚焦第一题
+            document.getElementById('input-0')?.focus();
+
+            updateProgress();
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateProgress() {
+            const answered = questions.filter(q => q.userAnswer !== '').length;
+            document.getElementById('progressText').textContent = 
+                `${answered} / ${selectedCount}`;
+        }
+
+        // ========== 提交测验 ==========
+        function submitQuiz() {
+            // 检查是否所有题目都已作答
+            const unanswered = questions.filter(q => q.userAnswer === '').length;
+            if (unanswered > 0) {
+                if (!confirm(`还有 ${unanswered} 题未作答，确定要提交吗？`)) {
+                    return;
+                }
+            }
+
+            // 停止计时
+            clearInterval(timerInterval);
+            const totalTime = Math.floor((Date.now() - startTime) / 1000);
+
+            // 批改答案
+            let correctCount = 0;
+            questions.forEach((q, index) => {
+                const isCorrect = checkAnswer(q.userAnswer, q.answer);
+                q.isCorrect = isCorrect;
+                
+                const input = document.getElementById(`input-${index}`);
+                if (isCorrect) {
+                    correctCount++;
+                    input.classList.add('correct');
+                } else {
+                    input.classList.add('wrong');
+                }
+                input.disabled = true;
+            });
+
+            // 显示结果
+            setTimeout(() => {
+                showResult(correctCount, totalTime);
+            }, 1000);
+        }
+
+        function checkAnswer(userAnswer, correctAnswer) {
+            if (userAnswer === '') return false;
+            
+            if (typeof correctAnswer === 'number') {
+                return parseFloat(userAnswer) === correctAnswer;
+            } else if (typeof correctAnswer === 'string') {
+                return userAnswer.replace(/\s+/g, '') === correctAnswer.replace(/\s+/g, '');
+            }
+            return false;
+        }
+
+        function showResult(correctCount, totalTime) {
+            document.getElementById('quizContainer').style.display = 'none';
+            
+            const accuracy = Math.round((correctCount / selectedCount) * 100);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            const timeStr = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+
+            // 图标和标题
+            let icon, title;
+            if (accuracy === 100) {
+                icon = '🏆';
+                title = '完美！满分通过！';
+                playSound('complete');
+            } else if (accuracy >= 90) {
+                icon = '🎉';
+                title = '太棒了！表现优秀！';
+            } else if (accuracy >= 80) {
+                icon = '👍';
+                title = '不错！继续加油！';
+            } else if (accuracy >= 60) {
+                icon = '💪';
+                title = '加油！多多练习！';
+            } else {
+                icon = '📖';
+                title = '需要更多练习哦！';
+            }
+
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('timeUsed').textContent = timeStr;
+            document.getElementById('correctNum').textContent = `${correctCount}/${selectedCount}`;
+            document.getElementById('accuracyRate').textContent = `${accuracy}%`;
+
+            // 错题回顾
+            const wrongQuestions = questions.filter(q => !q.isCorrect);
+            if (wrongQuestions.length > 0) {
+                const wrongSection = document.getElementById('wrongQuestions');
+                wrongSection.style.display = 'block';
+                
+                const wrongList = document.getElementById('wrongList');
+                wrongList.innerHTML = '';
+                
+                wrongQuestions.forEach((q, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'wrong-item';
+                    item.innerHTML = `
+                        <strong>第 ${questions.indexOf(q) + 1} 题：</strong>
+                        ${q.question}<br>
+                        <span style="color: #f87171;">你的答案：${q.userAnswer || '未作答'}</span><br>
+                        <span style="color: #4ade80;">正确答案：${q.answer}</span>
+                        ${q.hint ? `<br><span style="color: #667eea;">💡 ${q.hint}</span>` : ''}
+                    `;
+                    wrongList.appendChild(item);
+                });
+            }
+
+            document.getElementById('resultCard').classList.add('show');
+        }
+
+        // ========== 重新测验 ==========
+        function restartQuiz() {
+            // 重置界面
+            document.getElementById('resultCard').classList.remove('show');
+            document.getElementById('configCard').style.display = 'block';
+            document.getElementById('quizContainer').classList.remove('active');
+            
+            // 重置变量
+            questions = [];
+            startTime = null;
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

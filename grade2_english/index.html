@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="沪教版小学英语二年级 - 趣味学习闪卡">
+    <meta name="keywords" content="沪教版,小学英语,二年级,学习工具,闪卡">
+    <meta name="author" content="zhangxiaoxiao">
+    <title>小学英语二年级 - 趣味闪卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed; /* 防止Edge浏览器背景闪烁 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased; /* 改善字体渲染 */
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            animation: fadeInDown 1s;
+        }
+
+        .btn-back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-back-home:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateX(-5px);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .header .emoji {
+            font-size: 3em;
+            animation: bounce 2s infinite;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* 学期选择器 */
+        .semester-selector {
+            background: rgba(30, 30, 40, 0.85); /* 深色背景 */
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 1s;
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); /* 细边框 */
+        }
+
+        .selector-label {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffffff; /* 白色标题 */
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .semester-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .semester-btn {
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 3px solid rgba(255,255,255,0.3); /* 深色主题边框 */
+            background: rgba(255,255,255,0.1); /* 半透明背景 */
+            color: rgba(255,255,255,0.9); /* 浅色文字 */
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .semester-btn:hover {
+            background: rgba(255,255,255,0.2); /* 悬停时更亮 */
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .semester-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .semester-info {
+            text-align: center;
+            color: rgba(255,255,255,0.8); /* 深色主题文字 */
+            font-size: 1.1em;
+            padding: 15px;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.08); /* 半透明背景 */
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* 统计信息 */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* 学习模式卡片 */
+        .modes {
+            display: flex;
+            justify-content: center;
+            animation: fadeIn 1.2s;
+        }
+
+        .mode-card {
+            background: rgba(30, 30, 40, 0.85); /* 深色半透明背景 */
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); /* 细边框 */
+            max-width: 500px; /* 单卡片最大宽度 */
+            width: 100%; /* 保持响应式 */
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .mode-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .mode-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffffff; /* 白色标题 */
+            margin-bottom: 15px;
+        }
+
+        .mode-desc {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.7); /* 浅色描述 */
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mode-features {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .mode-features li {
+            color: rgba(255,255,255,0.8); /* 深色主题列表文字 */
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .btn-enter {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #ffd700;
+            color: #333;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.new {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .badge.star {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 50px;
+            animation: fadeIn 1.5s;
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .modes {
+                grid-template-columns: 1fr;
+            }
+            
+            .semester-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回按钮（独立于容器外） -->
+    <a href="../index.html" class="btn-back-home">← 返回平台首页</a>
+    
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <div class="emoji">🎒</div>
+            <h1>小学英语二年级</h1>
+            <p>沪教版 - 趣味互动学习</p>
+        </div>
+
+        <!-- 学期选择 -->
+        <div class="semester-selector">
+            <div class="selector-label">📚 选择学期：</div>
+            <div class="semester-buttons">
+                <button class="semester-btn active" onclick="selectSemester(1)">
+                    📖 上册<br>
+                    <small style="font-size: 0.8em; opacity: 0.8;">Starter + 10个单元</small>
+                </button>
+                <button class="semester-btn" onclick="selectSemester(2)">
+                    📕 下册<br>
+                    <small style="font-size: 0.8em; opacity: 0.8;">10个主题单元</small>
+                </button>
+            </div>
+            <div class="semester-info" id="semesterInfo">
+                二年级上册：颜色、数字、日常活动等基础内容
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="statPhrases">147</div>
+                <div class="stat-label">学习内容</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="statUnits">11</div>
+                <div class="stat-label">单元数量</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">1</div>
+                <div class="stat-label">学习模式</div>
+            </div>
+        </div>
+
+        <!-- 学习模式 -->
+        <div class="modes">
+            <!-- 自主默写 -->
+            <div class="mode-card">
+                <div class="mode-icon">✍️</div>
+                <div class="mode-title">
+                    自主默写
+                    <span class="badge star">⭐推荐</span>
+                </div>
+                <div class="mode-desc">
+                    听发音、看中文、默写英文，自主评估掌握情况
+                </div>
+                <ul class="mode-features">
+                    <li>听真人发音</li>
+                    <li>查看音标和中文</li>
+                    <li>自主显示答案</li>
+                    <li>自我评估：会了/还不会</li>
+                    <li>错题自动记录</li>
+                    <li>错题本重练功能</li>
+                    <li>进度追踪统计</li>
+                </ul>
+                <a href="dictation.html?book=1" class="btn-enter" id="dictationLink">开始练习</a>
+                
+                <!-- 错题本入口 -->
+                <div style="margin-top:20px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.2);">
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.95em;margin-bottom:10px;">📚 系统会自动记录错题</p>
+                    <button onclick="goToErrorBook()" style="padding:10px 30px;background:rgba(255,100,100,0.6);color:white;border:2px solid rgba(255,255,255,0.4);border-radius:20px;font-size:1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">查看错题本</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>💡 学习建议：反复练习自主默写，及时复习错题本，巩固学习效果</p>
+            <p style="margin-top: 20px;">
+                教材：沪教版小学英语二年级上下册 | Made with ❤️ for kids
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 当前选中的学期
+        let currentSemester = 1;
+
+        // 学期信息
+        const semesterInfo = {
+            1: {
+                desc: '二年级上册：颜色、数字、日常活动等基础内容',
+                phrases: 147,
+                units: 11  // Starter + Unit 1-10
+            },
+            2: {
+                desc: '二年级下册：假期、家务、情感表达等进阶内容',
+                phrases: 99,
+                units: 10  // Unit 1-10
+            }
+        };
+
+        // 选择学期
+        function selectSemester(semester) {
+            currentSemester = semester;
+            const info = semesterInfo[semester];
+            
+            // 更新按钮状态
+            document.querySelectorAll('.semester-btn').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if (index + 1 === semester) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新信息
+            document.getElementById('semesterInfo').textContent = info.desc;
+            
+            // 更新统计数字
+            document.getElementById('statPhrases').textContent = info.phrases;
+            document.getElementById('statUnits').textContent = info.units;
+            
+            // 更新模式卡片中的数量
+            document.getElementById('quiz1').textContent = `${info.phrases}个学习内容`;
+            document.getElementById('quiz2').textContent = `${info.units}个主题单元`;
+            
+            // 更新链接
+            document.getElementById('quizLink').href = `listening_quiz.html?book=${semester}`;
+            document.getElementById('flashcardsLink').href = `flashcards.html?book=${semester}`;
+            document.getElementById('dictationLink').href = `dictation.html?book=${semester}`;
+            
+            // 更新错题本计数
+            updateErrorBookCount();
+        }
+        
+        // 跳转到错题本
+        function goToErrorBook() {
+            // 检查是否有错题记录
+            const book = currentSemester;
+            const key = `wrongItems_book${book}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            if (wrongCount === 0) {
+                // 没有错题，不执行任何操作（按钮应该已被禁用）
+                return;
+            }
+            
+            // 有错题，跳转到错题本
+            const params = `book=${currentSemester}&mode=errorbook`;
+            window.location.href = `dictation.html?${params}`;
+        }
+        
+        // 更新错题本计数显示
+        function updateErrorBookCount() {
+            const book = currentSemester;
+            const key = `wrongItems_book${book}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            // 构建更清晰的按钮文字（使用书名号）
+            const bookText = book === 1 ? '上册' : '下册';
+            
+            // 更新错题本按钮文字和状态
+            const errorBookBtn = document.querySelector('button[onclick="goToErrorBook()"]');
+            if (errorBookBtn) {
+                errorBookBtn.innerHTML = `查看${bookText}《默写版》错题本 (${wrongCount}题)`;
+                
+                // 0题时禁用按钮
+                if (wrongCount === 0) {
+                    errorBookBtn.disabled = true;
+                    errorBookBtn.style.opacity = '0.5';
+                    errorBookBtn.style.cursor = 'not-allowed';
+                    errorBookBtn.style.background = 'rgba(150,150,150,0.6)';
+                } else {
+                    errorBookBtn.disabled = false;
+                    errorBookBtn.style.opacity = '1';
+                    errorBookBtn.style.cursor = 'pointer';
+                    errorBookBtn.style.background = 'rgba(255,100,100,0.6)';
+                }
+            }
+        }
+        
+        // 页面加载时初始化错题本计数
+        window.onload = function() {
+            updateErrorBookCount();
+        };
+
+        // 页面加载动画
+        console.log('%c🎒 小学英语二年级', 'font-size: 20px; color: #667eea; font-weight: bold;');
+        console.log('沪教版 - 趣味互动学习');
+    </script>
+</body>
+</html>
