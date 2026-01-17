@@ -147,14 +147,73 @@
             opacity: 0.9;
         }
 
-        /* 内容类型选择器 - 新增 */
-        .content-type-selector {
+        /* 课文选择器 - 新增 */
+        .lesson-selector {
             background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
             animation: fadeIn 0.8s ease-out 0.3s backwards;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .lesson-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .lesson-btn {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 15px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .lesson-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .lesson-btn.active {
+            background: rgba(255,255,255,0.6);
+            border-color: white;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+        }
+
+        .lesson-btn.all-lessons {
+            grid-column: 1 / -1;
+            background: rgba(255,215,0,0.3);
+            border-color: rgba(255,215,0,0.6);
+            font-size: 1.1em;
+        }
+
+        .lesson-btn.all-lessons:hover {
+            background: rgba(255,215,0,0.5);
+        }
+
+        .lesson-btn.all-lessons.active {
+            background: rgba(255,215,0,0.7);
+            border-color: gold;
+        }
+
+        /* 内容类型选择器 */
+        .content-type-selector {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
             border: 2px solid rgba(255,255,255,0.3);
         }
 
@@ -317,10 +376,18 @@
         <!-- 学期信息 -->
         <div class="semester-info" id="semesterInfo">
             <h3>📖 上学期</h3>
-            <p>包含写字表、识字表、词语表内容</p>
+            <p>23课文 + 4个识字单元</p>
         </div>
 
-        <!-- 内容类型选择器 - 新增 -->
+        <!-- 课文选择器 - 新增 -->
+        <div class="lesson-selector">
+            <div class="selector-label">选择课文</div>
+            <div class="lesson-buttons" id="lessonButtons">
+                <!-- 动态生成课文按钮 -->
+            </div>
+        </div>
+
+        <!-- 内容类型选择器 -->
         <div class="content-type-selector">
             <div class="selector-label">选择内容类型</div>
             <div class="content-type-buttons">
@@ -368,15 +435,39 @@
 
     <script>
         let currentSemester = 1;
+        let currentLesson = 'all'; // 'all' 或具体课文编号（如 '第1课', '识字1'）
         let currentContentType = 'xiezibiao'; // 默认选择写字表
+
+        // 课文列表配置
+        const lessonConfig = {
+            1: [ // 上学期
+                { id: 'all', name: '🌟 全部内容', isAll: true }
+            ].concat(
+                // 第1-23课
+                Array.from({length: 23}, (_, i) => ({ 
+                    id: `第${i+1}课`, 
+                    name: `第${i+1}课` 
+                })),
+                // 识字1-4
+                Array.from({length: 4}, (_, i) => ({ 
+                    id: `识字${i+1}`, 
+                    name: `识字${i+1}` 
+                }))
+            ),
+            2: [ // 下学期（占位）
+                { id: 'all', name: '🌟 全部内容', isAll: true }
+            ]
+        };
 
         // 页面加载时初始化
         window.onload = function() {
+            renderLessonButtons();
             updateLinks();
         };
 
         function selectSemester(semester) {
             currentSemester = semester;
+            currentLesson = 'all'; // 切换学期时重置为全部
             
             // 更新按钮状态
             document.querySelectorAll('.semester-btn').forEach((btn, index) => {
@@ -390,10 +481,39 @@
             // 更新学期信息
             const info = document.getElementById('semesterInfo');
             if (semester === 1) {
-                info.innerHTML = '<h3>📖 上学期</h3><p>包含写字表、识字表、词语表内容</p>';
+                info.innerHTML = '<h3>📖 上学期</h3><p>23课文 + 4个识字单元</p>';
             } else {
-                info.innerHTML = '<h3>📖 下学期</h3><p>包含写字表、识字表、词语表内容</p>';
+                info.innerHTML = '<h3>📖 下学期</h3><p>数据待补充</p>';
             }
+            
+            // 重新渲染课文按钮
+            renderLessonButtons();
+            
+            // 更新链接
+            updateLinks();
+        }
+
+        // 渲染课文按钮
+        function renderLessonButtons() {
+            const container = document.getElementById('lessonButtons');
+            const lessons = lessonConfig[currentSemester];
+            
+            container.innerHTML = lessons.map(lesson => {
+                const activeClass = lesson.id === currentLesson ? 'active' : '';
+                const allClass = lesson.isAll ? 'all-lessons' : '';
+                return `<button class="lesson-btn ${activeClass} ${allClass}" onclick="selectLesson('${lesson.id}')">${lesson.name}</button>`;
+            }).join('');
+        }
+
+        // 选择课文
+        function selectLesson(lessonId) {
+            currentLesson = lessonId;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.lesson-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
             
             // 更新链接
             updateLinks();
@@ -413,8 +533,13 @@
         }
 
         function updateLinks() {
-            // 构建URL参数：semester和content_type
-            const params = `semester=${currentSemester}&content_type=${currentContentType}`;
+            // 构建URL参数：semester、lesson、content_type
+            let params = `semester=${currentSemester}&content_type=${currentContentType}`;
+            
+            // 只有在选择了具体课文时才添加 lesson 参数
+            if (currentLesson !== 'all') {
+                params += `&lesson=${encodeURIComponent(currentLesson)}`;
+            }
             
             document.getElementById('listeningLink').href = `listening_quiz.html?${params}`;
             document.getElementById('flashcardsLink').href = `flashcards.html?${params}`;

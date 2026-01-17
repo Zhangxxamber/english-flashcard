@@ -301,6 +301,9 @@
         function getCurrentSemesterData() {
             const semester = getSemesterNumber();
             const contentType = urlParams.get('content_type') || 'xiezibiao';
+            const lesson = urlParams.get('lesson'); // 获取课文参数
+            
+            console.log('闪卡页 - 学期:', semester, '内容类型:', contentType, '课文:', lesson || '全部');
             
             // 根据内容类型获取对应的数据对象
             let dataObj;
@@ -312,7 +315,15 @@
                 dataObj = typeof grade2ChineseCiyubiao !== 'undefined' ? grade2ChineseCiyubiao : null;
             }
             
-            return dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
+            let data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
+            
+            // 如果指定了课文，则只返回该课文的数据
+            if (lesson && lesson !== 'all') {
+                data = data.filter(item => item.lesson === lesson);
+                console.log('闪卡页 - 筛选课文后数据条数:', data.length);
+            }
+            
+            return data;
         }
 
         let allData = []; // 初始化为空数组，等init()时再加载

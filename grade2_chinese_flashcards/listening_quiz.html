@@ -603,9 +603,9 @@
         function getCurrentSemesterData() {
             const semester = getSemesterNumber();
             const contentType = urlParams.get('content_type') || 'xiezibiao';
+            const lesson = urlParams.get('lesson'); // 获取课文参数
             
-            console.log('当前学期:', semester);
-            console.log('内容类型:', contentType);
+            console.log('当前学期:', semester, '内容类型:', contentType, '课文:', lesson || '全部');
             
             // 根据内容类型获取对应的数据对象
             let dataObj;
@@ -618,7 +618,14 @@
             }
             
             console.log('数据对象存在?', dataObj !== null);
-            const data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
+            let data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
+            
+            // 如果指定了课文，则只返回该课文的数据
+            if (lesson && lesson !== 'all') {
+                data = data.filter(item => item.lesson === lesson);
+                console.log('筛选课文后数据条数:', data.length);
+            }
+            
             console.log('获取到的数据条数:', data ? data.length : 0);
             return data;
         }
