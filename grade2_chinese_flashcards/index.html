@@ -783,8 +783,7 @@
             }
             
             if (wrongCount === 0) {
-                // 没有错题，给出友好提示
-                alert('✨ 还没有错题记录哦！\n\n📝 建议：先完成一些"自主听写"练习\n系统会自动记录做错的题目\n\n💡 提示：练习时选择"还不会"的题目会被记录到错题本');
+                // 没有错题，不执行任何操作（按钮应该已被禁用）
                 return;
             }
             
@@ -810,12 +809,23 @@
                 }
             }
             
-            // 更新错题本按钮文字
+            // 更新错题本按钮文字和状态
             const errorBookBtn = document.querySelector('button[onclick="goToErrorBook()"]');
-            if (errorBookBtn && wrongCount > 0) {
+            if (errorBookBtn) {
                 errorBookBtn.innerHTML = `查看错题本 (${wrongCount}题)`;
-            } else if (errorBookBtn) {
-                errorBookBtn.innerHTML = '查看错题本';
+                
+                // 0题时禁用按钮
+                if (wrongCount === 0) {
+                    errorBookBtn.disabled = true;
+                    errorBookBtn.style.opacity = '0.5';
+                    errorBookBtn.style.cursor = 'not-allowed';
+                    errorBookBtn.style.background = 'rgba(150,150,150,0.6)';
+                } else {
+                    errorBookBtn.disabled = false;
+                    errorBookBtn.style.opacity = '1';
+                    errorBookBtn.style.cursor = 'pointer';
+                    errorBookBtn.style.background = 'rgba(255,100,100,0.6)';
+                }
             }
         }
     </script>
