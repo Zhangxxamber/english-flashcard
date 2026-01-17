@@ -739,6 +739,7 @@
         let currentData = [...allData];
         let currentIndex = 0;
         let correctCount = 0;
+        let wrongCount = 0; // 添加错误计数
         let totalAnswered = 0;
         let isAnswered = false;
         let usedHints = {};
@@ -981,7 +982,18 @@
 
         // 更新得分板
         function updateScoreboard() {
-            document.getElementById('progress').textContent = `${totalAnswered}/${currentData.length}`;
+            // 检查是否是错题本模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            // 错题本模式显示剩余题数，普通模式显示已完成/总数
+            if (mode === 'errorbook') {
+                const remaining = currentData.length - currentIndex;
+                document.getElementById('progress').textContent = `剩余 ${remaining} 题`;
+            } else {
+                document.getElementById('progress').textContent = `${totalAnswered}/${currentData.length}`;
+            }
+            
             document.getElementById('correct').textContent = correctCount;
             const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
             document.getElementById('accuracy').textContent = accuracy + '%';
@@ -1152,9 +1164,45 @@
             currentData = wrong;
             currentIndex = 0;
             correctCount = 0;
+            wrongCount = 0;
             totalAnswered = 0;
             wrongItems = [];
             isAnswered = false;
+            
+            // 恢复练习区域的原始HTML结构
+            const practiceArea = document.getElementById('practiceArea');
+            practiceArea.innerHTML = `
+                <!-- 音标显示 + 发音 -->
+                <div style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.3s;" onclick="playAudio()">
+                    <div id="phoneticDisplay" style="font-size: 2.5em; font-weight: bold; margin-bottom: 15px;">/red/</div>
+                    <div style="font-size: 1.2em; opacity: 0.9;">🔊 点击播放发音</div>
+                </div>
+
+                <!-- 题目信息 -->
+                <div style="background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+                    <div class="question-number" id="questionNumber" style="font-size: 1.1em; color: #666; margin-bottom: 20px;">第 1 题</div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 1.1em; color: #999; margin-bottom: 8px;">中文意思</div>
+                        <div class="chinese-text" id="chineseText" style="font-size: 2.2em; font-weight: bold; color: #333;">红色的</div>
+                    </div>
+                    <div id="lessonInfo" style="font-size: 0.95em; color: #999; margin-top: 15px;">Starter</div>
+                </div>
+
+                <!-- 答案显示区（初始隐藏）-->
+                <div id="answerArea" style="display: none; background: rgba(78, 205, 196, 0.1); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 3px solid #4ecdc4;">
+                    <div style="font-size: 1.2em; color: #4ecdc4; margin-bottom: 10px;">✨ 答案：</div>
+                    <div id="answerText" style="font-size: 2.2em; font-weight: bold; color: #4ecdc4;">red</div>
+                </div>
+
+                <!-- 按钮区域 -->
+                <div class="buttons">
+                    <button class="btn btn-check" onclick="showAnswer()" id="showAnswerBtn">💡 显示答案</button>
+                    <button class="btn" style="background: #ff6b6b;" onclick="markWrong()">❌ 还不会</button>
+                    <button class="btn" style="background: #4ecdc4;" onclick="markCorrect()">✅ 会了</button>
+                </div>
+
+                <div id="feedbackArea"></div>
+            `;
             
             // 重新开始
             updateScoreboard();
@@ -1185,9 +1233,47 @@
         
         // 标记为"会了"
         function markCorrect() {
+            // 检查是否是错题本模式或错题重练模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const book = parseInt(urlParams.get('book')) || 1;
+            
+            // 如果是错题本/错题重练模式，从localStorage中移除该题
+            if (mode === 'errorbook' || currentData === loadWrongItems()) {
+                const currentItem = currentData[currentIndex];
+                const key = `wrongItems_book${book}`;
+                
+                try {
+                    const saved = localStorage.getItem(key);
+                    if (saved) {
+                        let items = JSON.parse(saved);
+                        // 移除当前题目（根据 phrase 和 lesson 匹配）
+                        items = items.filter(item => 
+                            !(item.phrase === currentItem.phrase && item.lesson === currentItem.lesson)
+                        );
+                        localStorage.setItem(key, JSON.stringify(items));
+                        console.log(`已从错题本移除: ${currentItem.phrase}，剩余错题: ${items.length}个`);
+                        
+                        // 同时从当前数据中移除
+                        currentData.splice(currentIndex, 1);
+                        
+                        // 更新历史错题计数
+                        updateHistoryWrongCount();
+                    }
+                } catch (e) {
+                    console.error('移除错题失败:', e);
+                }
+            }
+            
             correctCount++;
-            currentIndex++;
             totalAnswered++;
+            
+            // 注意：如果从 currentData 中移除了，currentIndex 不需要增加
+            // 因为删除后，下一题自动补上了当前位置
+            if (mode !== 'errorbook' && currentData !== loadWrongItems()) {
+                currentIndex++;
+            }
+            
             updateScoreboard();
             
             // 播放成功音效

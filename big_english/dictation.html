@@ -913,7 +913,8 @@
         </div>
 
         <!-- 控制面板 -->
-        <div class="control-panel">
+        <div class="control-panel" style="display: none;">
+            <!-- 隐藏选择面板，在 index.html 中选择 -->
             <div class="control-row">
                 <div class="unit-selector-label">📚 选择单元</div>
             </div>
@@ -931,7 +932,7 @@
         </div>
 
         <!-- 默写卡片 -->
-        <div class="dictation-card" id="dictationCard" style="display: none;">
+        <div class="dictation-card" id="dictationCard" style="display: block;">
             <!-- 题号和进度 -->
             <div class="word-number" id="wordNumber">1 / 10</div>
             
@@ -1643,17 +1644,9 @@
         function init() {
             updateStats();
             updateHistoryWrongCount(); // 加载并显示历史错题数量
-            document.getElementById('wordInput').addEventListener('input', handleInput);
-            document.getElementById('wordInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    // 如果"下一题"按钮可见，按回车跳到下一题
-                    if (document.getElementById('nextBtn').style.display !== 'none') {
-                        nextWord();
-                    } else {
-                        checkAnswer();
-                    }
-                }
-            });
+            
+            // 自动开始默写（顺序模式）
+            startDictation('sequential');
         }
 
         // 选择单元
@@ -1982,10 +1975,37 @@
 
         // 标记为"会了"
         function markCorrect() {
+            // 如果是错题练习模式，从错题列表和localStorage中移除该题
+            if (mode === 'mistakes') {
+                const currentWord = currentWords[currentIndex];
+                
+                // 从 mistakes 数组中移除
+                mistakes = mistakes.filter(w => 
+                    !(w.word === currentWord.word && w.unit === currentWord.unit)
+                );
+                
+                // 同时从当前练习数据中移除
+                currentWords.splice(currentIndex, 1);
+                
+                // 保存更新后的错题列表
+                saveMistakes();
+                
+                console.log(`已从错题本移除: ${currentWord.word}，剩余错题: ${mistakes.length}个`);
+                
+                // 更新错题计数显示
+                updateHistoryWrongCount();
+            } else {
+                // 正常模式：移动到下一题
+                currentIndex++;
+            }
+            
             correctCount++;
+            updateStats(); // 更新统计显示
             playSound('correct1');
             speakEncouragement();
-            nextWord();
+            
+            // 继续显示（如果从currentWords删除了，currentIndex不需要增加）
+            displayCurrentWord();
         }
 
         // 标记为"还不会"
@@ -1994,6 +2014,7 @@
             const word = currentWords[currentIndex];
             mistakes.push(word);
             saveMistakes();
+            updateStats(); // 更新统计显示
             playSound('wrong');
             nextWord();
         }
@@ -2024,8 +2045,16 @@
 
         // 更新统计
         function updateStats() {
-            document.getElementById('currentIndex').textContent = 
-                currentWords.length > 0 ? `${currentIndex}/${currentWords.length}` : '0/0';
+            // 错题练习模式显示剩余题数，普通模式显示当前进度
+            if (mode === 'mistakes') {
+                const remaining = currentWords.length - currentIndex;
+                document.getElementById('currentIndex').textContent = 
+                    currentWords.length > 0 ? `剩余 ${remaining} 题` : '0 题';
+            } else {
+                document.getElementById('currentIndex').textContent = 
+                    currentWords.length > 0 ? `${currentIndex}/${currentWords.length}` : '0/0';
+            }
+            
             document.getElementById('correctCount').textContent = correctCount;
             document.getElementById('wrongCount').textContent = wrongCount;
             

@@ -834,7 +834,22 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode');
             if (mode === 'errorbook') {
-                removeFromErrorBook(allData[currentIndex]);
+                const currentItem = allData[currentIndex];
+                removeFromErrorBook(currentItem);
+                
+                // 同时从当前数据中移除
+                allData.splice(currentIndex, 1);
+                
+                // 更新进度显示
+                updateProgress();
+                updateHistoryWrongCount();
+                
+                // 注意：从数组删除后，currentIndex 不需要增加
+                if (soundEnabled) {
+                    playEncouragementSound();
+                }
+                showQuestion();
+                return;
             }
             
             if (soundEnabled) {
@@ -860,7 +875,19 @@
         // 更新进度
         function updateProgress() {
             const completed = correctCount + wrongCount;
-            document.getElementById('progressValue').textContent = `${completed}/${allData.length}`;
+            
+            // 检查是否是错题本模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            // 错题本模式显示剩余题数，普通模式显示已完成/总数
+            if (mode === 'errorbook') {
+                const remaining = allData.length - currentIndex;
+                document.getElementById('progressValue').textContent = `剩余 ${remaining} 题`;
+            } else {
+                document.getElementById('progressValue').textContent = `${completed}/${allData.length}`;
+            }
+            
             document.getElementById('correctValue').textContent = correctCount;
             document.getElementById('wrongValue').textContent = wrongCount;
             
