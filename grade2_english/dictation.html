@@ -423,7 +423,7 @@
     <div class="container">
         <!-- 头部 -->
         <div class="header">
-            <div class="title">✍️ 默写练习</div>
+            <div class="title" id="pageTitle">✍️ 默写练习</div>
         </div>
 
         <!-- 得分板 -->
@@ -779,10 +779,29 @@
             } else {
                 // 正常模式
                 shuffleArray(currentData);
+                
+                // 更新页面标题，显示详细信息
+                updatePageTitle();
             }
             
             updateScoreboard();
             showQuestion();
+        }
+
+        // 更新页面标题，显示详细的学习信息
+        function updatePageTitle() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const book = parseInt(urlParams.get('book')) || 1;
+            
+            // 教材文本
+            const bookText = book === 1 ? '上册' : '下册';
+            
+            // 组合标题
+            const title = `沪教版英语二年级${bookText}`;
+            document.getElementById('pageTitle').textContent = title;
+            
+            // 同时更新浏览器标题
+            document.title = `沪教版英语二年级${bookText}`;
         }
 
         // 处理输入

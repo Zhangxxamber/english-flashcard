@@ -875,7 +875,7 @@
     <div class="container">
         <!-- 标题 -->
         <div class="header">
-            <h1>✍️ Big English 1 单词默写</h1>
+            <h1 id="pageTitle">✍️ Big English 1 单词默写</h1>
             <p>根据中文意思，拼写出正确的英文单词</p>
         </div>
 
@@ -1699,6 +1699,32 @@
             document.getElementById('completionScreen').classList.remove('show');
             displayCurrentWord();
             updateStats();
+            
+            // 更新页面标题
+            updatePageTitle();
+        }
+
+        // 更新页面标题，显示详细的学习信息
+        function updatePageTitle() {
+            // 获取教材编号
+            const bookNumber = parseInt(bookSelect.value);
+            
+            // 范围文本
+            let rangeText = '';
+            if (mode === 'mistakes') {
+                rangeText = ' · 错题练习';
+            } else if (selectedUnit === 'all') {
+                rangeText = ' · 全部单元';
+            } else {
+                rangeText = ` · ${selectedUnit}`;
+            }
+            
+            // 组合标题
+            const title = `Big English ${bookNumber}${rangeText}`;
+            document.getElementById('pageTitle').textContent = title;
+            
+            // 同时更新浏览器标题
+            document.title = `Big English ${bookNumber}${rangeText}`;
         }
 
         // 显示当前单词（自我评估模式）

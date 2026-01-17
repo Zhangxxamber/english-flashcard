@@ -412,7 +412,7 @@
 
     <div class="container">
         <div class="header">
-            <div class="title">✍️ 自主听写</div>
+            <div class="title" id="pageTitle">✍️ 自主听写</div>
         </div>
 
         <!-- 进度显示 -->
@@ -554,10 +554,19 @@
                 dataObj = typeof grade2ChineseCiyubiao !== 'undefined' ? grade2ChineseCiyubiao : null;
             }
             
+            console.log('📊 数据对象检查:', {
+                'contentType': contentType,
+                'dataObj存在': dataObj !== null,
+                'dataObj类型': typeof dataObj,
+                'semester': semester
+            });
+            
             let data = dataObj ? (semester === 1 ? dataObj.semester1 : dataObj.semester2) : [];
+            console.log('📊 初始数据加载:', '数据条数=', data.length, '前3条样本=', data.slice(0, 3).map(item => `${item.character}(${item.unit})`));
             
             // 如果指定了课文或单元，则筛选数据
             if (lesson && lesson !== 'all') {
+                console.log('🔍 开始筛选 - lesson参数:', lesson);
                 // 判断是单元还是课文
                 if (lesson.startsWith('unit')) {
                     // 单元选择（如 unit1）
@@ -572,16 +581,23 @@
                         'unit8': '第八单元'
                     };
                     const unitName = unitMap[lesson];
+                    console.log('🔍 单元筛选 - 查找单元:', unitName);
+                    
+                    // 调试：显示所有可用的单元名称
+                    const availableUnits = [...new Set(data.map(item => item.unit))];
+                    console.log('📋 数据中的所有单元:', availableUnits);
+                    
                     data = data.filter(item => item.unit === unitName);
-                    console.log('自主听写 - 筛选单元后数据条数:', data.length);
+                    console.log('✅ 筛选单元后数据条数:', data.length);
                 } else {
                     // 课文选择（如 第1课）
+                    console.log('🔍 课文筛选 - 查找课文:', lesson);
                     data = data.filter(item => item.lesson === lesson);
-                    console.log('自主听写 - 筛选课文后数据条数:', data.length);
+                    console.log('✅ 筛选课文后数据条数:', data.length);
                 }
             }
             
-            console.log('自主听写 - 数据对象存在?', dataObj !== null, '总数据条数:', data.length);
+            console.log('🎯 最终数据:', '数据对象存在?', dataObj !== null, '总数据条数:', data.length);
             
             return data;
         }
@@ -610,6 +626,9 @@
                 // 正常模式：加载课文数据
                 allData = getCurrentSemesterData();
                 console.log('自主听写页 - 加载数据条数:', allData ? allData.length : 0);
+                
+                // 更新页面标题，显示详细信息
+                updatePageTitle();
             }
             
             // 等待语音引擎加载完成
@@ -623,6 +642,75 @@
             
             // 页面加载时自动播放拼音
             setTimeout(() => playPinyin(), 500);
+        }
+
+        // 更新页面标题，显示详细的学习信息
+        function updatePageTitle() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const semester = parseInt(urlParams.get('semester')) || 1;
+            const contentType = urlParams.get('content_type') || 'xiezibiao';
+            const lesson = urlParams.get('lesson');
+            
+            // 学期文本
+            const semesterText = semester === 1 ? '上册' : '下册';
+            
+            // 内容类型文本（加书名号）
+            const contentTypeMap = {
+                'xiezibiao': '《写字表》',
+                'shizibiao': '《识字表》',
+                'ciyubiao': '《词语表》'
+            };
+            const contentTypeText = contentTypeMap[contentType] || '《写字表》';
+            
+            // 课文名称映射（与 index.html 保持一致）
+            const lessonNameMap = {
+                'all': '全部内容',
+                'unit1': '第一单元（全部）',
+                'unit2': '第二单元（全部）',
+                'unit3': '第三单元（全部）',
+                'unit4': '第四单元（全部）',
+                'unit5': '第五单元（全部）',
+                'unit6': '第六单元（全部）',
+                'unit7': '第七单元（全部）',
+                'unit8': '第八单元（全部）',
+                '第1课': '第一单元（第1课）',
+                '第2课': '第一单元（第2课）',
+                '第3课': '第一单元（第3课）',
+                '识字1': '第二单元（识字1）',
+                '识字2': '第二单元（识字2）',
+                '识字3': '第二单元（识字3）',
+                '识字4': '第二单元（识字4）',
+                '第4课': '第三单元（第4课）',
+                '第5课': '第三单元（第5课）',
+                '第6课': '第三单元（第6课）',
+                '第7课': '第三单元（第7课）',
+                '第8课': '第四单元（第8课）',
+                '第9课': '第四单元（第9课）',
+                '第10课': '第四单元（第10课）',
+                '第11课': '第五单元（第11课）',
+                '第12课': '第五单元（第12课）',
+                '第13课': '第五单元（第13课）',
+                '第14课': '第六单元（第14课）',
+                '第15课': '第六单元（第15课）',
+                '第16课': '第六单元（第16课）',
+                '第17课': '第六单元（第17课）',
+                '第18课': '第七单元（第18课）',
+                '第19课': '第七单元（第19课）',
+                '第20课': '第七单元（第20课）',
+                '第21课': '第八单元（第21课）',
+                '第22课': '第八单元（第22课）',
+                '第23课': '第八单元（第23课）'
+            };
+            
+            // 获取范围文本（直接使用映射）
+            const rangeText = lessonNameMap[lesson] || '全部内容';
+            
+            // 组合标题：上册 · 第三单元（第4课）· 《识字表》
+            const title = `${semesterText} · ${rangeText} · ${contentTypeText}`;
+            document.getElementById('pageTitle').textContent = title;
+            
+            // 同时更新浏览器标题
+            document.title = `${semesterText} · ${rangeText} · ${contentTypeText}`;
         }
 
         // 打乱数组
