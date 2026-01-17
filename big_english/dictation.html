@@ -424,65 +424,50 @@
         /* 按钮区域 */
         .button-area {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .button-row {
-            display: flex;
             gap: 20px;
             justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding: 20px 0;
         }
 
-        .button-row .btn {
-            flex: 1;
-            padding: 25px 35px;
-            font-size: 1.5em;
+        .button-area .btn {
+            padding: 18px 40px;
+            font-size: 1.3em;
             font-weight: bold;
             border: none;
-            border-radius: 15px;
+            border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s;
             color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
         }
 
         .btn-show-answer {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        }
-
-        .btn-show-answer:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(245,158,11,0.4);
-        }
-
-        .btn-show-phonetic {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        .btn-show-phonetic:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        .btn-show-answer:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
         .btn-wrong {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            background: #ff6b6b;
         }
 
         .btn-wrong:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(239,68,68,0.4);
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
         .btn-correct {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: #4ecdc4;
         }
 
         .btn-correct:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(16,185,129,0.4);
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
         .btn:disabled {
@@ -906,7 +891,7 @@
                 <div class="stat-label">📖 历史错题</div>
                 <div class="stat-value" id="historyWrongCount" style="color: #ff9966; font-weight: bold;">0</div>
             </div>
-            <div class="stat-card" style="background: rgba(255,100,100,0.2); border: 2px solid rgba(255,100,100,0.5);">
+            <div class="stat-card" id="currentWrongItem" style="background: rgba(255,100,100,0.2); border: 2px solid rgba(255,100,100,0.5);">
                 <div class="stat-label">📚 本次新增</div>
                 <div class="stat-value" id="currentWrongItemsCount" style="color: #ff6b6b; font-weight: bold;">0</div>
             </div>
@@ -933,61 +918,36 @@
 
         <!-- 默写卡片 -->
         <div class="dictation-card" id="dictationCard" style="display: block;">
-            <!-- 题号和进度 -->
-            <div class="word-number" id="wordNumber">1 / 10</div>
-            
             <!-- 发音按钮（大而明显） -->
-            <button class="speaker-btn-large" onclick="speakWord()" title="点击发音">
-                <span style="font-size: 4em;">🔊</span>
-                <div style="font-size: 1.2em; margin-top: 10px;">点击听发音</div>
-            </button>
-            
-            <!-- 中文意思（大字号） -->
-            <div class="word-meaning-large" id="wordMeaning">学生</div>
-            
-            <!-- 提示区域 -->
-            <div class="hint-area-simple">
-                <div class="hint-item-large">
-                    <span class="hint-label">首字母：</span>
-                    <span class="hint-value" id="firstLetter">s</span>
+            <div style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.3s;" onclick="speakWord()">
+                <div id="phoneticDisplay" style="font-size: 2.5em; font-weight: bold; margin-bottom: 15px;">/ˈstuːdnt/</div>
+                <div style="font-size: 1.2em; opacity: 0.9;">🔊 点击播放发音</div>
+            </div>
+
+            <!-- 题目信息 -->
+            <div style="background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+                <div class="question-number" id="questionNumber" style="font-size: 1.1em; color: #666; margin-bottom: 20px;">第 1 题 / 共 10 题</div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 1.1em; color: #999; margin-bottom: 8px;">中文意思</div>
+                    <div class="chinese-text" id="wordMeaning" style="font-size: 2.2em; font-weight: bold; color: #333;">学生</div>
                 </div>
-                <div class="hint-item-large">
-                    <span class="hint-label">字母数：</span>
-                    <span class="hint-value" id="wordLength">7</span>
-                </div>
-                <div class="hint-item-large" id="phoneticArea" style="display: none;">
-                    <span class="hint-label">音标：</span>
-                    <span class="hint-value" id="phonetic">[ˈstuːdnt]</span>
+                <div style="font-size: 0.95em; color: #999; margin-top: 15px;">
+                    <span style="margin-right: 15px;">首字母: <strong id="firstLetter">s</strong></span>
+                    <span>字母数: <strong id="wordLength">7</strong></span>
                 </div>
             </div>
 
-            <!-- 答案区域（默认隐藏） -->
-            <div class="answer-area" id="answerArea">
-                <div class="answer-label">正确答案：</div>
-                <div class="answer-text" id="answerText">student</div>
+            <!-- 答案显示区（初始隐藏）-->
+            <div id="answerArea" style="display: none; background: rgba(78, 205, 196, 0.1); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 3px solid #4ecdc4;">
+                <div style="font-size: 1.2em; color: #4ecdc4; margin-bottom: 10px;">✨ 答案：</div>
+                <div id="answerText" style="font-size: 2.2em; font-weight: bold; color: #4ecdc4;">student</div>
             </div>
 
             <!-- 按钮区域 -->
             <div class="button-area">
-                <!-- 第一行：显示答案和音标 -->
-                <div class="button-row">
-                    <button class="btn btn-show-answer" onclick="showAnswer()" id="showAnswerBtn">
-                        👁️ 显示答案
-                    </button>
-                    <button class="btn btn-show-phonetic" onclick="togglePhonetic()" id="phoneticBtn">
-                        💡 显示音标
-                    </button>
-                </div>
-                
-                <!-- 第二行：自我评估 -->
-                <div class="button-row" id="judgmentButtons" style="display: none;">
-                    <button class="btn btn-wrong" onclick="markWrong()">
-                        ❌ 还不会
-                    </button>
-                    <button class="btn btn-correct" onclick="markCorrect()">
-                        ✅ 会了
-                    </button>
-                </div>
+                <button class="btn btn-show-answer" onclick="showAnswer()" id="showAnswerBtn">💡 显示答案</button>
+                <button class="btn btn-wrong" onclick="markWrong()">❌ 还不会</button>
+                <button class="btn btn-correct" onclick="markCorrect()">✅ 会了</button>
             </div>
         </div>
 
@@ -1040,34 +1000,6 @@
             "That's correct!",
             "Nice work!",
             "You got it!"
-        ];
-        
-        // 丰富的鼓励语音库
-        const encouragementPhrases = [
-            "太棒了！你真是个小天才！",
-            "哇塞！简直完美！",
-            "你是最棒的！继续加油！",
-            "真聪明！答对了！",
-            "好样的！就是这样！",
-            "太厉害了！你太优秀了！",
-            "棒极了！继续保持！",
-            "真不错！你学得很快！",
-            "超级棒！做得太好了！",
-            "真了不起！你真能干！",
-            "完美答对！你真厉害！",
-            "太优秀了！继续努力！",
-            "好极了！你太聪明了！",
-            "真棒！答得很好！",
-            "太好了！你学得真快！",
-            "真厉害！继续加油哦！",
-            "非常好！你真出色！",
-            "真不简单！你太牛了！",
-            "太赞了！你真行！",
-            "好棒啊！继续保持！",
-            "真优秀！你太棒了！",
-            "答对了！你真聪明！",
-            "太厉害！做得真好！",
-            "真能干！你最棒！"
         ];
         
         // 使用 Web Audio API 生成卡通音效
@@ -1642,11 +1574,34 @@
 
         // 初始化
         function init() {
-            updateStats();
+            // 加载错题数据
+            mistakes = loadMistakes();
+            
             updateHistoryWrongCount(); // 加载并显示历史错题数量
             
-            // 自动开始默写（顺序模式）
-            startDictation('sequential');
+            // 从 URL 读取参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const unitParam = urlParams.get('unit');
+            const modeParam = urlParams.get('mode');
+            
+            if (unitParam) {
+                selectedUnit = unitParam;
+            }
+            
+            // 如果是错题练习模式
+            if (modeParam === 'mistakes') {
+                // 隐藏"本次新增"统计项（错题练习模式下无意义）
+                const currentWrongItem = document.getElementById('currentWrongItem');
+                if (currentWrongItem) {
+                    currentWrongItem.style.display = 'none';
+                }
+                
+                // 开始错题练习
+                startDictation('mistakes');
+            } else {
+                // 自动开始默写（顺序模式）
+                startDictation('sequential');
+            }
         }
 
         // 选择单元
@@ -1668,6 +1623,12 @@
                     return;
                 }
                 currentWords = [...mistakes];
+                
+                // 隐藏"本次新增"统计项（错题练习模式下无意义）
+                const currentWrongItem = document.getElementById('currentWrongItem');
+                if (currentWrongItem) {
+                    currentWrongItem.style.display = 'none';
+                }
             } else {
                 if (selectedUnit === 'all') {
                     currentWords = [...allWords];
@@ -1700,7 +1661,7 @@
         // 更新页面标题，显示详细的学习信息
         function updatePageTitle() {
             // 获取教材编号
-            const bookNumber = parseInt(bookSelect.value);
+            const bookNumber = getBookNumber();
             
             // 范围文本
             let rangeText = '';
@@ -1709,15 +1670,28 @@
             } else if (selectedUnit === 'all') {
                 rangeText = ' · 全部单元';
             } else {
-                rangeText = ` · ${selectedUnit}`;
+                // 使用 unitTitles 获取完整的单元名称
+                const unitTitle = unitTitles[bookNumber] && unitTitles[bookNumber][selectedUnit];
+                if (unitTitle) {
+                    // 格式化单元标题，确保有 "Unit X: " 前缀
+                    if (selectedUnit === 'welcome') {
+                        rangeText = ` · ${unitTitle}`;
+                    } else {
+                        // 提取单元编号
+                        const unitNumber = selectedUnit.replace('unit', '');
+                        rangeText = ` · Unit ${unitNumber}: ${unitTitle}`;
+                    }
+                } else {
+                    rangeText = ` · ${selectedUnit}`;
+                }
             }
             
-            // 组合标题
-            const title = `Big English ${bookNumber}${rangeText}`;
+            // 组合标题 - 格式：Big English Book N · Unit X: 主题
+            const title = `Big English Book ${bookNumber}${rangeText}`;
             document.getElementById('pageTitle').textContent = title;
             
             // 同时更新浏览器标题
-            document.title = `Big English ${bookNumber}${rangeText}`;
+            document.title = `Big English Book ${bookNumber}${rangeText}`;
         }
 
         // 显示当前单词（自我评估模式）
@@ -1729,22 +1703,31 @@
 
             const word = currentWords[currentIndex];
             
-            // 更新界面
-            document.getElementById('wordNumber').textContent = `${currentIndex + 1} / ${currentWords.length}`;
+            // 更新题目信息
+            if (mode === 'mistakes') {
+                // 错题模式：显示剩余题数
+                document.getElementById('questionNumber').textContent = `剩余 ${currentWords.length} 题`;
+            } else {
+                // 正常模式：显示当前题号和总数
+                document.getElementById('questionNumber').textContent = `第 ${currentIndex + 1} 题 / 共 ${currentWords.length} 题`;
+            }
+            
             document.getElementById('wordMeaning').textContent = word.meaning;
             document.getElementById('firstLetter').textContent = word.word[0].toLowerCase();
             document.getElementById('wordLength').textContent = word.word.replace(/\s/g, '').length; // 去除空格计算字母数
-            document.getElementById('phonetic').textContent = word.phonetic;
+            
+            // 显示音标
+            if (word.phonetic) {
+                document.getElementById('phoneticDisplay').textContent = word.phonetic;
+            } else {
+                document.getElementById('phoneticDisplay').textContent = '♪ 听发音';
+            }
+            
             document.getElementById('answerText').textContent = word.word;
             
             // 隐藏答案区域
-            document.getElementById('answerArea').classList.remove('show');
-            document.getElementById('phoneticArea').style.display = 'none';
-            document.getElementById('judgmentButtons').style.display = 'none';
-            
-            // 显示"显示答案"按钮
-            document.getElementById('showAnswerBtn').disabled = false;
-            document.getElementById('phoneticBtn').disabled = false;
+            document.getElementById('answerArea').style.display = 'none';
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
             
             updateStats();
             
@@ -1950,27 +1933,11 @@
                 speechSynthesis.speak(utterance);
             }, 200);
         }
-            
-            // 开始朗读
-            speechSynthesis.speak(currentUtterance);
-        }
 
-        // 显示答案
         // 显示答案
         function showAnswer() {
-            document.getElementById('answerArea').classList.add('show');
-            document.getElementById('judgmentButtons').style.display = 'flex';
-            document.getElementById('showAnswerBtn').disabled = true;
-        }
-
-        // 显示/隐藏音标
-        function togglePhonetic() {
-            const phoneticArea = document.getElementById('phoneticArea');
-            if (phoneticArea.style.display === 'none') {
-                phoneticArea.style.display = 'block';
-            } else {
-                phoneticArea.style.display = 'none';
-            }
+            document.getElementById('answerArea').style.display = 'block';
+            document.getElementById('showAnswerBtn').style.display = 'none';
         }
 
         // 标记为"会了"
@@ -2012,8 +1979,14 @@
         function markWrong() {
             wrongCount++;
             const word = currentWords[currentIndex];
-            mistakes.push(word);
-            saveMistakes();
+            
+            // 在正常模式下，记录到错题列表
+            // 在错题练习模式下，不需要重复记录（因为已经在错题本中）
+            if (mode !== 'mistakes') {
+                mistakes.push(word);
+                saveMistakes();
+            }
+            
             updateStats(); // 更新统计显示
             playSound('wrong');
             nextWord();
@@ -2024,32 +1997,20 @@
             currentIndex++;
             displayCurrentWord();
         }
-            document.getElementById('skipBtn').style.display = 'none';
-            
-            // 显示"下一题"按钮
-            document.getElementById('nextBtn').style.display = 'inline-block';
-        }
-
-        // 下一题
-        function nextWord() {
-            currentIndex++;
-            showCurrentWord();
-        }
-
-        // 跳过单词
-        function skipWord() {
-            // 跳过时不计入统计
-            currentIndex++;
-            showCurrentWord();
-        }
 
         // 更新统计
         function updateStats() {
             // 错题练习模式显示剩余题数，普通模式显示当前进度
             if (mode === 'mistakes') {
-                const remaining = currentWords.length - currentIndex;
+                // 错题模式：直接显示剩余题数（因为会了的题已经从数组中删除）
                 document.getElementById('currentIndex').textContent = 
-                    currentWords.length > 0 ? `剩余 ${remaining} 题` : '0 题';
+                    currentWords.length > 0 ? `剩余 ${currentWords.length} 题` : '0 题';
+                
+                // 确保"本次新增"隐藏
+                const currentWrongItem = document.getElementById('currentWrongItem');
+                if (currentWrongItem) {
+                    currentWrongItem.style.display = 'none';
+                }
             } else {
                 document.getElementById('currentIndex').textContent = 
                     currentWords.length > 0 ? `${currentIndex}/${currentWords.length}` : '0/0';
@@ -2062,8 +2023,10 @@
             const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 100;
             document.getElementById('accuracy').textContent = accuracy + '%';
             
-            // 更新本次错题计数
-            document.getElementById('currentWrongItemsCount').textContent = mistakes.length;
+            // 更新本次错题计数（仅在非错题模式下）
+            if (mode !== 'mistakes') {
+                document.getElementById('currentWrongItemsCount').textContent = mistakes.length;
+            }
             
             // 更新历史错题计数
             updateHistoryWrongCount();
@@ -2086,18 +2049,6 @@
             }
             
             document.getElementById('historyWrongCount').textContent = historyCount;
-        }
-
-            // 更新进度条
-            if (currentWords.length > 0) {
-                const progress = (currentIndex / currentWords.length) * 100;
-                document.getElementById('progressBar').style.width = progress + '%';
-            }
-
-            // 更新错题按钮
-            const mistakeBtn = document.getElementById('mistakeBtn');
-            mistakeBtn.textContent = `❌ 错题重练 (${mistakes.length})`;
-            mistakeBtn.disabled = mistakes.length === 0;
         }
 
         // 更新错题列表
@@ -2224,28 +2175,34 @@
             const bookNumber = getBookNumber();
             const key = `wrongItems_book${bookNumber}`;
             try {
-                // 获取现有错题
-                let existingWrong = [];
-                const saved = localStorage.getItem(key);
-                if (saved) {
-                    existingWrong = JSON.parse(saved);
-                }
-                
-                // 合并新错题（去重）
-                mistakes.forEach(item => {
-                    // 根据单词和单元去重
-                    if (!existingWrong.find(w => w.word === item.word && w.unit === item.unit)) {
-                        existingWrong.push(item);
+                // 如果是错题练习模式，直接保存 mistakes 数组（已经是完整的错题列表）
+                if (mode === 'mistakes') {
+                    localStorage.setItem(key, JSON.stringify(mistakes));
+                    console.log(`已保存错题: ${mistakes.length}个`);
+                } else {
+                    // 正常模式：合并新错题到现有错题
+                    let existingWrong = [];
+                    const saved = localStorage.getItem(key);
+                    if (saved) {
+                        existingWrong = JSON.parse(saved);
                     }
-                });
-                
-                // 限制错题数量（最多200个）
-                if (existingWrong.length > 200) {
-                    existingWrong = existingWrong.slice(-200);
+                    
+                    // 合并新错题（去重）
+                    mistakes.forEach(item => {
+                        // 根据单词和单元去重
+                        if (!existingWrong.find(w => w.word === item.word && w.unit === item.unit)) {
+                            existingWrong.push(item);
+                        }
+                    });
+                    
+                    // 限制错题数量（最多200个）
+                    if (existingWrong.length > 200) {
+                        existingWrong = existingWrong.slice(-200);
+                    }
+                    
+                    localStorage.setItem(key, JSON.stringify(existingWrong));
+                    console.log(`已保存错题: ${mistakes.length}个，错题本总数: ${existingWrong.length}`);
                 }
-                
-                localStorage.setItem(key, JSON.stringify(existingWrong));
-                console.log(`已保存错题: ${mistakes.length}个，错题本总数: ${existingWrong.length}`);
             } catch (e) {
                 console.error('保存错题失败:', e);
             }

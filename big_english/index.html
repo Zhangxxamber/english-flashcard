@@ -413,6 +413,14 @@
             </div>
         </div>
 
+        <!-- 单元选择器 -->
+        <div class="book-selector" style="margin-top: 20px;">
+            <div class="selector-label">📚 选择单元：</div>
+            <div class="book-buttons" id="unitButtons" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));">
+                <!-- 动态生成单元按钮 -->
+            </div>
+        </div>
+
         <!-- 统计信息 -->
         <div class="stats">
             <div class="stat-item">
@@ -452,6 +460,12 @@
                     <li>错题本重练功能</li>
                 </ul>
                 <a href="dictation.html?book=1" class="btn-start" id="dictationLink">开始练习</a>
+                
+                <!-- 错题本入口 -->
+                <div style="margin-top:20px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.2);">
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.95em;margin-bottom:10px;">📚 系统会自动记录错题</p>
+                    <button onclick="goToErrorBook()" style="padding:10px 30px;background:rgba(255,100,100,0.6);color:white;border:2px solid rgba(255,255,255,0.4);border-radius:20px;font-size:1em;font-weight:bold;cursor:pointer;transition:all 0.3s;">查看 Book 1 错题本 (0题)</button>
+                </div>
             </div>
         </div>
 
@@ -469,6 +483,92 @@
     <script>
         // 当前选中的教材
         let currentBook = 1;
+        let currentUnit = 'all'; // 默认选择全部单元
+
+        // 单元配置（根据 Big English 数据）
+        const unitConfig = {
+            1: [ // Book 1
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: Good Morning, Class!' },
+                { id: 'unit2', name: 'Unit 2: My Family' },
+                { id: 'unit3', name: 'Unit 3: My Body' },
+                { id: 'unit4', name: 'Unit 4: My Favorite Clothes!' },
+                { id: 'unit5', name: 'Unit 5: Busy at Home' },
+                { id: 'unit6', name: 'Unit 6: On the Farm' },
+                { id: 'unit7', name: 'Unit 7: Party Time' },
+                { id: 'unit8', name: 'Unit 8: Fun and Games' },
+                { id: 'unit9', name: 'Unit 9: Play Time' }
+            ],
+            2: [ // Book 2
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: In My Classroom' },
+                { id: 'unit2', name: 'Unit 2: My Games' },
+                { id: 'unit3', name: 'Unit 3: In My House' },
+                { id: 'unit4', name: 'Unit 4: In My Town' },
+                { id: 'unit5', name: 'Unit 5: My Dream Job' },
+                { id: 'unit6', name: 'Unit 6: My Day' },
+                { id: 'unit7', name: 'Unit 7: My Favorite Food' },
+                { id: 'unit8', name: 'Unit 8: Wild Animals' },
+                { id: 'unit9', name: 'Unit 9: Special Days' }
+            ],
+            3: [ // Book 3
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: Wake Up!' },
+                { id: 'unit2', name: 'Unit 2: A Lot of Jobs!' },
+                { id: 'unit3', name: 'Unit 3: Working Hard!' },
+                { id: 'unit4', name: 'Unit 4: Amazing Animals' },
+                { id: 'unit5', name: 'Unit 5: Wonderful Weather!' },
+                { id: 'unit6', name: 'Unit 6: Smells Good!' },
+                { id: 'unit7', name: 'Unit 7: Fabulous Food!' },
+                { id: 'unit8', name: 'Unit 8: Healthy Living' },
+                { id: 'unit9', name: 'Unit 9: School Trips!' }
+            ],
+            4: [ // Book 4
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: Kids in My Class' },
+                { id: 'unit2', name: 'Unit 2: Spending Money' },
+                { id: 'unit3', name: 'Unit 3: Food Around the World' },
+                { id: 'unit4', name: 'Unit 4: How Do You Feel?' },
+                { id: 'unit5', name: 'Unit 5: Weird and Wild Animals' },
+                { id: 'unit6', name: 'Unit 6: Life Long Ago' },
+                { id: 'unit7', name: 'Unit 7: Special Days' },
+                { id: 'unit8', name: 'Unit 8: Hobbies' },
+                { id: 'unit9', name: 'Unit 9: Our World' },
+                { id: 'unit10', name: 'Unit 10: Adventure!' }
+            ],
+            5: [ // Book 5
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: Shopping!' },
+                { id: 'unit2', name: 'Unit 2: Interests' },
+                { id: 'unit3', name: 'Unit 3: My Town' },
+                { id: 'unit4', name: 'Unit 4: Life on the Farm' },
+                { id: 'unit5', name: 'Unit 5: Animals All Around' },
+                { id: 'unit6', name: 'Unit 6: Bigger and Better' },
+                { id: 'unit7', name: 'Unit 7: A Trip to Remember' },
+                { id: 'unit8', name: 'Unit 8: After School' },
+                { id: 'unit9', name: 'Unit 9: Having Fun' },
+                { id: 'unit10', name: 'Unit 10: Healthy Me' }
+            ],
+            6: [ // Book 6
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'welcome', name: 'Welcome to Class!' },
+                { id: 'unit1', name: 'Unit 1: My Week' },
+                { id: 'unit2', name: 'Unit 2: At School' },
+                { id: 'unit3', name: 'Unit 3: An Exciting Life' },
+                { id: 'unit4', name: 'Unit 4: Career Day' },
+                { id: 'unit5', name: 'Unit 5: Cool Inventions' },
+                { id: 'unit6', name: 'Unit 6: A Wonderful World' },
+                { id: 'unit7', name: 'Unit 7: Long, Long Ago' },
+                { id: 'unit8', name: 'Unit 8: Rules!' },
+                { id: 'unit9', name: 'Unit 9: Mysteries' },
+                { id: 'unit10', name: 'Unit 10: Let\'s Celebrate!' }
+            ]
+        };
 
         // 教材信息
         const bookInfo = {
@@ -480,15 +580,46 @@
             6: { desc: 'Book 6：顶级挑战，共55个核心词汇（学科、神秘、文化等深度内容）', available: true, words: 55, units: 10 }
         };
 
+        // 渲染单元按钮
+        function renderUnitButtons() {
+            const unitButtons = document.getElementById('unitButtons');
+            const units = unitConfig[currentBook];
+            
+            unitButtons.innerHTML = units.map((unit, index) => {
+                const activeClass = index === 0 ? 'active' : ''; // 默认选中第一个（全部）
+                return `<button class="book-btn ${activeClass}" onclick="selectUnit('${unit.id}')">${unit.name}</button>`;
+            }).join('');
+        }
+
+        // 选择单元
+        function selectUnit(unitId) {
+            currentUnit = unitId;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('#unitButtons .book-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                const unitName = unitConfig[currentBook].find(u => u.id === unitId)?.name;
+                if (btn.textContent.trim() === unitName) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新链接
+            updateLinks();
+        }
+
         // 选择教材
         function selectBook(bookNumber) {
             if (!bookInfo[bookNumber].available) return;
             
             currentBook = bookNumber;
+            currentUnit = 'all'; // 切换教材时重置为全部
             const info = bookInfo[bookNumber];
             
-            // 更新按钮状态
-            document.querySelectorAll('.book-btn').forEach((btn, index) => {
+            // 更新按钮状态 - 只更新教材选择按钮
+            const bookButtons = document.querySelectorAll('.book-buttons .book-btn');
+            bookButtons.forEach((btn, index) => {
                 btn.classList.remove('active');
                 if (index + 1 === bookNumber) {
                     btn.classList.add('active');
@@ -503,18 +634,94 @@
             document.getElementById('statUnits').textContent = info.units;
             
             // 更新模式卡片中的词汇数量
-            document.getElementById('listeningWords').textContent = `${info.words}个学习内容`;
-            document.getElementById('listeningUnits').textContent = `${info.units}个主题单元`;
-            document.getElementById('flashcardsWords').textContent = `${info.words}个学习内容`;
-            document.getElementById('flashcardsUnits').textContent = `${info.units}个主题单元`;
             document.getElementById('dictationWords').textContent = `${info.words}个学习内容`;
             document.getElementById('dictationUnits').textContent = `${info.units}个主题单元`;
             
+            // 重新渲染单元按钮
+            renderUnitButtons();
+            
             // 更新链接
-            document.getElementById('listeningLink').href = `listening_quiz.html?book=${bookNumber}`;
-            document.getElementById('flashcardsLink').href = `flashcards.html?book=${bookNumber}`;
-            document.getElementById('dictationLink').href = `dictation.html?book=${bookNumber}`;
+            updateLinks();
+            
+            // 更新错题本计数
+            updateErrorBookCount();
         }
+        
+        // 更新所有链接
+        function updateLinks() {
+            const params = `book=${currentBook}&unit=${currentUnit}`;
+            document.getElementById('dictationLink').href = `dictation.html?${params}`;
+        }
+        
+        // 跳转到错题本
+        function goToErrorBook() {
+            // 检查是否有错题记录
+            const book = currentBook;
+            const key = `wrongItems_book${book}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            if (wrongCount === 0) {
+                // 没有错题，不执行任何操作（按钮应该已被禁用）
+                return;
+            }
+            
+            // 有错题，跳转到错题本（使用 mistakes 模式）
+            const params = `book=${currentBook}&mode=mistakes`;
+            window.location.href = `dictation.html?${params}`;
+        }
+        
+        // 更新错题本计数显示
+        function updateErrorBookCount() {
+            const book = currentBook;
+            const key = `wrongItems_book${book}`;
+            const saved = localStorage.getItem(key);
+            
+            let wrongCount = 0;
+            if (saved) {
+                try {
+                    const wrongItems = JSON.parse(saved);
+                    wrongCount = wrongItems.length;
+                } catch (e) {
+                    wrongCount = 0;
+                }
+            }
+            
+            // 更新错题本按钮文字和状态
+            const errorBookBtn = document.querySelector('button[onclick="goToErrorBook()"]');
+            if (errorBookBtn) {
+                errorBookBtn.innerHTML = `查看 Book ${book} 错题本 (${wrongCount}题)`;
+                
+                // 0题时禁用按钮
+                if (wrongCount === 0) {
+                    errorBookBtn.disabled = true;
+                    errorBookBtn.style.opacity = '0.5';
+                    errorBookBtn.style.cursor = 'not-allowed';
+                    errorBookBtn.style.background = 'rgba(150,150,150,0.6)';
+                } else {
+                    errorBookBtn.disabled = false;
+                    errorBookBtn.style.opacity = '1';
+                    errorBookBtn.style.cursor = 'pointer';
+                    errorBookBtn.style.background = 'rgba(255,100,100,0.6)';
+                }
+            }
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            renderUnitButtons(); // 渲染单元按钮
+            updateLinks(); // 更新链接
+            updateErrorBookCount(); // 更新错题本计数
+        };
 
         // 记录访问统计（可选）
         console.log('%c📚 Big English 单词闪卡', 'font-size: 20px; color: #667eea; font-weight: bold;');

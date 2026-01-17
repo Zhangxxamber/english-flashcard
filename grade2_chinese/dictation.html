@@ -433,7 +433,7 @@
                 <div class="progress-label">📖 历史错题</div>
                 <div class="progress-value" id="historyWrongCount" style="color: #ff9966; font-weight: bold;">0</div>
             </div>
-            <div class="progress-item" style="background: rgba(255,100,100,0.3); border: 2px solid rgba(255,100,100,0.5);">
+            <div class="progress-item" id="currentWrongItem" style="background: rgba(255,100,100,0.3); border: 2px solid rgba(255,100,100,0.5);">
                 <div class="progress-label">📚 本次新增</div>
                 <div class="progress-value" id="currentWrongCount" style="color: #ff6b6b; font-weight: bold;">0</div>
             </div>
@@ -500,6 +500,7 @@
         let wrongItems = [];
         let isAnswerShown = false;
         let voicesLoaded = false; // 标记语音是否已加载
+        let isErrorBookMode = false; // 标记是否是错题本模式
         let availableVoices = []; // 保存可用的语音列表
 
         // 等待语音引擎加载完成
@@ -613,6 +614,7 @@
             
             if (mode === 'errorbook') {
                 // 错题本模式：加载错题
+                isErrorBookMode = true; // 设置标志
                 allData = loadWrongItems();
                 if (allData.length === 0) {
                     alert('还没有错题记录哦！\n\n建议：先完成一些练习，系统会自动记录做错的题目。');
@@ -622,8 +624,15 @@
                 console.log('错题本模式 - 加载错题数:', allData.length);
                 // 更新页面标题提示
                 document.querySelector('.header .title').textContent = '📕 错题本练习';
+                
+                // 隐藏"本次新增"统计项（错题本模式下无意义）
+                const currentWrongItem = document.getElementById('currentWrongItem');
+                if (currentWrongItem) {
+                    currentWrongItem.style.display = 'none';
+                }
             } else {
                 // 正常模式：加载课文数据
+                isErrorBookMode = false; // 设置标志
                 allData = getCurrentSemesterData();
                 console.log('自主听写页 - 加载数据条数:', allData ? allData.length : 0);
                 
@@ -819,7 +828,13 @@
         // 标记为"还不会"
         function markWrong() {
             wrongCount++;
-            wrongItems.push(allData[currentIndex]);
+            
+            // 在正常模式下，记录到本次错题列表
+            // 在错题本模式下，不需要重复记录（因为已经在错题本中）
+            if (!isErrorBookMode) {
+                wrongItems.push(allData[currentIndex]);
+            }
+            
             if (soundEnabled) {
                 playWrongSound();
             }
@@ -831,9 +846,7 @@
             correctCount++;
             
             // 如果是错题本模式，从错题本中移除这道题
-            const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
-            if (mode === 'errorbook') {
+            if (isErrorBookMode) {
                 const currentItem = allData[currentIndex];
                 removeFromErrorBook(currentItem);
                 
@@ -876,12 +889,8 @@
         function updateProgress() {
             const completed = correctCount + wrongCount;
             
-            // 检查是否是错题本模式
-            const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
-            
             // 错题本模式显示剩余题数，普通模式显示已完成/总数
-            if (mode === 'errorbook') {
+            if (isErrorBookMode) {
                 const remaining = allData.length - currentIndex;
                 document.getElementById('progressValue').textContent = `剩余 ${remaining} 题`;
             } else {
@@ -1220,6 +1229,13 @@
             correctCount = 0;
             wrongCount = 0;
             wrongItems = [];
+            isErrorBookMode = true; // 设置为错题本模式
+            
+            // 隐藏"本次新增"统计项
+            const currentWrongItem = document.getElementById('currentWrongItem');
+            if (currentWrongItem) {
+                currentWrongItem.style.display = 'none';
+            }
             
             // 重新开始
             document.getElementById('completionScreen').classList.remove('show');

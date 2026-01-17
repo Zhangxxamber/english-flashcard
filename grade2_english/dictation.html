@@ -444,7 +444,7 @@
                 <div class="score-label">📖 历史错题</div>
                 <div class="score-value" id="historyWrongCount" style="color: #ff9966; font-weight: bold;">0</div>
             </div>
-            <div class="score-item" style="background: rgba(255,100,100,0.3); border: 2px solid rgba(255,100,100,0.5);">
+            <div class="score-item" id="currentWrongItem" style="background: rgba(255,100,100,0.3); border: 2px solid rgba(255,100,100,0.5);">
                 <div class="score-label">📚 本次新增</div>
                 <div class="score-value" id="currentWrongCount" style="color: #ff6b6b; font-weight: bold;">0</div>
             </div>
@@ -745,6 +745,7 @@
         let usedHints = {};
         let phoneticVisible = false;
         let wrongItems = []; // 记录错题
+        let isErrorBookMode = false; // 标记是否是错题本模式
 
         // 打乱数组
         function shuffleArray(array) {
@@ -764,9 +765,11 @@
             // 检查是否是错题本模式
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode');
+            const unit = urlParams.get('unit') || 'all';
             
             if (mode === 'errorbook') {
                 // 错题本模式：加载错题
+                isErrorBookMode = true; // 设置标志
                 const wrong = loadWrongItems();
                 if (wrong.length === 0) {
                     alert('还没有错题记录哦！\n\n建议：先完成一些练习，系统会自动记录做错的题目。');
@@ -777,8 +780,21 @@
                 console.log('错题本模式 - 加载错题数:', currentData.length);
                 // 更新页面标题提示
                 document.querySelector('.title').textContent = '📕 错题本练习';
+                
+                // 隐藏"本次新增"统计项（错题本模式下无意义）
+                const currentWrongItem = document.getElementById('currentWrongItem');
+                if (currentWrongItem) {
+                    currentWrongItem.style.display = 'none';
+                }
             } else {
-                // 正常模式
+                // 正常模式：根据单元参数筛选数据
+                isErrorBookMode = false; // 设置标志
+                if (unit !== 'all') {
+                    currentData = allData.filter(item => item.unit === unit);
+                    console.log(`单元筛选 - ${unit}:`, currentData.length, '个词汇');
+                }
+                
+                // 打乱顺序
                 shuffleArray(currentData);
                 
                 // 更新页面标题，显示详细信息
@@ -793,16 +809,45 @@
         function updatePageTitle() {
             const urlParams = new URLSearchParams(window.location.search);
             const book = parseInt(urlParams.get('book')) || 1;
+            const unit = urlParams.get('unit') || 'all';
             
             // 教材文本
             const bookText = book === 1 ? '上册' : '下册';
             
+            // 单元文本
+            let unitText = '';
+            if (unit === 'all') {
+                unitText = ' · 全部单元';
+            } else {
+                // 获取单元名称（从数据中提取第一个匹配的 unitName）
+                const unitItem = allData.find(item => item.unit === unit);
+                if (unitItem && unitItem.unitName) {
+                    unitText = ` · ${unitItem.unitName}`;
+                } else {
+                    // 备用方案：使用基本的单元名称映射
+                    const unitNames = {
+                        'starter': 'Starter Unit',
+                        'unit1': 'Unit 1 - My morning',
+                        'unit2': 'Unit 2 - My room',
+                        'unit3': 'Unit 3 - On the way',
+                        'unit4': 'Unit 4 - Playing sports',
+                        'unit5': 'Unit 5 - In the sky',
+                        'unit6': 'Unit 6 - In the sea',
+                        'unit7': 'Unit 7 - Seasons',
+                        'unit8': 'Unit 8 - Yummy fruit',
+                        'unit9': 'Unit 9 - The five senses',
+                        'unit10': 'Unit 10 - This is me'
+                    };
+                    unitText = ` · ${unitNames[unit] || unit}`;
+                }
+            }
+            
             // 组合标题
-            const title = `沪教版英语二年级${bookText}`;
+            const title = `沪教版英语二年级${bookText}${unitText}`;
             document.getElementById('pageTitle').textContent = title;
             
             // 同时更新浏览器标题
-            document.title = `沪教版英语二年级${bookText}`;
+            document.title = `沪教版英语二年级${bookText}${unitText}`;
         }
 
         // 处理输入
@@ -982,12 +1027,8 @@
 
         // 更新得分板
         function updateScoreboard() {
-            // 检查是否是错题本模式
-            const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
-            
             // 错题本模式显示剩余题数，普通模式显示已完成/总数
-            if (mode === 'errorbook') {
+            if (isErrorBookMode) {
                 const remaining = currentData.length - currentIndex;
                 document.getElementById('progress').textContent = `剩余 ${remaining} 题`;
             } else {
@@ -1168,6 +1209,13 @@
             totalAnswered = 0;
             wrongItems = [];
             isAnswered = false;
+            isErrorBookMode = true; // 设置为错题本模式
+            
+            // 隐藏"本次新增"统计项
+            const currentWrongItem = document.getElementById('currentWrongItem');
+            if (currentWrongItem) {
+                currentWrongItem.style.display = 'none';
+            }
             
             // 恢复练习区域的原始HTML结构
             const practiceArea = document.getElementById('practiceArea');
@@ -1233,13 +1281,12 @@
         
         // 标记为"会了"
         function markCorrect() {
-            // 检查是否是错题本模式或错题重练模式
-            const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
-            const book = parseInt(urlParams.get('book')) || 1;
+            correctCount++;
             
-            // 如果是错题本/错题重练模式，从localStorage中移除该题
-            if (mode === 'errorbook' || currentData === loadWrongItems()) {
+            // 如果是错题本模式，从localStorage和当前数据中移除该题
+            if (isErrorBookMode) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const book = parseInt(urlParams.get('book')) || 1;
                 const currentItem = currentData[currentIndex];
                 const key = `wrongItems_book${book}`;
                 
@@ -1247,14 +1294,12 @@
                     const saved = localStorage.getItem(key);
                     if (saved) {
                         let items = JSON.parse(saved);
-                        // 移除当前题目（根据 phrase 和 lesson 匹配）
-                        items = items.filter(item => 
-                            !(item.phrase === currentItem.phrase && item.lesson === currentItem.lesson)
-                        );
+                        // 移除当前题目（根据 phrase 匹配，因为英语单词可能没有 lesson 字段）
+                        items = items.filter(item => item.phrase !== currentItem.phrase);
                         localStorage.setItem(key, JSON.stringify(items));
                         console.log(`已从错题本移除: ${currentItem.phrase}，剩余错题: ${items.length}个`);
                         
-                        // 同时从当前数据中移除
+                        // 从当前数据中移除（这样总数会减少）
                         currentData.splice(currentIndex, 1);
                         
                         // 更新历史错题计数
@@ -1263,15 +1308,14 @@
                 } catch (e) {
                     console.error('移除错题失败:', e);
                 }
-            }
-            
-            correctCount++;
-            totalAnswered++;
-            
-            // 注意：如果从 currentData 中移除了，currentIndex 不需要增加
-            // 因为删除后，下一题自动补上了当前位置
-            if (mode !== 'errorbook' && currentData !== loadWrongItems()) {
+                
+                // 错题本模式：currentIndex 不增加（因为删除了元素）
+                // 但要增加 totalAnswered
+                totalAnswered++;
+            } else {
+                // 正常模式：currentIndex 增加
                 currentIndex++;
+                totalAnswered++;
             }
             
             updateScoreboard();
@@ -1287,7 +1331,13 @@
         function markWrong() {
             wrongCount++;
             const item = currentData[currentIndex];
-            wrongItems.push(item);
+            
+            // 在正常模式下，记录到本次错题列表
+            // 在错题本模式下，不需要重复记录（因为已经在错题本中）
+            if (!isErrorBookMode) {
+                wrongItems.push(item);
+            }
+            
             currentIndex++;
             totalAnswered++;
             updateScoreboard();

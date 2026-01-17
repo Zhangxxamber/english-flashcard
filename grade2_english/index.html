@@ -381,6 +381,14 @@
             </div>
         </div>
 
+        <!-- 单元选择器 -->
+        <div class="semester-selector" style="margin-top: 20px;">
+            <div class="selector-label">📖 选择单元：</div>
+            <div class="semester-buttons" id="unitButtons" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+                <!-- 动态生成单元按钮 -->
+            </div>
+        </div>
+
         <!-- 统计信息 -->
         <div class="stats">
             <div class="stat-item">
@@ -440,6 +448,38 @@
     <script>
         // 当前选中的学期
         let currentSemester = 1;
+        let currentUnit = 'all'; // 默认选择全部
+
+        // 单元配置
+        const unitConfig = {
+            1: [ // 上册
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'starter', name: 'Starter Unit' },
+                { id: 'unit1', name: 'Unit 1 - My morning' },
+                { id: 'unit2', name: 'Unit 2 - My room' },
+                { id: 'unit3', name: 'Unit 3 - On the way' },
+                { id: 'unit4', name: 'Unit 4 - Playing sports' },
+                { id: 'unit5', name: 'Unit 5 - In the sky' },
+                { id: 'unit6', name: 'Unit 6 - In the sea' },
+                { id: 'unit7', name: 'Unit 7 - Seasons' },
+                { id: 'unit8', name: 'Unit 8 - Yummy fruit' },
+                { id: 'unit9', name: 'Unit 9 - The five senses' },
+                { id: 'unit10', name: 'Unit 10 - This is me' }
+            ],
+            2: [ // 下册
+                { id: 'all', name: '🌟 全部单元' },
+                { id: 'unit1', name: 'Unit 1 - （待补充）' },
+                { id: 'unit2', name: 'Unit 2 - （待补充）' },
+                { id: 'unit3', name: 'Unit 3 - （待补充）' },
+                { id: 'unit4', name: 'Unit 4 - （待补充）' },
+                { id: 'unit5', name: 'Unit 5 - （待补充）' },
+                { id: 'unit6', name: 'Unit 6 - （待补充）' },
+                { id: 'unit7', name: 'Unit 7 - （待补充）' },
+                { id: 'unit8', name: 'Unit 8 - （待补充）' },
+                { id: 'unit9', name: 'Unit 9 - （待补充）' },
+                { id: 'unit10', name: 'Unit 10 - （待补充）' }
+            ]
+        };
 
         // 学期信息
         const semesterInfo = {
@@ -455,13 +495,42 @@
             }
         };
 
+        // 渲染单元按钮
+        function renderUnitButtons() {
+            const unitButtons = document.getElementById('unitButtons');
+            const units = unitConfig[currentSemester];
+            
+            unitButtons.innerHTML = units.map((unit, index) => {
+                const activeClass = index === 0 ? 'active' : ''; // 默认选中第一个（全部）
+                return `<button class="semester-btn ${activeClass}" onclick="selectUnit('${unit.id}')">${unit.name}</button>`;
+            }).join('');
+        }
+
+        // 选择单元
+        function selectUnit(unitId) {
+            currentUnit = unitId;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('#unitButtons .semester-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === unitConfig[currentSemester].find(u => u.id === unitId).name) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新链接
+            updateLinks();
+        }
+
         // 选择学期
         function selectSemester(semester) {
             currentSemester = semester;
+            currentUnit = 'all'; // 切换学期时重置为全部
             const info = semesterInfo[semester];
             
             // 更新按钮状态
-            document.querySelectorAll('.semester-btn').forEach((btn, index) => {
+            document.querySelectorAll('.semester-buttons .semester-btn').forEach((btn, index) => {
                 btn.classList.remove('active');
                 if (index + 1 === semester) {
                     btn.classList.add('active');
@@ -475,17 +544,20 @@
             document.getElementById('statPhrases').textContent = info.phrases;
             document.getElementById('statUnits').textContent = info.units;
             
-            // 更新模式卡片中的数量
-            document.getElementById('quiz1').textContent = `${info.phrases}个学习内容`;
-            document.getElementById('quiz2').textContent = `${info.units}个主题单元`;
+            // 重新渲染单元按钮
+            renderUnitButtons();
             
             // 更新链接
-            document.getElementById('quizLink').href = `listening_quiz.html?book=${semester}`;
-            document.getElementById('flashcardsLink').href = `flashcards.html?book=${semester}`;
-            document.getElementById('dictationLink').href = `dictation.html?book=${semester}`;
+            updateLinks();
             
             // 更新错题本计数
             updateErrorBookCount();
+        }
+        
+        // 更新所有链接
+        function updateLinks() {
+            const params = `book=${currentSemester}&unit=${currentUnit}`;
+            document.getElementById('dictationLink').href = `dictation.html?${params}`;
         }
         
         // 跳转到错题本
@@ -554,9 +626,11 @@
             }
         }
         
-        // 页面加载时初始化错题本计数
+        // 页面加载时初始化
         window.onload = function() {
-            updateErrorBookCount();
+            renderUnitButtons(); // 渲染单元按钮
+            updateLinks(); // 更新链接
+            updateErrorBookCount(); // 更新错题本计数
         };
 
         // 页面加载动画
