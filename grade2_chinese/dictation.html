@@ -167,6 +167,28 @@
             text-align: center;
         }
 
+        .voice-current {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .voice-current-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .voice-current-name {
+            font-weight: bold;
+            color: #8b9cfc;
+            font-size: 1.1em;
+        }
+
         .voice-list {
             display: flex;
             flex-direction: column;
@@ -537,6 +559,10 @@
     <!-- 语音选择面板 -->
     <div class="voice-panel" id="voicePanel">
         <div class="voice-panel-title">🎙️ 选择发音人</div>
+        <div class="voice-current" id="voiceCurrent">
+            <div class="voice-current-label">当前使用:</div>
+            <div class="voice-current-name" id="voiceCurrentName">加载中...</div>
+        </div>
         <div class="voice-list" id="voiceList">
             <div class="voice-loading">加载中...</div>
         </div>
@@ -788,6 +814,9 @@
                     event.target.closest('.voice-item').classList.add('active');
                 }
                 
+                // 更新当前使用显示
+                updateCurrentVoiceDisplay(voice);
+                
                 // 试听
                 const testUtterance = new SpeechSynthesisUtterance('你好，这是语音测试');
                 testUtterance.voice = voice;
@@ -799,24 +828,59 @@
                 console.log('已选择语音:', voice.name);
             }
         }
+        
+        // 更新当前使用的语音显示
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
+        function updateCurrentVoiceDisplay(voice) {
+            const currentNameEl = document.getElementById('voiceCurrentName');
+            if (currentNameEl && voice) {
+                // 简化显示名称
+                let displayName = voice.name;
+                if (voice.name.includes('Microsoft')) {
+                    displayName = voice.name.split('-')[0].replace('Microsoft', '').trim();
+                } else if (voice.name.includes('Google')) {
+                    displayName = voice.name.replace('Google', '').trim();
+                }
+                
+                // 添加高清标记
+                const isNatural = voice.name.includes('Natural') || voice.name.includes('Online');
+                const badge = isNatural ? ' ⭐' : '';
+                
+                currentNameEl.textContent = displayName + badge;
+            }
+        }
             }
         }
 
         // 加载用户选择的语音
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function loadVoicePreference() {
             const savedVoiceName = localStorage.getItem('selectedVoice');
             if (savedVoiceName) {
                 const voice = availableVoices.find(v => v.name === savedVoiceName);
                 if (voice) {
                     selectedVoice = voice;
+                    
+                    // 更新当前使用显示
+                    updateCurrentVoiceDisplay(voice);
+                    
                     // 高亮显示
                     setTimeout(() => {
                         document.querySelectorAll('.voice-item').forEach(item => {
                             if (item.querySelector('.voice-item-name').textContent.includes(savedVoiceName.split('-')[0])) {
                                 item.classList.add('selected');
+                                item.classList.add('active');
                             }
                         });
                     }, 100);
+                }
+            } else {
+                // 如果没有选择，显示"未选择"
+                const currentNameEl = document.getElementById('voiceCurrentName');
+                if (currentNameEl) {
+                    currentNameEl.textContent = '系统默认';
                 }
             }
         }

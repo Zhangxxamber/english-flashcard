@@ -182,6 +182,28 @@
             border-bottom: 2px solid rgba(255,255,255,0.2);
         }
 
+        .voice-current {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .voice-current-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .voice-current-name {
+            font-weight: bold;
+            color: #8b9cfc;
+            font-size: 1.1em;
+        }
+
         .voice-list {
             max-height: 400px;
             overflow-y: auto;
@@ -574,6 +596,10 @@
     <!-- 语音选择面板 -->
     <div class="voice-panel" id="voicePanel">
         <div class="voice-panel-title">🎙️ 选择英文发音人</div>
+        <div class="voice-current" id="voiceCurrent">
+            <div class="voice-current-label">Current Voice:</div>
+            <div class="voice-current-name" id="voiceCurrentName">Loading...</div>
+        </div>
         <div class="voice-list" id="voiceList">
             <div class="voice-loading">加载中...</div>
         </div>
@@ -739,6 +765,9 @@
         }
         
         // 选择语音
+        // 选择语音
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function selectVoice(voice) {
             selectedVoice = voice;
             localStorage.setItem('grade2English_selectedVoice', voice.name);
@@ -749,7 +778,32 @@
             });
             event.currentTarget.classList.add('active');
             
+            // 更新当前使用显示
+            updateCurrentVoiceDisplay(voice);
+            
             console.log('已选择发音人:', voice.name);
+        }
+        
+        // 更新当前使用的语音显示
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
+        function updateCurrentVoiceDisplay(voice) {
+            const currentNameEl = document.getElementById('voiceCurrentName');
+            if (currentNameEl && voice) {
+                // 简化显示名称
+                let displayName = voice.name;
+                if (voice.name.includes('Microsoft')) {
+                    displayName = voice.name.split('-')[0].replace('Microsoft', '').trim();
+                } else if (voice.name.includes('Google')) {
+                    displayName = voice.name.replace('Google', '').trim();
+                }
+                
+                // 添加高清标记
+                const isNatural = voice.name.includes('Natural') || voice.name.includes('Online');
+                const badge = isNatural ? ' ⭐' : '';
+                
+                currentNameEl.textContent = displayName + badge;
+            }
         }
         
         // 试听语音
@@ -764,6 +818,9 @@
         }
         
         // 加载语音偏好
+        // 加载语音偏好
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function loadVoicePreference() {
             const savedVoiceName = localStorage.getItem('grade2English_selectedVoice');
             if (savedVoiceName) {
@@ -771,6 +828,7 @@
                 if (voice) {
                     selectedVoice = voice;
                     updateVoiceUI();
+                    updateCurrentVoiceDisplay(voice);
                 }
             } else {
                 // 默认选择第一个推荐的英文发音人
@@ -784,13 +842,25 @@
                     const voice = availableVoices.find(v => v.name === name || v.name.includes(name));
                     if (voice) {
                         selectedVoice = voice;
+                        updateCurrentVoiceDisplay(voice);
                         break;
                     }
                 }
                 
                 if (!selectedVoice && availableVoices.length > 0) {
                     const englishVoice = availableVoices.find(v => v.lang.startsWith('en'));
-                    if (englishVoice) selectedVoice = englishVoice;
+                    if (englishVoice) {
+                        selectedVoice = englishVoice;
+                        updateCurrentVoiceDisplay(englishVoice);
+                    }
+                }
+                
+                // 如果还是没有选择，显示"系统默认"
+                if (!selectedVoice) {
+                    const currentNameEl = document.getElementById('voiceCurrentName');
+                    if (currentNameEl) {
+                        currentNameEl.textContent = 'System Default';
+                    }
                 }
             }
         }
