@@ -1183,12 +1183,31 @@
     </div>
 
     <script>
-        // ==================== 语音选择系统 ====================
+        // ==================== 全局变量声明 ====================
+        // 必须在所有函数之前声明，避免 "Cannot access before initialization" 错误
         // Date: 2026-01-18
         // Author: zhangxiaoxiao
         
+        // 语音系统变量
         let availableVoices = [];
         let selectedVoice = null;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        
+        // 默写系统全局状态
+        let currentWords = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let mistakes = [];
+        let mode = 'sequential';
+        let phoneticVisible = false;
+        let exampleVisible = false;
+        let selectedUnit = 'all';
+        
+        // ==================== 语音选择系统 ====================
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         
         // 加载可用语音列表
         // Date: 2026-01-18
@@ -2022,19 +2041,6 @@
         
         // 页面加载时初始化单元选择器
         populateUnitSelector();
-
-        // 全局状态
-        let currentWords = [];
-        let currentIndex = 0;
-        let correctCount = 0;
-        let wrongCount = 0;
-        let mistakes = [];
-        let mode = 'sequential';
-        let phoneticVisible = false;
-        let exampleVisible = false;
-        let selectedUnit = 'all';
-        let speechSynthesis = window.speechSynthesis;
-        let currentUtterance = null;
 
         // 初始化
         function init() {
