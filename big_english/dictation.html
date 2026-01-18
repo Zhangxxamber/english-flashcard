@@ -1190,21 +1190,36 @@
         let selectedVoice = null;
         
         // 加载可用语音列表
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function loadVoices() {
+            console.log('=== loadVoices 被调用 ===');
             availableVoices = speechSynthesis.getVoices();
+            console.log('获取到的语音数量:', availableVoices.length);
+            
             if (availableVoices.length > 0) {
+                console.log('开始填充语音列表和加载偏好');
                 populateVoiceList();
                 loadVoicePreference();
+            } else {
+                console.warn('语音列表为空，可能还在加载中');
             }
         }
         
         // 填充语音选择列表 - 优先显示英文发音人
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function populateVoiceList() {
+            console.log('=== populateVoiceList 被调用 ===');
             const voiceList = document.getElementById('voiceList');
+            console.log('voiceList 元素:', voiceList);
             const englishVoices = availableVoices.filter(v => v.lang.startsWith('en'));
+            console.log('可用英文语音数量:', englishVoices.length);
+            console.log('所有可用语音:', availableVoices.map(v => v.name));
             
             if (englishVoices.length === 0) {
-                voiceList.innerHTML = '<div class="voice-loading">未找到英文发音人</div>';
+                console.warn('未找到英文语音');
+                voiceList.innerHTML = '<div class="voice-loading">未找到英文发音人，将使用系统默认</div>';
                 return;
             }
             
@@ -1219,21 +1234,31 @@
             ];
             
             voiceList.innerHTML = '';
+            console.log('已清空 voiceList');
+            
+            let addedCount = 0;
             
             // 先显示推荐的发音人
             recommendedVoices.forEach(name => {
                 const voice = englishVoices.find(v => v.name === name || v.name.includes(name));
                 if (voice) {
+                    console.log('添加推荐语音:', voice.name);
                     createVoiceItem(voice, voiceList);
+                    addedCount++;
                 }
             });
             
             // 再显示其他英文发音人
             englishVoices.forEach(voice => {
                 if (!recommendedVoices.some(name => voice.name === name || voice.name.includes(name))) {
+                    console.log('添加其他语音:', voice.name);
                     createVoiceItem(voice, voiceList);
+                    addedCount++;
                 }
             });
+            
+            console.log('共添加了', addedCount, '个语音选项');
+            console.log('=== populateVoiceList 完成 ===');
         }
         
         // 创建语音选项元素
@@ -1403,10 +1428,26 @@
         });
         
         // 初始化语音系统
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
+        console.log('=== 开始初始化语音系统 ===');
         if (speechSynthesis.onvoiceschanged !== undefined) {
+            console.log('设置 onvoiceschanged 监听器');
             speechSynthesis.onvoiceschanged = loadVoices;
         }
+        console.log('首次调用 loadVoices()');
         loadVoices();
+        
+        // 3秒后再检查一次，确保语音加载完成
+        setTimeout(() => {
+            console.log('=== 3秒后再次检查语音 ===');
+            if (availableVoices.length === 0) {
+                console.log('重新加载语音');
+                loadVoices();
+            } else {
+                console.log('语音已加载完成，无需重新加载');
+            }
+        }, 3000);
         
         // ==================== 音效系统 ====================
         
