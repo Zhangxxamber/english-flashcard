@@ -1,5 +1,11 @@
 # 小学学习助手 - 综合学习平台
 
+[![Version](https://img.shields.io/badge/version-v2.1.0-blue.svg)](https://github.com/Zhangxxamber/english-flashcard)
+[![Last Update](https://img.shields.io/badge/last%20update-2026--01--18-green.svg)](https://github.com/Zhangxxamber/english-flashcard)
+[![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
+
+> 💡 **当前版本：v2.1.0** | 最后更新：2026-01-18 10:30
+
 ## 📚 项目简介
 
 一个综合性的小学学习辅助平台，涵盖语文、英语、数学三大学科，采用自主默写、互动练习等多种学习模式。
@@ -151,6 +157,13 @@ Made with ❤️ for kids
 
 ## 📝 更新日志
 
+### v2.1.0 - 2026-01-18
+- ✅ Big English 错题本功能完善
+- ✅ 添加语音选择功能
+- ✅ 优化中文语音（更自然）
+- ✅ 修复多个 JavaScript 错误
+- ✅ UI 样式统一优化
+
 ### v2.0 - 2026-01
 - ✅ 统一为自主默写模式
 - ✅ 优化界面布局（单卡片居中）
@@ -164,6 +177,8 @@ Made with ❤️ for kids
 - ✅ 支持三大学科
 - ✅ 实现基础学习功能
 
+> 📋 查看完整更新日志：[CHANGELOG.md](CHANGELOG.md)
+
 ## 📧 联系方式
 
 如有问题或建议，欢迎反馈！
@@ -171,3 +186,7 @@ Made with ❤️ for kids
 ## ⚖️ 许可证
 
 本项目仅供学习使用，请勿用于商业目的。
+
+---
+
+**当前版本：v2.1.0** | 最后更新：2026-01-18 10:30

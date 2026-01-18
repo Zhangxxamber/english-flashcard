@@ -100,6 +100,128 @@
             opacity: 0.5;
         }
 
+        /* 语音选择按钮 */
+        .btn-voice-select {
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            font-size: 1.3em;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-voice-select:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+
+        /* 语音选择面板 */
+        .voice-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(40, 40, 60, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 999;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .voice-panel.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .voice-panel-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .voice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .voice-item {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-item:hover {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.8);
+            transform: translateX(5px);
+        }
+
+        .voice-item.selected {
+            background: rgba(102, 126, 234, 0.6);
+            border-color: rgba(102, 126, 234, 1);
+        }
+
+        .voice-item-icon {
+            font-size: 1.5em;
+        }
+
+        .voice-item-info {
+            flex: 1;
+        }
+
+        .voice-item-name {
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .voice-item-desc {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.7);
+            margin-top: 3px;
+        }
+
+        .voice-loading {
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 20px;
+        }
+
         /* 标题 */
         .header {
             background: rgba(40, 40, 60, 0.85);
@@ -409,6 +531,15 @@
 <body>
     <button class="btn-home" onclick="safeReturn()">← 返回</button>
     <button class="btn-sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+    <button class="btn-voice-select" id="voiceToggle" onclick="toggleVoicePanel()">🎙️</button>
+
+    <!-- 语音选择面板 -->
+    <div class="voice-panel" id="voicePanel">
+        <div class="voice-panel-title">🎙️ 选择发音人</div>
+        <div class="voice-list" id="voiceList">
+            <div class="voice-loading">加载中...</div>
+        </div>
+    </div>
 
     <div class="container">
         <div class="header">
@@ -502,6 +633,7 @@
         let voicesLoaded = false; // 标记语音是否已加载
         let isErrorBookMode = false; // 标记是否是错题本模式
         let availableVoices = []; // 保存可用的语音列表
+        let selectedVoice = null; // 用户选择的语音
 
         // 等待语音引擎加载完成
         function loadVoices() {
@@ -514,6 +646,8 @@
                     voices.filter(v => v.lang.startsWith('zh')).forEach(v => {
                         console.log(`- ${v.name} (${v.lang})`);
                     });
+                    populateVoiceList(); // 填充语音列表
+                    loadVoicePreference(); // 加载用户选择
                     resolve(voices);
                 } else {
                     speechSynthesis.addEventListener('voiceschanged', () => {
@@ -524,11 +658,139 @@
                         voices.filter(v => v.lang.startsWith('zh')).forEach(v => {
                             console.log(`- ${v.name} (${v.lang})`);
                         });
+                        populateVoiceList(); // 填充语音列表
+                        loadVoicePreference(); // 加载用户选择
                         resolve(voices);
                     });
                 }
             });
         }
+
+        // 填充语音选择列表
+        function populateVoiceList() {
+            const voiceList = document.getElementById('voiceList');
+            const chineseVoices = availableVoices.filter(v => v.lang.startsWith('zh'));
+            
+            if (chineseVoices.length === 0) {
+                voiceList.innerHTML = '<div class="voice-loading">未找到中文语音</div>';
+                return;
+            }
+            
+            // 只显示这4个推荐的女声
+            const recommendedVoices = [
+                { key: 'Xiaoxiao', icon: '👩', desc: '晓晓 - 标准女声，最自然' },
+                { key: 'Xiaoyi', icon: '👧', desc: '晓伊 - 儿童女声，活泼' },
+                { key: 'Yunxi', icon: '👩‍🎤', desc: '云希 - 温柔女声' },
+                { key: 'Xiaomo', icon: '🙋‍♀️', desc: '晓墨 - 温暖女声' }
+            ];
+            
+            // 筛选出这4个语音
+            const filteredVoices = [];
+            recommendedVoices.forEach(recommended => {
+                // 优先找 Natural 版本
+                let voice = chineseVoices.find(v => 
+                    v.name.includes(recommended.key) && v.name.includes('Natural')
+                );
+                
+                // 如果没有 Natural 版本，找标准版
+                if (!voice) {
+                    voice = chineseVoices.find(v => v.name.includes(recommended.key));
+                }
+                
+                if (voice) {
+                    filteredVoices.push({
+                        voice: voice,
+                        icon: recommended.icon,
+                        desc: recommended.desc
+                    });
+                }
+            });
+            
+            if (filteredVoices.length === 0) {
+                voiceList.innerHTML = '<div class="voice-loading">未找到推荐的女声，请检查系统语音设置</div>';
+                return;
+            }
+            
+            // 渲染语音列表
+            voiceList.innerHTML = filteredVoices.map(item => {
+                const voice = item.voice;
+                
+                // 简化显示名称
+                let displayName = voice.name;
+                if (voice.name.includes('Microsoft')) {
+                    displayName = voice.name.split('-')[0].replace('Microsoft', '').trim();
+                }
+                
+                return `
+                    <div class="voice-item" onclick="selectVoice('${voice.name}')">
+                        <span class="voice-item-icon">${item.icon}</span>
+                        <div class="voice-item-info">
+                            <div class="voice-item-name">${displayName}</div>
+                            <div class="voice-item-desc">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 选择语音
+        function selectVoice(voiceName) {
+            const voice = availableVoices.find(v => v.name === voiceName);
+            if (voice) {
+                selectedVoice = voice;
+                localStorage.setItem('selectedVoice', voiceName);
+                
+                // 更新UI
+                document.querySelectorAll('.voice-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                event.target.closest('.voice-item').classList.add('selected');
+                
+                // 试听
+                const testUtterance = new SpeechSynthesisUtterance('你好，这是语音测试');
+                testUtterance.voice = voice;
+                testUtterance.lang = 'zh-CN';
+                testUtterance.rate = 0.95;
+                testUtterance.pitch = 1.0;
+                speechSynthesis.speak(testUtterance);
+                
+                console.log('✅ 已选择语音:', voice.name);
+            }
+        }
+
+        // 加载用户选择的语音
+        function loadVoicePreference() {
+            const savedVoiceName = localStorage.getItem('selectedVoice');
+            if (savedVoiceName) {
+                const voice = availableVoices.find(v => v.name === savedVoiceName);
+                if (voice) {
+                    selectedVoice = voice;
+                    // 高亮显示
+                    setTimeout(() => {
+                        document.querySelectorAll('.voice-item').forEach(item => {
+                            if (item.querySelector('.voice-item-name').textContent.includes(savedVoiceName.split('-')[0])) {
+                                item.classList.add('selected');
+                            }
+                        });
+                    }, 100);
+                }
+            }
+        }
+
+        // 切换语音面板
+        function toggleVoicePanel() {
+            const panel = document.getElementById('voicePanel');
+            panel.classList.toggle('show');
+        }
+
+        // 点击其他地方关闭面板
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('voicePanel');
+            const toggleBtn = document.getElementById('voiceToggle');
+            if (panel && !panel.contains(e.target) && e.target !== toggleBtn) {
+                panel.classList.remove('show');
+            }
+        });
 
         // 获取学期编号
         function getSemesterNumber() {
@@ -765,8 +1027,8 @@
             
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'zh-CN';
-            utterance.rate = 0.85; // 稍慢一点，让小朋友听清楚
-            utterance.pitch = 1.1; // 稍高一点，更活泼
+            utterance.rate = 0.95; // 接近正常语速，更自然
+            utterance.pitch = 1.0; // 正常音调，不要太高
             utterance.volume = 1.0;
             
             // 等待语音加载完成后再选择
@@ -776,14 +1038,22 @@
                 return;
             }
             
-            // 强制选择中文语音引擎
+            // 优先使用用户选择的语音
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                console.log('✅ 使用用户选择的语音:', selectedVoice.name);
+                speechSynthesis.speak(utterance);
+                return;
+            }
+            
+            // 如果用户没有选择，使用推荐的女声
             const preferredVoices = [
-                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
-                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
-                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
-                'Microsoft Yunyang Online (Natural) - Chinese (Mainland)',
-                'Microsoft Xiaoxiao - Chinese (Mainland)',
-                'Microsoft Huihui - Chinese (Simplified, PRC)',
+                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',  // 晓晓 - 最自然的女声
+                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',    // 晓伊 - 儿童女声，活泼
+                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)',     // 云希 - 温柔女声
+                'Microsoft Xiaomo Online (Natural) - Chinese (Mainland)',    // 晓墨 - 温暖女声
+                'Microsoft Xiaoxiao - Chinese (Mainland)',                   // 晓晓标准版
+                'Google 普通话（中国大陆）女声',
                 'Google 普通话（中国大陆）'
             ];
             
@@ -793,7 +1063,7 @@
                 const voice = availableVoices.find(v => 
                     v.name.includes(preferred) || 
                     v.name === preferred ||
-                    (v.lang === 'zh-CN' && v.name.includes('Natural'))
+                    (v.lang === 'zh-CN' && v.name.includes('Natural') && !v.name.includes('Yunyang'))  // 排除男声
                 );
                 if (voice) {
                     utterance.voice = voice;
@@ -803,9 +1073,13 @@
                 }
             }
             
-            // 如果还没找到，强制使用第一个中文语音
+            // 如果还没找到，强制使用第一个中文女声
             if (!voiceFound) {
-                const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
+                const chineseVoice = availableVoices.find(v => 
+                    v.lang.startsWith('zh') && 
+                    !v.name.includes('Yunyang') &&  // 排除男声
+                    !v.name.includes('Male')        // 排除男声
+                );
                 if (chineseVoice) {
                     utterance.voice = chineseVoice;
                     console.log('⚠️ 播放例句，使用备用语音:', chineseVoice.name);
