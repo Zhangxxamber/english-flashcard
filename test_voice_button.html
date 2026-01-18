@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 - 语音按钮是否存在</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .test-result {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            background: #667eea;
+            color: white;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 语音选择功能测试页面</h1>
+    
+    <div class="test-result">
+        <h2>测试结果：</h2>
+        <div id="result">正在检测...</div>
+    </div>
+
+    <h3>手动测试：</h3>
+    <button onclick="openDictation()">打开 Grade2 English 听写页面</button>
+    <button onclick="clearCache()">清除缓存指南</button>
+
+    <div class="test-result">
+        <h3>📝 如何清除浏览器缓存：</h3>
+        <ol>
+            <li><strong>方法1（最简单）</strong>: 按 <code>Ctrl + Shift + Delete</code> 打开清除数据窗口</li>
+            <li>选择"缓存的图片和文件"</li>
+            <li>点击"清除数据"</li>
+            <li>关闭所有英语学习页面标签</li>
+            <li>重新打开 index.html</li>
+        </ol>
+        
+        <h3>📝 方法2（开发者工具）：</h3>
+        <ol>
+            <li>打开英语学习页面</li>
+            <li>按 <code>F12</code> 打开开发者工具</li>
+            <li>右键点击刷新按钮（地址栏左边）</li>
+            <li>选择"清空缓存并硬性重新加载"</li>
+        </ol>
+
+        <h3>📝 方法3（隐身模式测试）：</h3>
+        <ol>
+            <li>按 <code>Ctrl + Shift + N</code> 打开隐身窗口</li>
+            <li>在隐身窗口中打开 index.html</li>
+            <li>进入英语学习页面</li>
+            <li>应该能看到语音选择按钮</li>
+        </ol>
+    </div>
+
+    <div class="test-result">
+        <h3>🎯 期望看到的效果：</h3>
+        <p>在英语学习页面的右上角应该有两个按钮：</p>
+        <div style="background: #2c2c3e; padding: 20px; border-radius: 10px; color: white; margin: 10px 0;">
+            <div style="text-align: right;">
+                <span style="background: rgba(255,255,255,0.25); padding: 10px 15px; border-radius: 50%; margin-left: 10px;">🎙️</span>
+                <span style="background: rgba(255,255,255,0.25); padding: 10px 15px; border-radius: 50%; margin-left: 10px;">🔊</span>
+            </div>
+        </div>
+        <ul>
+            <li><strong>🎙️</strong> = 语音选择按钮（点击打开发音人列表）</li>
+            <li><strong>🔊</strong> = 音效开关按钮</li>
+        </ul>
+    </div>
+
+    <script>
+        // 检测文件是否存在语音选择代码
+        function checkFiles() {
+            const resultDiv = document.getElementById('result');
+            
+            fetch('grade2_english/dictation.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasVoiceButton = html.includes('btn-voice-select');
+                    const hasVoicePanel = html.includes('voice-panel');
+                    const hasToggleFunction = html.includes('toggleVoicePanel');
+                    
+                    let result = '<h3>Grade2 English 检测结果：</h3>';
+                    result += `<p class="${hasVoiceButton ? 'success' : 'error'}">
+                        ${hasVoiceButton ? '✅' : '❌'} 语音选择按钮代码: ${hasVoiceButton ? '存在' : '不存在'}
+                    </p>`;
+                    result += `<p class="${hasVoicePanel ? 'success' : 'error'}">
+                        ${hasVoicePanel ? '✅' : '❌'} 语音选择面板代码: ${hasVoicePanel ? '存在' : '不存在'}
+                    </p>`;
+                    result += `<p class="${hasToggleFunction ? 'success' : 'error'}">
+                        ${hasToggleFunction ? '✅' : '❌'} 切换函数代码: ${hasToggleFunction ? '存在' : '不存在'}
+                    </p>`;
+                    
+                    if (hasVoiceButton && hasVoicePanel && hasToggleFunction) {
+                        result += '<h3 class="success">✅ 所有代码都存在！</h3>';
+                        result += '<p style="color: orange; font-weight: bold;">如果您看不到按钮，请清除浏览器缓存！</p>';
+                    } else {
+                        result += '<h3 class="error">❌ 代码缺失！</h3>';
+                        result += '<p>请联系开发者检查文件。</p>';
+                    }
+                    
+                    resultDiv.innerHTML = result;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<p class="error">❌ 无法读取文件: ${error.message}</p>
+                    <p>请确保此测试页面在 english-flashcard 目录下。</p>`;
+                });
+        }
+
+        function openDictation() {
+            window.open('grade2_english/dictation.html?book=1', '_blank');
+        }
+
+        function clearCache() {
+            alert('请按照页面上的说明操作清除缓存。\n\n最简单的方法：\n1. 按 Ctrl + Shift + Delete\n2. 选择"缓存的图片和文件"\n3. 点击"清除数据"');
+        }
+
+        // 页面加载时自动检测
+        window.onload = checkFiles;
+    </script>
+</body>
+</html>

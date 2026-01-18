@@ -111,7 +111,7 @@
             border-color: rgba(255,100,100,0.5);
         }
 
-        /* 语音选择按钮 */
+        /* 语音选择按钮 - 调试版本 */
         .btn-voice-select {
             position: fixed;
             top: 20px;
@@ -119,18 +119,19 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(255,0,0,0.8) !important; /* 红色背景便于调试 */
+            border: 3px solid yellow !important; /* 黄色边框便于调试 */
             color: white;
             font-size: 1.5em;
             cursor: pointer;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
-            z-index: 1000;
-            display: flex;
+            z-index: 9999 !important; /* 提高层级 */
+            display: flex !important;
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.5s ease-in;
+            box-shadow: 0 0 20px red !important; /* 红色发光效果 */
         }
 
         .btn-voice-select:hover {
@@ -590,8 +591,26 @@
     <button class="btn-sound-toggle" id="soundToggle" onclick="toggleSound()">
         <span id="soundIcon">🔊</span>
     </button>
-    <!-- 语音选择按钮 -->
-    <button class="btn-voice-select" id="voiceToggle" onclick="toggleVoicePanel()">🎙️</button>
+    <!-- 语音选择按钮 - 调试版本 -->
+    <button class="btn-voice-select" id="voiceToggle" onclick="toggleVoicePanel()" 
+            style="background: red !important; border: 3px solid yellow !important; box-shadow: 0 0 20px red !important;">
+        🎙️ 语音
+    </button>
+    <script>
+        console.log('=== 语音选择按钮调试信息 ===');
+        console.log('按钮HTML已加载');
+        window.addEventListener('DOMContentLoaded', function() {
+            const voiceBtn = document.getElementById('voiceToggle');
+            if (voiceBtn) {
+                console.log('✅ 找到语音选择按钮元素:', voiceBtn);
+                console.log('按钮位置:', voiceBtn.getBoundingClientRect());
+                console.log('按钮样式:', window.getComputedStyle(voiceBtn));
+                console.log('按钮可见性:', voiceBtn.offsetWidth, 'x', voiceBtn.offsetHeight);
+            } else {
+                console.error('❌ 找不到语音选择按钮元素！');
+            }
+        });
+    </script>
     
     <!-- 语音选择面板 -->
     <div class="voice-panel" id="voicePanel">
