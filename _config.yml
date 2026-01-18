@@ -1,0 +1,22 @@
+# Jekyll 配置文件
+# 用于 GitHub Pages 部署
+
+# 编码设置
+encoding: utf-8
+
+# 排除不需要处理的文件和文件夹
+exclude:
+  - book/
+  - "*.pdf"
+  - .gitignore
+  - CHANGELOG.md
+  - CACHE_ISSUE_SOLUTION.md
+  - VOICE_*.md
+  - VERSION_*.md
+
+# 禁用 Jekyll 主题
+theme: null
+
+# 包含以下文件
+include:
+  - .nojekyll
