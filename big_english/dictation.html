@@ -107,6 +107,157 @@
             border-color: rgba(255,100,100,0.5);
         }
 
+        /* 语音选择按钮 */
+        .btn-voice-select {
+            position: fixed;
+            top: 20px;
+            right: 85px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .btn-voice-select:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 语音选择面板 */
+        .voice-panel {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            width: 320px;
+            max-height: 500px;
+            background: rgba(30, 30, 40, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 999;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .voice-panel.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .voice-panel-title {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .voice-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .voice-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .voice-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        .voice-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        .voice-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .voice-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .voice-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .voice-item.active {
+            background: rgba(102, 126, 234, 0.4);
+            border-color: rgba(102, 126, 234, 0.8);
+        }
+
+        .voice-name {
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .voice-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+
+        .voice-try {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .voice-try:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .voice-loading {
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 20px;
+        }
+
         /* 连击徽章 */
         .combo-badge {
             position: fixed;
@@ -854,6 +1005,17 @@
     <button class="btn-sound-toggle" id="soundToggle" onclick="toggleSound()">
         <span id="soundIcon">🔊</span>
     </button>
+    <!-- 语音选择按钮 -->
+    <button class="btn-voice-select" id="voiceToggle" onclick="toggleVoicePanel()">🎙️</button>
+    
+    <!-- 语音选择面板 -->
+    <div class="voice-panel" id="voicePanel">
+        <div class="voice-panel-title">🎙️ 选择英文发音人</div>
+        <div class="voice-list" id="voiceList">
+            <div class="voice-loading">加载中...</div>
+        </div>
+    </div>
+    
     <!-- 返回按钮（独立于容器外） -->
     <button class="btn-home" onclick="safeReturn()">← 返回</button>
     
@@ -977,6 +1139,188 @@
     </div>
 
     <script>
+        // ==================== 语音选择系统 ====================
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
+        
+        let availableVoices = [];
+        let selectedVoice = null;
+        
+        // 加载可用语音列表
+        function loadVoices() {
+            availableVoices = speechSynthesis.getVoices();
+            if (availableVoices.length > 0) {
+                populateVoiceList();
+                loadVoicePreference();
+            }
+        }
+        
+        // 填充语音选择列表 - 优先显示英文发音人
+        function populateVoiceList() {
+            const voiceList = document.getElementById('voiceList');
+            const englishVoices = availableVoices.filter(v => v.lang.startsWith('en'));
+            
+            if (englishVoices.length === 0) {
+                voiceList.innerHTML = '<div class="voice-loading">未找到英文发音人</div>';
+                return;
+            }
+            
+            // 推荐的英文发音人（优先显示）
+            const recommendedVoices = [
+                'Microsoft Aria Online (Natural) - English (United States)',
+                'Microsoft Jenny Online (Natural) - English (United States)',
+                'Microsoft Guy Online (Natural) - English (United States)',
+                'Google US English',
+                'Google UK English Female',
+                'Google UK English Male'
+            ];
+            
+            voiceList.innerHTML = '';
+            
+            // 先显示推荐的发音人
+            recommendedVoices.forEach(name => {
+                const voice = englishVoices.find(v => v.name === name || v.name.includes(name));
+                if (voice) {
+                    createVoiceItem(voice, voiceList);
+                }
+            });
+            
+            // 再显示其他英文发音人
+            englishVoices.forEach(voice => {
+                if (!recommendedVoices.some(name => voice.name === name || voice.name.includes(name))) {
+                    createVoiceItem(voice, voiceList);
+                }
+            });
+        }
+        
+        // 创建语音选项元素
+        function createVoiceItem(voice, container) {
+            const item = document.createElement('div');
+            item.className = 'voice-item';
+            if (selectedVoice && selectedVoice.name === voice.name) {
+                item.classList.add('active');
+            }
+            
+            const info = document.createElement('div');
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'voice-name';
+            nameDiv.textContent = voice.name.split(' - ')[0];
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'voice-label';
+            labelDiv.textContent = voice.lang;
+            
+            info.appendChild(nameDiv);
+            info.appendChild(labelDiv);
+            
+            const tryBtn = document.createElement('button');
+            tryBtn.className = 'voice-try';
+            tryBtn.textContent = '试听';
+            tryBtn.onclick = (e) => {
+                e.stopPropagation();
+                testVoice(voice);
+            };
+            
+            item.appendChild(info);
+            item.appendChild(tryBtn);
+            
+            item.onclick = () => selectVoice(voice);
+            
+            container.appendChild(item);
+        }
+        
+        // 选择语音
+        function selectVoice(voice) {
+            selectedVoice = voice;
+            localStorage.setItem('bigEnglish_selectedVoice', voice.name);
+            
+            // 更新UI
+            document.querySelectorAll('.voice-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            console.log('已选择发音人:', voice.name);
+        }
+        
+        // 试听语音
+        function testVoice(voice) {
+            const utterance = new SpeechSynthesisUtterance('Hello! This is a test.');
+            utterance.voice = voice;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+        
+        // 加载语音偏好
+        function loadVoicePreference() {
+            const savedVoiceName = localStorage.getItem('bigEnglish_selectedVoice');
+            if (savedVoiceName) {
+                const voice = availableVoices.find(v => v.name === savedVoiceName);
+                if (voice) {
+                    selectedVoice = voice;
+                    updateVoiceUI();
+                }
+            } else {
+                // 默认选择第一个推荐的英文发音人
+                const defaultVoices = [
+                    'Microsoft Aria Online (Natural) - English (United States)',
+                    'Google US English',
+                    'Google UK English Female'
+                ];
+                
+                for (const name of defaultVoices) {
+                    const voice = availableVoices.find(v => v.name === name || v.name.includes(name));
+                    if (voice) {
+                        selectedVoice = voice;
+                        break;
+                    }
+                }
+                
+                if (!selectedVoice && availableVoices.length > 0) {
+                    const englishVoice = availableVoices.find(v => v.lang.startsWith('en'));
+                    if (englishVoice) selectedVoice = englishVoice;
+                }
+            }
+        }
+        
+        // 更新语音UI
+        function updateVoiceUI() {
+            document.querySelectorAll('.voice-item').forEach(item => {
+                item.classList.remove('active');
+                const voiceName = item.querySelector('.voice-name').textContent;
+                if (selectedVoice && selectedVoice.name.includes(voiceName)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // 切换语音选择面板
+        function toggleVoicePanel() {
+            const panel = document.getElementById('voicePanel');
+            panel.classList.toggle('show');
+        }
+        
+        // 点击外部关闭面板
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('voicePanel');
+            const toggleBtn = document.getElementById('voiceToggle');
+            
+            if (panel.classList.contains('show') && 
+                !panel.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                panel.classList.remove('show');
+            }
+        });
+        
+        // 初始化语音系统
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+        
         // ==================== 音效系统 ====================
         
         // 音效状态控制
@@ -1102,38 +1446,22 @@
             playSound(randomSound);
         }
         
+        // 播放鼓励语音（英文）
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function playEncouragement() {
             if (!soundEnabled) return;
             
             const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
             const utterance = new SpeechSynthesisUtterance(phrase);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 1.1;
-            utterance.pitch = 1.2;
+            utterance.lang = 'en-US';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
             utterance.volume = 0.8;
             
-            const voices = speechSynthesis.getVoices();
-            const preferredVoices = [
-                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
-                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
-                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
-                'Microsoft Xiaoxiao - Chinese (Mainland)',
-                'Microsoft Yunyang - Chinese (Mainland)',
-                'Google 普通话（中国大陆）',
-                'zh-CN'
-            ];
-            
-            for (const preferred of preferredVoices) {
-                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
-                if (voice) {
-                    utterance.voice = voice;
-                    break;
-                }
-            }
-            
-            if (!utterance.voice) {
-                const chineseVoice = voices.find(v => v.lang.startsWith('zh'));
-                if (chineseVoice) utterance.voice = chineseVoice;
+            // 使用选中的英文语音（如果有）
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
             }
             
             setTimeout(() => {
@@ -1897,6 +2225,9 @@
         }
 
         // 发音功能
+        // 播放英文单词发音
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function speakWord() {
             if (!currentWords.length || currentIndex >= currentWords.length) return;
             
@@ -1913,6 +2244,11 @@
             currentUtterance.rate = 0.8; // 稍慢一点，让学生听清楚
             currentUtterance.pitch = 1.0;
             currentUtterance.volume = 1.0;
+            
+            // 使用选中的语音（如果有）
+            if (selectedVoice) {
+                currentUtterance.voice = selectedVoice;
+            }
             
             speechSynthesis.speak(currentUtterance);
         }

@@ -192,7 +192,8 @@
             transform: translateX(5px);
         }
 
-        .voice-item.selected {
+        .voice-item.selected,
+        .voice-item.active {
             background: rgba(102, 126, 234, 0.6);
             border-color: rgba(102, 126, 234, 1);
         }
@@ -667,16 +668,19 @@
         }
 
         // 填充语音选择列表
+        // 填充语音选择列表
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function populateVoiceList() {
             const voiceList = document.getElementById('voiceList');
             const chineseVoices = availableVoices.filter(v => v.lang.startsWith('zh'));
             
             if (chineseVoices.length === 0) {
-                voiceList.innerHTML = '<div class="voice-loading">未找到中文语音</div>';
+                voiceList.innerHTML = '<div class="voice-loading">未找到中文语音，请检查系统设置</div>';
                 return;
             }
             
-            // 只显示这4个推荐的女声
+            // 推荐的女声配置
             const recommendedVoices = [
                 { key: 'Xiaoxiao', icon: '👩', desc: '晓晓 - 标准女声，最自然' },
                 { key: 'Xiaoyi', icon: '👧', desc: '晓伊 - 儿童女声，活泼' },
@@ -684,7 +688,7 @@
                 { key: 'Xiaomo', icon: '🙋‍♀️', desc: '晓墨 - 温暖女声' }
             ];
             
-            // 筛选出这4个语音
+            // 先筛选出推荐的语音
             const filteredVoices = [];
             recommendedVoices.forEach(recommended => {
                 // 优先找 Natural 版本
@@ -701,50 +705,88 @@
                     filteredVoices.push({
                         voice: voice,
                         icon: recommended.icon,
-                        desc: recommended.desc
+                        desc: recommended.desc,
+                        isRecommended: true
                     });
                 }
             });
             
+            // 如果没有找到推荐的女声，显示所有中文语音
             if (filteredVoices.length === 0) {
-                voiceList.innerHTML = '<div class="voice-loading">未找到推荐的女声，请检查系统语音设置</div>';
+                console.log('未找到推荐的女声，显示所有可用中文语音');
+                chineseVoices.forEach(voice => {
+                    filteredVoices.push({
+                        voice: voice,
+                        icon: '🔊',
+                        desc: voice.name.includes('Female') || voice.name.includes('女') ? '女声' : '中文语音',
+                        isRecommended: false
+                    });
+                });
+            }
+            
+            // 如果还是没有，显示提示
+            if (filteredVoices.length === 0) {
+                voiceList.innerHTML = '<div class="voice-loading">未找到可用的中文语音<br>请检查浏览器和系统语音设置</div>';
                 return;
             }
             
             // 渲染语音列表
-            voiceList.innerHTML = filteredVoices.map(item => {
+            let html = '';
+            
+            // 如果有推荐语音，添加标题
+            if (filteredVoices.some(item => item.isRecommended)) {
+                html += '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-bottom: 10px; padding-left: 5px;">⭐ 推荐语音</div>';
+            } else {
+                html += '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-bottom: 10px; padding-left: 5px;">📢 可用语音</div>';
+            }
+            
+            html += filteredVoices.map(item => {
                 const voice = item.voice;
                 
                 // 简化显示名称
                 let displayName = voice.name;
                 if (voice.name.includes('Microsoft')) {
                     displayName = voice.name.split('-')[0].replace('Microsoft', '').trim();
+                } else if (voice.name.includes('Google')) {
+                    displayName = voice.name.replace('Google', '').trim();
                 }
                 
+                // 检测是否是 Natural 版本
+                const isNatural = voice.name.includes('Natural') || voice.name.includes('Online');
+                const badge = isNatural ? '<span style="background: rgba(102,126,234,0.6); padding: 2px 6px; border-radius: 4px; font-size: 0.75em; margin-left: 5px;">高清</span>' : '';
+                
                 return `
-                    <div class="voice-item" onclick="selectVoice('${voice.name}')">
+                    <div class="voice-item ${selectedVoice && selectedVoice.name === voice.name ? 'active' : ''}" onclick="selectVoice('${voice.name}')">
                         <span class="voice-item-icon">${item.icon}</span>
                         <div class="voice-item-info">
-                            <div class="voice-item-name">${displayName}</div>
+                            <div class="voice-item-name">${displayName}${badge}</div>
                             <div class="voice-item-desc">${item.desc}</div>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            voiceList.innerHTML = html;
         }
 
         // 选择语音
+        // 选择语音
+        // Date: 2026-01-18
+        // Author: zhangxiaoxiao
         function selectVoice(voiceName) {
             const voice = availableVoices.find(v => v.name === voiceName);
             if (voice) {
                 selectedVoice = voice;
                 localStorage.setItem('selectedVoice', voiceName);
                 
-                // 更新UI
+                // 更新UI - 统一使用 active 类名
                 document.querySelectorAll('.voice-item').forEach(item => {
+                    item.classList.remove('active');
                     item.classList.remove('selected');
                 });
-                event.target.closest('.voice-item').classList.add('selected');
+                if (event && event.target) {
+                    event.target.closest('.voice-item').classList.add('active');
+                }
                 
                 // 试听
                 const testUtterance = new SpeechSynthesisUtterance('你好，这是语音测试');
@@ -754,7 +796,9 @@
                 testUtterance.pitch = 1.0;
                 speechSynthesis.speak(testUtterance);
                 
-                console.log('✅ 已选择语音:', voice.name);
+                console.log('已选择语音:', voice.name);
+            }
+        }
             }
         }
 
