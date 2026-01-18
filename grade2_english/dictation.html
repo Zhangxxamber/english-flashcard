@@ -1058,34 +1058,42 @@
         }
         
         // 播放鼓励语音
+        // 修改：鼓励语音使用中文，但如果用户选择了英文语音，则播放英文鼓励
         function playEncouragement() {
             if (!soundEnabled) return;
             
-            const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+            // 检查当前使用的语音是中文还是英文
+            const isEnglishVoice = selectedVoice && selectedVoice.lang.startsWith('en');
+            
+            let phrase, lang;
+            if (isEnglishVoice) {
+                // 如果选择的是英文语音，播放英文鼓励
+                const englishPhrases = [
+                    'Great job!', 'Excellent!', 'Well done!', 'Perfect!',
+                    'Amazing!', 'Fantastic!', 'You got it!', 'Keep it up!'
+                ];
+                phrase = englishPhrases[Math.floor(Math.random() * englishPhrases.length)];
+                lang = 'en-US';
+            } else {
+                // 默认播放中文鼓励
+                phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+                lang = 'zh-CN';
+            }
+            
             const utterance = new SpeechSynthesisUtterance(phrase);
-            utterance.lang = 'zh-CN';
+            utterance.lang = lang;
             utterance.rate = 1.1;
             utterance.pitch = 1.2;
             utterance.volume = 0.8;
             
-            // 优先选择高质量的中文语音引擎
-            const voices = speechSynthesis.getVoices();
-            const preferredVoices = [
-                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',
-                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)', 
-                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',
-                'Microsoft Xiaoxiao - Chinese (Mainland)',
-                'Microsoft Yunyang - Chinese (Mainland)',
-                'Google 普通话（中国大陆）',
-                'zh-CN'
-            ];
-            
-            for (const preferred of preferredVoices) {
-                const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
-                if (voice) {
-                    utterance.voice = voice;
-                    break;
-                }
+            // 优先使用用户选择的发音人
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                // 如果没有选择，使用系统默认
+                const voices = speechSynthesis.getVoices();
+                const defaultVoice = voices.find(v => v.lang.startsWith(lang.substring(0, 2)));
+                if (defaultVoice) utterance.voice = defaultVoice;
             }
             
             if (!utterance.voice) {

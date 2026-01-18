@@ -1579,6 +1579,7 @@
         // 播放鼓励语音（英文）
         // Date: 2026-01-18
         // Author: zhangxiaoxiao
+        // 修改：使用用户选择的发音人播放鼓励语音
         function playEncouragement() {
             if (!soundEnabled) return;
             
@@ -1589,7 +1590,7 @@
             utterance.pitch = 1.1;
             utterance.volume = 0.8;
             
-            // 使用选中的英文语音（如果有）
+            // 优先使用用户选择的发音人
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
             }

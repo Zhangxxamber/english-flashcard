@@ -1463,6 +1463,7 @@
         }
         
         // 播放鼓励语音（使用语音合成）
+        // 修改：使用用户选择的发音人
         function playEncouragement() {
             if (!soundEnabled) return;
             
@@ -1473,8 +1474,11 @@
             utterance.pitch = 1.2;
             utterance.volume = 0.8;
             
-            // 使用已加载的语音
-            if (availableVoices.length > 0) {
+            // 优先使用用户选择的发音人
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else if (availableVoices.length > 0) {
+                // 如果没有选择，使用默认的中文语音
                 const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
                 if (chineseVoice) utterance.voice = chineseVoice;
             }
