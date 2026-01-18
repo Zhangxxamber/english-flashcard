@@ -803,7 +803,8 @@
             const voice = availableVoices.find(v => v.name === voiceName);
             if (voice) {
                 selectedVoice = voice;
-                localStorage.setItem('selectedVoice', voiceName);
+                // 使用全局中文语音存储
+                localStorage.setItem('globalVoice_zh', voiceName);
                 
                 // 更新UI - 统一使用 active 类名
                 document.querySelectorAll('.voice-item').forEach(item => {
@@ -855,7 +856,8 @@
         // Date: 2026-01-18
         // Author: zhangxiaoxiao
         function loadVoicePreference() {
-            const savedVoiceName = localStorage.getItem('selectedVoice');
+            // 从全局中文语音存储加载
+            const savedVoiceName = localStorage.getItem('globalVoice_zh');
             if (savedVoiceName) {
                 const voice = availableVoices.find(v => v.name === savedVoiceName);
                 if (voice) {

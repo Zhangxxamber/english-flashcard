@@ -1303,7 +1303,8 @@
         // Author: zhangxiaoxiao
         function selectVoice(voice) {
             selectedVoice = voice;
-            localStorage.setItem('bigEnglish_selectedVoice', voice.name);
+            // 使用全局英文语音存储
+            localStorage.setItem('globalVoice_en', voice.name);
             
             // 更新UI
             document.querySelectorAll('.voice-item').forEach(item => {
@@ -1355,7 +1356,8 @@
         // Date: 2026-01-18
         // Author: zhangxiaoxiao
         function loadVoicePreference() {
-            const savedVoiceName = localStorage.getItem('bigEnglish_selectedVoice');
+            // 从全局英文语音存储加载
+            const savedVoiceName = localStorage.getItem('globalVoice_en');
             if (savedVoiceName) {
                 const voice = availableVoices.find(v => v.name === savedVoiceName);
                 if (voice) {
