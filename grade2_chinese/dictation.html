@@ -1207,6 +1207,17 @@
 
         // 初始化
         async function init() {
+            // iOS兼容性：在页面加载时初始化语音合成
+            // 这可以避免首次播放时出现权限问题
+            try {
+                const testUtterance = new SpeechSynthesisUtterance('');
+                testUtterance.volume = 0; // 静音测试
+                speechSynthesis.speak(testUtterance);
+                speechSynthesis.cancel();
+            } catch (e) {
+                console.warn('语音初始化失败:', e);
+            }
+            
             // 检查是否是错题本模式
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode');
@@ -1360,75 +1371,107 @@
         }
 
         // 播放拼音（实际播放整个例句，让语音引擎根据上下文正确发音）
+        // iOS/iPad兼容性优化版本
         function playPinyin() {
             const item = allData[currentIndex];
             // 播放整个例句，多音字就能正确发音了
             const textToSpeak = item.example;
             
-            const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.95; // 接近正常语速，更自然
-            utterance.pitch = 1.0; // 正常音调，不要太高
-            utterance.volume = 1.0;
-            
-            // 等待语音加载完成后再选择
-            if (!voicesLoaded || availableVoices.length === 0) {
-                console.warn('⚠️ 语音未加载完成，使用默认语音');
-                speechSynthesis.speak(utterance);
-                return;
+            // iOS兼容性处理：先取消所有正在播放的语音
+            try {
+                speechSynthesis.cancel();
+            } catch (e) {
+                console.warn('取消语音失败:', e);
             }
             
-            // 优先使用用户选择的语音
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-                console.log('✅ 使用用户选择的语音:', selectedVoice.name);
-                speechSynthesis.speak(utterance);
-                return;
-            }
-            
-            // 如果用户没有选择，使用推荐的女声
-            const preferredVoices = [
-                'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',  // 晓晓 - 最自然的女声
-                'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',    // 晓伊 - 儿童女声，活泼
-                'Microsoft Yunxi Online (Natural) - Chinese (Mainland)',     // 云希 - 温柔女声
-                'Microsoft Xiaomo Online (Natural) - Chinese (Mainland)',    // 晓墨 - 温暖女声
-                'Microsoft Xiaoxiao - Chinese (Mainland)',                   // 晓晓标准版
-                'Google 普通话（中国大陆）女声',
-                'Google 普通话（中国大陆）'
-            ];
-            
-            // 尝试使用优选的高质量语音
-            let voiceFound = false;
-            for (const preferred of preferredVoices) {
-                const voice = availableVoices.find(v => 
-                    v.name.includes(preferred) || 
-                    v.name === preferred ||
-                    (v.lang === 'zh-CN' && v.name.includes('Natural') && !v.name.includes('Yunyang'))  // 排除男声
-                );
-                if (voice) {
-                    utterance.voice = voice;
-                    voiceFound = true;
-                    console.log('✅ 播放例句:', textToSpeak.substring(0, 20) + '...', '使用语音:', voice.name);
-                    break;
+            // 短暂延迟，确保语音引擎完全停止
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.95; // 接近正常语速，更自然
+                utterance.pitch = 1.0; // 正常音调，不要太高
+                utterance.volume = 1.0;
+                
+                // iOS调试：监听语音事件
+                utterance.onstart = function() {
+                    console.log('✅ 语音开始播放');
+                };
+                utterance.onerror = function(event) {
+                    console.error('❌ 语音播放错误:', event.error);
+                };
+                utterance.onend = function() {
+                    console.log('✅ 语音播放完成');
+                };
+                
+                // 等待语音加载完成后再选择
+                if (!voicesLoaded || availableVoices.length === 0) {
+                    console.warn('⚠️ 语音未加载完成，使用默认语音');
+                    speechSynthesis.speak(utterance);
+                    return;
                 }
-            }
-            
-            // 如果还没找到，强制使用第一个中文女声
-            if (!voiceFound) {
-                const chineseVoice = availableVoices.find(v => 
-                    v.lang.startsWith('zh') && 
-                    !v.name.includes('Yunyang') &&  // 排除男声
-                    !v.name.includes('Male')        // 排除男声
-                );
-                if (chineseVoice) {
-                    utterance.voice = chineseVoice;
-                    console.log('⚠️ 播放例句，使用备用语音:', chineseVoice.name);
-                } else {
-                    console.error('❌ 未找到中文语音！');
+                
+                // 优先使用用户选择的语音
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                    console.log('✅ 使用用户选择的语音:', selectedVoice.name);
+                    speechSynthesis.speak(utterance);
+                    return;
                 }
-            }
-            
-            speechSynthesis.speak(utterance);
+                
+                // 如果用户没有选择，使用推荐的女声
+                // iOS设备常见的中文语音
+                const preferredVoices = [
+                    'Ting-Ting',  // iOS中文女声
+                    'Sin-Ji',     // iOS粤语女声
+                    'Mei-Jia',    // iOS台湾女声
+                    'Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)',  // 晓晓 - 最自然的女声
+                    'Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)',    // 晓伊 - 儿童女声，活泼
+                    'Microsoft Yunxi Online (Natural) - Chinese (Mainland)',     // 云希 - 温柔女声
+                    'Microsoft Xiaomo Online (Natural) - Chinese (Mainland)',    // 晓墨 - 温暖女声
+                    'Microsoft Xiaoxiao - Chinese (Mainland)',                   // 晓晓标准版
+                    'Google 普通话（中国大陆）女声',
+                    'Google 普通话（中国大陆）'
+                ];
+                
+                // 尝试使用优选的高质量语音
+                let voiceFound = false;
+                for (const preferred of preferredVoices) {
+                    const voice = availableVoices.find(v => 
+                        v.name.includes(preferred) || 
+                        v.name === preferred ||
+                        (v.lang === 'zh-CN' && v.name.includes('Natural') && !v.name.includes('Yunyang'))  // 排除男声
+                    );
+                    if (voice) {
+                        utterance.voice = voice;
+                        voiceFound = true;
+                        console.log('✅ 播放例句:', textToSpeak.substring(0, 20) + '...', '使用语音:', voice.name);
+                        break;
+                    }
+                }
+                
+                // 如果还没找到，强制使用第一个中文女声
+                if (!voiceFound) {
+                    const chineseVoice = availableVoices.find(v => 
+                        v.lang.startsWith('zh') && 
+                        !v.name.includes('Yunyang') &&  // 排除男声
+                        !v.name.includes('Male')        // 排除男声
+                    );
+                    if (chineseVoice) {
+                        utterance.voice = chineseVoice;
+                        console.log('⚠️ 播放例句，使用备用语音:', chineseVoice.name);
+                    } else {
+                        console.error('❌ 未找到中文语音！');
+                    }
+                }
+                
+                // iOS兼容性：确保在用户交互后才播放
+                try {
+                    speechSynthesis.speak(utterance);
+                } catch (e) {
+                    console.error('❌ 播放语音失败:', e);
+                    alert('语音播放失败，请检查设备音量和系统语音设置');
+                }
+            }, 100); // iOS需要短暂延迟
         }
         
         // 移除不再需要的拼音转换函数
@@ -1695,29 +1738,43 @@
         }
         
         // 播放鼓励语音（使用语音合成）
-        // 修改：使用用户选择的发音人
+        // iOS/iPad兼容性优化版本
         function playEncouragement() {
             if (!soundEnabled) return;
             
             const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
-            const utterance = new SpeechSynthesisUtterance(phrase);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 1.1;
-            utterance.pitch = 1.2;
-            utterance.volume = 0.8;
-            
-            // 优先使用用户选择的发音人
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            } else if (availableVoices.length > 0) {
-                // 如果没有选择，使用默认的中文语音
-                const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
-                if (chineseVoice) utterance.voice = chineseVoice;
-            }
             
             // 延迟播放，让音效先出来
             setTimeout(() => {
-                speechSynthesis.speak(utterance);
+                // iOS兼容性：先取消之前的语音，避免卡住
+                try {
+                    speechSynthesis.cancel();
+                } catch (e) {
+                    console.warn('取消语音失败:', e);
+                }
+                
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(phrase);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 0.8;
+                    
+                    // 优先使用用户选择的发音人
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    } else if (availableVoices.length > 0) {
+                        // 如果没有选择，使用默认的中文语音
+                        const chineseVoice = availableVoices.find(v => v.lang.startsWith('zh'));
+                        if (chineseVoice) utterance.voice = chineseVoice;
+                    }
+                    
+                    try {
+                        speechSynthesis.speak(utterance);
+                    } catch (e) {
+                        console.warn('播放鼓励语音失败:', e);
+                    }
+                }, 50);
             }, 200);
         }
         
